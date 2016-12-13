@@ -39,7 +39,7 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
-(blink-cursor-mode 0)
+;; (blink-cursor-mode 0)
 
 (defvar user/backup-directory
   (expand-file-name (concat user-emacs-directory "backups")))
@@ -925,15 +925,6 @@ variables of Flycheck."
       (setq user/-mode-line-spinning-p nil))
     text))
 
-(defun user/buffer-name-segment ()
-  "Return a mode-line segment with the name of the current buffer."
-  (propertize
-   "%b"
-   'face (cond ((not (user/selected-window-p)) 'mode-line-inactive)
-               ((buffer-modified-p) 'user/mode-line-changed)
-               (buffer-read-only 'user/mode-line-error)
-               (t 'user/mode-line-buffer-name))))
-
 (defun user/project-name-segment ()
   "Return project name segment, possibly with git branch."
   (let* ((project-name (user/get-project-name))
@@ -949,12 +940,36 @@ variables of Flycheck."
                                                            (user/active-face 'user/mode-line-error))
                                                           ((memq state '(removed conflict unregistered))
                                                            (user/active-face 'user/mode-line-error))
-                                                          (t (user/active-face 'mode-line))))
+                                                          (t (user/active-face 'user/mode-line-project-name))))
                                                 (user/active-face 'mode-line)))))
          (branch-name (user/get-branch-name)))
     (if (and project-name branch-name)
         (concat project-name ":" branch-name)
       (concat project-name branch-name))))
+
+(defun user/get-git-file-status ()
+  "Get status of file from git."
+  (when vc-mode
+    (let* ((state (vc-state buffer-file-name))
+           (symbol (cond ((memq state '(edited needs-merge conflict)) "*")
+                         ((memq state '(added)) "+")
+                         ((memq state '(needs-update removed)) "!")
+                         ((memq state '(removed)) "-")
+                         ((memq state '(unregistered)) "?")))
+           (face (cond ((memq state '(edited added need-merge removed)) 'user/mode-line-warning)
+                       ((memq state '(needs-update conflict unregistered)) 'user/mode-line-errors))))
+      (when symbol
+        (format "(%s)" (propertize symbol 'face face))))))
+
+(defun user/buffer-name-segment ()
+  "Return a mode-line segment with the name of the current buffer."
+  (let* ((status (user/get-git-file-status))
+         (status (if status (concat " " status) ""))
+         (face (cond ((not (user/selected-window-p)) 'mode-line-inactive)
+                     ((buffer-modified-p) 'user/mode-line-changed)
+                     (buffer-read-only 'user/mode-line-error)
+                     (t 'user/mode-line-buffer-name))))
+    (concat (propertize "%b" 'face face) status)))
 
 ;;
 ;; TODO:
@@ -963,6 +978,8 @@ variables of Flycheck."
 ;;  - fix inactive colors for evil state segment
 ;;  - fix colors for when branch is on master
 ;;
+
+;; vc-mode
 
 (defun user/mode-line ()
   "Return mode-line format."
