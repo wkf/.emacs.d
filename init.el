@@ -39,8 +39,6 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
-;; (blink-cursor-mode 0)
-
 (defvar user/backup-directory
   (expand-file-name (concat user-emacs-directory "backups")))
 
@@ -696,7 +694,23 @@ variables of Flycheck."
   `((t (:inherit mode-line :foreground ,user/yellow :slant italic)))
   "")
 
+(defface user/mode-line-locked
+  `((t (:inherit mode-line :foreground ,user/red :slant italic)))
+  "")
+
+(defface user/mode-line-added
+  `((t (:inherit mode-line :foreground ,user/green)))
+  "")
+
+(defface user/mode-line-deleted
+  `((t (:inherit mode-line :foreground ,user/red)))
+  "")
+
 (defface user/mode-line-warning
+  `((t (:inherit mode-line :foreground ,user/yellow)))
+  "")
+
+(defface user/mode-line-alert
   `((t (:inherit mode-line :foreground ,user/orange)))
   "")
 
@@ -861,20 +875,66 @@ variables of Flycheck."
        "  λ  "))
    'face (user/active-face (user/get-evil-state-highlight-face))))
 
+(defun user/git-p ()
+  "Can we find git."
+  (or (and buffer-file-name (vc-find-root buffer-file-name ".git"))
+      (and (eq major-mode 'eshell-mode) (vc-find-root (eshell/pwd) ".git"))))
+
+(defun user/format-branch-stats (stats)
+  "Format branch STATS."
+  (if (string= "" stats)
+      "+0-0"
+    (let ((insertions (and
+                       (string-match "\\([0-9]+\\) insertions(\\+)" stats)
+                       (match-string 1 stats)))
+          (deletions (and
+                      (string-match "\\([0-9]+\\) deletions(-)" stats)
+                      (match-string 1 stats))))
+      (concat
+       (if insertions
+           (propertize (concat "+" insertions)
+                       'face (user/active-face 'user/mode-line-info))
+         "+0")
+       (if deletions
+           (propertize (concat "-" deletions)
+                       'face (user/active-face 'user/mode-line-info))
+         "-0")))))
+
+(defun user/get-branch-stats ()
+  "Return current branch status."
+  (let* ((tree-stats (vc-git--run-command-string nil "diff" "--shortstat" "--"))
+         (tree-string (user/format-branch-stats tree-stats))
+         (staged-stats (vc-git--run-command-string nil "diff" "--staged" "--shortstat" "--"))
+         (staged-string (user/format-branch-stats staged-stats)))
+    (format "(%s/%s)" tree-string staged-string)))
+
 (defun user/get-branch-name ()
   "Return current git branch."
-  (when (or (and buffer-file-name (vc-find-root buffer-file-name ".git"))
-            (and (eq major-mode 'eshell-mode) (vc-find-root (eshell/pwd) ".git")))
+  (when (user/git-p)
     (let ((branch (car (vc-git-branches))))
-      (cond
-       ((null branch) nil)
-       ((string-match "^(HEAD detached at \\([[:word:]]+\\))$" branch)
-        (format "(%s)"
+      (unless (null branch)
+        (let* ((stats (user/get-branch-stats))
+               (changed-p (not (string= stats "(+0-0/+0-0)"))))
+          (cond
+           ((string-match "^(HEAD detached at \\([[:word:]]+\\))$" branch)
+            (format "(%s) (%s) %s"
                 (propertize (match-string 1 branch)
-                            'face (user/active-face 'user/mode-line-error))))
-       ((string= branch "master")
-        (propertize branch 'face (user/active-face 'user/mode-line-warning)))
-       (t branch)))))
+                            'face (user/active-face (if changed-p
+                                                        'user/mode-line-changed
+                                                      'user/mode-line-info)))
+                (propertize "?"
+                            'face (user/active-face 'user/mode-line-error))
+                stats))
+           ((string= branch "master")
+            (format "%s (%s) %s"
+                    (propertize branch
+                                'face (user/active-face (if changed-p
+                                                            'user/mode-line-changed
+                                                          'user/mode-line-info)))
+                    (propertize "!"
+                                'face (user/active-face 'user/mode-line-error))
+                    stats))
+           (t (format "%s %s" branch stats))))))))
 
 (defun user/get-major-mode ()
   "Return the major mode, including process info."
@@ -893,7 +953,7 @@ variables of Flycheck."
     (format "(%s:%s)"
             (propertize (number-to-string (or .warning 0))
                         'face (user/active-face
-                               (if .warning 'user/mode-line-warning 'user/mode-line-info)))
+                               (if .warning 'user/mode-line-alert 'user/mode-line-info)))
             (propertize (number-to-string (or .error 0))
                         'face (user/active-face
                                (if .error 'user/mode-line-error 'user/mode-line-info))))))
@@ -920,7 +980,7 @@ variables of Flycheck."
                 ('interrupted "(-)")
                 ('suspicious (format "(%s)"
                                      (propertize "?"
-                                                 'face (user/active-face 'user/mode-line-warning)))))))
+                                                 'face (user/active-face 'user/mode-line-alert)))))))
     (unless (eq (or status flycheck-last-status-change) 'running)
       (setq user/-mode-line-spinning-p nil))
     text))
@@ -928,20 +988,6 @@ variables of Flycheck."
 (defun user/project-name-segment ()
   "Return project name segment, possibly with git branch."
   (let* ((project-name (user/get-project-name))
-         (project-name (and project-name
-                            (propertize project-name
-                                        'face (if vc-mode
-                                                  (let ((state (vc-state buffer-file-name)))
-                                                    (cond ((memq state '(edited added))
-                                                           (user/active-face 'user/mode-line-changed))
-                                                          ((eq state 'needs-merge)
-                                                           (user/active-face 'user/mode-line-changed))
-                                                          ((eq state 'needs-update)
-                                                           (user/active-face 'user/mode-line-error))
-                                                          ((memq state '(removed conflict unregistered))
-                                                           (user/active-face 'user/mode-line-error))
-                                                          (t (user/active-face 'user/mode-line-project-name))))
-                                                (user/active-face 'mode-line)))))
          (branch-name (user/get-branch-name)))
     (if (and project-name branch-name)
         (concat project-name ":" branch-name)
@@ -956,8 +1002,8 @@ variables of Flycheck."
                          ((memq state '(needs-update removed)) "!")
                          ((memq state '(removed)) "-")
                          ((memq state '(unregistered)) "?")))
-           (face (cond ((memq state '(edited added need-merge removed)) 'user/mode-line-warning)
-                       ((memq state '(needs-update conflict unregistered)) 'user/mode-line-errors))))
+           (face (cond ((memq state '(edited added need-merge removed)) (user/active-face 'user/mode-line-warning))
+                       ((memq state '(needs-update conflict unregistered)) (user/active-face 'user/mode-line-error)))))
       (when symbol
         (format "(%s)" (propertize symbol 'face face))))))
 
@@ -967,7 +1013,7 @@ variables of Flycheck."
          (status (if status (concat " " status) ""))
          (face (cond ((not (user/selected-window-p)) 'mode-line-inactive)
                      ((buffer-modified-p) 'user/mode-line-changed)
-                     (buffer-read-only 'user/mode-line-error)
+                     (buffer-read-only 'user/mode-line-locked)
                      (t 'user/mode-line-buffer-name))))
     (concat (propertize "%b" 'face face) status)))
 
@@ -978,6 +1024,7 @@ variables of Flycheck."
 ;;  - fix inactive colors for evil state segment
 ;;  - fix colors for when branch is on master
 ;;
+
 
 ;; vc-mode
 
