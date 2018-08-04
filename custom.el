@@ -3,9 +3,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(clojure-indent-style :always-indent)
+ '(counsel-find-file-ignore-regexp nil)
  '(custom-safe-themes
    (quote
     ("9be1d34d961a40d94ef94d0d08a364c3d27201f3c98c9d38e36f10588469ea57" default)))
+ '(eshell-output-filter-functions
+   (quote
+    (eshell-postoutput-scroll-to-bottom eshell-handle-control-codes eshell-handle-ansi-color)))
+ '(flycheck-display-errors-function (quote flycheck-display-error-messages))
  '(git-gutter:window-width -1)
  '(global-hl-todo-mode t)
  '(hl-todo-keyword-faces
@@ -26,22 +32,38 @@
      ("XXX" . "#f2777a")
      ("XXXX" . "#f2777a")
      ("???" . "#f99157"))))
+ '(js-indent-level 2)
+ '(js2-strict-trailing-comma-warning nil)
  '(package-selected-packages
    (quote
-    (yascroll prodigy eshell-prompt-extras hl-todo rainbow-delimiters eval-sexp-fu f s evil-snipe evil-surround evil-nerd-commenter persp-projectile counsel-projectile swiper general evil-cleverparens spaceline telephone-line use-package powerline evil base16-theme)))
- '(projectile-completion-system (quote ivy)))
+    (package-build shut-up epl git commander dash yascroll prodigy eshell-prompt-extras hl-todo rainbow-delimiters eval-sexp-fu f s evil-snipe evil-surround evil-nerd-commenter persp-projectile counsel-projectile swiper general evil-cleverparens spaceline telephone-line use-package powerline evil base16-theme)))
+ '(prettier-js-args (quote ("--single-quote" "--trailing-comma" "all")))
+ '(prettier-js-command "prettier")
+ '(projectile-completion-system (quote ivy))
+ '(projectile-enable-caching nil)
+ '(projectile-file-exists-local-cache-expire 30)
+ '(projectile-globally-ignored-directories
+   (quote
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules")))
+ '(python-indent-guess-indent-offset nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#2d2d2d" :foreground "#d3d0c8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width condensed :foundry "nil" :family "Anonymous Pro for Powerline"))))
+ '(default ((t (:inherit nil :stipple nil :background "#2d2d2d" :foreground "#d3d0c8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width condensed :foundry "nil" :family "Anonymous Pro"))))
+ '(avy-lead-face ((t (:background "#f2777a" :foreground "#2d2d2d"))))
+ '(avy-lead-face-0 ((t (:background "#6699cc" :foreground "#2d2d2d"))))
+ '(avy-lead-face-1 ((t (:background "#747369" :foreground "#2d2d2d"))))
+ '(avy-lead-face-2 ((t (:background "#cc99cc" :foreground "#2d2d2d"))))
  '(clojure-keyword-face ((t (:inherit font-lock-keyword-face))))
  '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
  '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
  '(diff-hl-change ((t (:foreground "#ffcc66"))))
  '(diff-hl-delete ((t (:foreground "#f2777a"))))
  '(diff-hl-insert ((t (:foreground "#99cc99"))))
+ '(elixir-atom-face ((t (:inherit font-lock-constant-face))))
+ '(elixir-attribute-face ((t (:inherit font-lock-keyword-face))))
  '(eshell-ls-archive ((t (:foreground "#cc99cc"))))
  '(eshell-ls-backup ((t (:foreground "#ffcc66"))))
  '(eshell-ls-clutter ((t (:foreground "#f99157"))))
@@ -54,6 +76,9 @@
  '(eshell-ls-symlink ((t (:foreground "#66cccc"))))
  '(eshell-ls-unreadable ((t (:foreground "#515151"))))
  '(eshell-prompt ((t (:foreground "#cc99cc" :weight bold))))
+ '(eval-sexp-fu-flash ((t (:background "#6699cc" :foreground "#f2f0ec" :weight bold))))
+ '(eval-sexp-fu-flash-error ((t (:foreground "#f2777a" :weight bold))))
+ '(flycheck-error-list-info ((t (:inherit success))))
  '(fringe ((t (:background "#2d2d2d" :foreground "#747369"))))
  '(git-gutter:added ((t (:inherit default :foreground "#99cc99" :weight bold))))
  '(git-gutter:deleted ((t (:foreground "#f2777a" :weight bold))))
