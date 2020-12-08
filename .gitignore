@@ -47,3 +47,7 @@ site-lisp/package/
 /anaconda-mode/
 /network-security.data
 /anaconda
+.cask*
+/straight
+/projectile.cache
+/transient

@@ -1,0 +1,22 @@
+
+* Emacs
+
+** Ideas
+
+*** TODO push to github repo
+*** TODO cleanup config
+*** TODO either use custom file or get rid of it
+*** TODO clean up magit ui
+*** TODO configure prodigy
+*** TODO update lispy bindings
+*** TODO consider hydra?
+*** TODO configure org mode?
+*** TODO test drive focus (plugin)
+*** TODO bind K to eldoc describe thing at point
+*** TODO reload config without quitting?
+*** TODO schedule regular "config updates"?
+*** TODO test drive indium
+
+** Notes
+
+   Know thyself.
