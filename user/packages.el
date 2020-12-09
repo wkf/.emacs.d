@@ -4,6 +4,9 @@
 
 ;;; Code:
 
+(setq straight-fix-flycheck t)
+(setq-default flycheck-emacs-lisp-load-path 'inherit)
+
 ;; bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file

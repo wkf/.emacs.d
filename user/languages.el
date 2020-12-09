@@ -11,7 +11,6 @@
 (require 'cider-eval-sexp-fu)
 (require 'flycheck)
 (require 'flycheck-clojure)
-;; (require 'flycheck-pos-tip)
 
 (defvar user/lisp-mode-hooks
   '(emacs-lisp-mode-hook
@@ -19,12 +18,34 @@
     clojurec-mode-hook
     clojurescript-mode-hook))
 
+(general-add-hook
+ 'emacs-lisp-mode-hook
+ (lambda ()
+   (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-eval-sexp-inner-sexp)))
+
+(general-add-hook
+ 'clojure-mode-hook
+ (lambda ()
+   (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-cider-eval-sexp-inner-sexp)))
+
 (general-add-hook user/lisp-mode-hooks #'eldoc-mode)
 (general-add-hook user/lisp-mode-hooks #'rainbow-delimiters-mode)
+(general-add-hook user/lisp-mode-hooks #'smartparens-mode)
+
+(use-package cider
+  :init
+  (setq cider-repl-pop-to-buffer-on-connect nil))
 
 (use-package lispy
   :init
-  (general-add-hook user/lisp-mode-hooks (lambda () (lispy-mode 1))))
+  (general-add-hook user/lisp-mode-hooks (lambda () (lispy-mode 1)))
+  :config
+  (general-define-key
+   :keymaps 'lispy-mode-map-lispy
+   "\"" nil)
+  (lispy-define-key lispy-mode-map "X" #'lispy-kill)
+  (lispy-define-key lispy-mode-map "m" #'lispy-view)
+  (lispy-define-key lispy-mode-map "v" #'lispyville-toggle-mark-type))
 
 (use-package lispyville
   :after lispy
@@ -34,11 +55,11 @@
   (progn
     (setq lispyville-motions-put-into-special t
           lispyville-commands-put-into-special t)
-    (lispyville-enter-visual-when-marking)
-    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy esc))
+    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy mark-toggle))
     (general-define-key
      :keymaps 'lispyville-mode-map
      :states 'normal
+     "X" 'lispy-kill
      "gI" 'lispyville-insert-at-beginning-of-list
      "gA" 'lispyville-insert-at-end-of-list
      "go" 'lispyville-open-below-list
@@ -61,38 +82,6 @@
      "]}" 'lispyville-next-closing
      "(" 'lispyville-backward-up-list
      ")" 'lispyville-up-list)))
-
- ;; (evil-set-initial-state 'cider-stacktrace-mode 'normal)
- ;; (evil-collection-define-key 'normal 'cider-stacktrace-mode-map
- ;;   (kbd "C-k") 'cider-stacktrace-previous-cause
- ;;   (kbd "C-j") 'cider-stacktrace-next-cause
- ;;   (kbd "gk") 'cider-stacktrace-previous-cause
- ;;   (kbd "gj") 'cider-stacktrace-next-cause
- ;;   (kbd "[[") 'cider-stacktrace-previous-cause
- ;;   (kbd "]]") 'cider-stacktrace-next-cause
- ;;   (kbd "C-p") 'cider-stacktrace-previous-cause
- ;;   (kbd "C-n") 'cider-stacktrace-next-cause
- ;;   "gd" 'cider-stacktrace-jump
- ;;   "q" 'cider-popup-buffer-quit-function
- ;;   "J" 'cider-stacktrace-toggle-java
- ;;   "C" 'cider-stacktrace-toggle-clj
- ;;   "R" 'cider-stacktrace-toggle-repl
- ;;   "T" 'cider-stacktrace-toggle-tooling
- ;;   "D" 'cider-stacktrace-toggle-duplicates
- ;;   "P" 'cider-stacktrace-show-only-project
- ;;   "A" 'cider-stacktrace-toggle-all
- ;;   "1" 'cider-stacktrace-cycle-cause-1
- ;;   "2" 'cider-stacktrace-cycle-cause-2
- ;;   "3" 'cider-stacktrace-cycle-cause-3
- ;;   "4" 'cider-stacktrace-cycle-cause-4
- ;;   "5" 'cider-stacktrace-cycle-cause-5
- ;;   "0" 'cider-stacktrace-cycle-all-causes
- ;;   (kbd "TAB") 'cider-stacktrace-cycle-current-cause
- ;;   [backtab] 'cider-stacktrace-cycle-all-causes)
-
-;; (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-
-;; (sp-local-pair 'emacs-lisp-mode "\"" "\"" :actions ())
 
 (setq cider-cljs-lein-repl
       "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/cljs-repl))")
@@ -121,6 +110,9 @@
   (cider-interactive-eval
    "(require 'aviary.util) (@(resolve (symbol (str (aviary.util/lein-project-name) \".site\") \"export\")))"))
 
+(setq eldoc-idle-delay 0.5
+      flycheck-display-errors-delay 1.0)
+
 (use-package flycheck
   :config (progn
             ;; (flycheck-pos-tip-mode)
@@ -128,19 +120,10 @@
             (flycheck-credo-setup)
             (flycheck-clojure-setup)
             (global-flycheck-mode)
-            (setq flycheck-indication-mode 'left-fringe
-                  flycheck-display-errors-delay 0)
+            (setq flycheck-indication-mode 'left-fringe)
             (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
               [192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192]
-              nil nil 'center)
-            ;; HACK: redef this function to work around a bug trying to use a deleted buffer
-            (if nil (defun flycheck-global-teardown ()
-                      "Teardown Flycheck in all buffers."
-                      (dolist (buffer (buffer-list))
-                        (when (buffer-live-p buffer)
-                          (with-current-buffer buffer
-                            (when flycheck-mode
-                              (flycheck-teardown)))))))))
+              nil nil 'center)))
 
 (setenv "IPY_TEST_SIMPLE_PROMPT" "1")
 
@@ -202,8 +185,8 @@
   ;; (eldoc-mode +1)
   (tide-format-before-save)
   (tide-hl-identifier-mode 1)
-  (setq eldoc-idle-delay 0.1
-        flycheck-display-errors-delay 1.5)
+
+
   ;; company is an optional dependency. You have to
   ;; install it separately via package-install
   ;; `M-x package-install [ret] company`

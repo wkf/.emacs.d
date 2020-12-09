@@ -5,12 +5,10 @@
 ;;; Code:
 
 (require 'general)
-;; (require 'rjsx-mode)
+
+(setq general-default-keymaps 'evil-normal-state-map)
 
 (defvar user/leader-key ",")
-
-(setq
- general-default-keymaps 'evil-normal-state-map)
 
 (general-define-key
  :keymaps '(evil-normal-state-map
@@ -18,18 +16,7 @@
  "j" 'evil-next-visual-line
  "k" 'evil-previous-visual-line
  "gj" 'evil-next-line
- "gk" 'evil-previous-line
- ;; "gr" 'user/evil-quickrun-region
- ;; "gR" 'user/evil-quickrun-region-replace
-)
-
-;; (general-define-key
-;;  :keymaps '(evil-normal-state-map
-;;             evil-insert-state-map)
-;;  "C-h" 'windmove-left
-;;  "C-l" 'windmove-right
-;;  "C-k" 'windmove-up
-;;  "C-j" 'windmove-down)
+ "gk" 'evil-previous-line)
 
 (general-define-key
  :prefix user/leader-key
@@ -44,12 +31,7 @@
  "gq" 'magit-blame-quit
  "gc" (lambda ()
         (interactive)
-        (shell-command "git log origin/production..production --no-merges --oneline --reverse | pbcopy"))
- "rb" 'quickrun
- "rr" 'quickrun-region
- "ra" 'quickrun-with-arg
- "rs" 'quickrun-shell
- "rp" 'quickrun-replace-region)
+        (shell-command "git log origin/production..production --no-merges --oneline --reverse | pbcopy")))
 
 (general-define-key
  :keymaps 'quickrun/mode-map
@@ -58,31 +40,12 @@
  "C-c C-c" 'quickrun/kill-running-process)
 
 (general-define-key
+ "/" 'swiper
  "\\" 'evil-repeat-find-char-reverse
  "[ p" 'evil-unimpaired/paste-above
  "] p" 'evil-unimpaired/paste-below
  "[ SPC" 'evil-unimpaired/insert-space-above
  "] SPC" 'evil-unimpaired/insert-space-below)
-
-;; (general-define-key
-;;  :keymaps '(emacs-lisp-mode-map
-;;             clojure-mode-map
-;;             clojurec-mode-map
-;;             clojurescript-mode-map)
-;;  :states '(normal)
-;;  :prefix "g"
-;;  "j" 'sp-join-sexp
-;;  "s" 'sp-split-sexp
-;;  "r" 'sp-raise-sexp
-;;  "t" 'sp-transponse-sexp)
-
-;; (general-define-key
-;;  :keymaps '(rjsx-mode-map)
-;;  :states '(insert)
-;;  "<" 'rjsx-electric-lt
-;;  ">" 'rjsx-electric-gt
-;;  "C-d" 'rjsx-delete-creates-full-tag
-;;  "C-c C-r" 'rjsx-rename-tag-at-point)
 
 (general-define-key
  :keymaps 'ivy-minibuffer-map
@@ -91,69 +54,58 @@
  "ESC ESC ESC" 'minibuffer-keyboard-quit)
 
 (general-define-key
- "/" 'swiper)
+ :keymaps 'company-active-map
+ "C-n" 'company-select-next
+ "C-p" 'company-select-previous)
 
 (general-define-key
  :prefix user/leader-key
+ "S"  'prodigy
+ "F"  'focus-mode
  "," 'ivy-resume
- ":" 'counsel-M-x
+ "SPC"  'counsel-projectile
+ ":"  'counsel-M-x
  "bb" 'ivy-switch-buffer
  "bd" (lambda () (interactive) (kill-buffer))
  "ff" 'counsel-find-file
  "fr" 'user/rename-this-buffer-and-file
  "dd" 'user/sql-connect
- "dn" 'user/sql-new-connect)
-
-(general-define-key
- "SPC" 'counsel-projectile)
-
-(general-define-key
- :prefix user/leader-key
- "F" 'focus-mode)
-
-(general-define-key
- :prefix user/leader-key
+ "dn" 'user/sql-new-connect
+ "ss" 'user/run-eshell
+ "sn" 'user/run-new-eshell
+ "sv" 'vterm
+ "sb" 'multi-eshell-go-back
+ "sr" 'rtog/toggle-repl
  "pf" 'counsel-projectile-find-file
  "pd" 'counsel-projectile-find-dir
  "pb" 'counsel-projectile-switch-to-buffer
  "p/" 'counsel-projectile-ag
  "pp" 'projectile-persp-switch-project)
 
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (general-define-key
-             :keymaps 'eshell-mode-map
-             :states '(normal insert)
-             "RET" 'eshell-send-input
-             "C-n" 'eshell-next-input
-             "C-p" 'eshell-previous-input
-             "C-s" 'counsel-esh-history
-             ",sc" (lambda () (interactive) (eshell/clear) (eshell-send-input)))))
-
 (general-define-key
- :prefix user/leader-key
- "ss" 'user/run-eshell
- "sn" 'user/run-new-eshell
- "sb" 'multi-eshell-go-back
- "sr" 'rtog/toggle-repl)
+ :prefix "SPC"
+ "W" 'evil-avy-goto-subword-1
+ "w" 'evil-avy-goto-word-1
+ "a" 'evil-avy-goto-symbol-1)
 
-(general-define-key
- :keymaps 'company-active-map
- "C-n" 'company-select-next
- "C-p" 'company-select-previous)
-
-(general-define-key
- :keymaps 'emacs-lisp-mode-map
- :states '(normal)
- "X" 'eval-sexp-fu-eval-sexp-inner-sexp)
+(add-hook
+ 'eshell-mode-hook
+ (lambda ()
+   (general-define-key
+    :keymaps 'eshell-mode-map
+    :states '(normal insert)
+    "RET" 'eshell-send-input
+    "C-n" 'eshell-next-input
+    "C-p" 'eshell-previous-input
+    "C-s" 'counsel-esh-history
+    ",sc" (lambda () (interactive) (eshell/clear) (eshell-send-input)))))
 
 (general-define-key
  :keymaps 'git-messenger-map
  "q" 'git-messenger:popup-close)
 
 (general-define-key
- :prefix user/leader-key
- "S" 'prodigy)
+ :prefix user/leader-key)
 
 (general-define-key
  :keymaps 'prodigy-mode-map
@@ -171,13 +123,6 @@
  "Y" 'prodigy-copy-cmd)
 
 (general-define-key
- :keymaps '(clojure-mode-map
-            clojurec-mode-map
-            clojurescript-mode-map)
- :states '(normal)
- "X" 'eval-sexp-fu-cider-eval-sexp-inner-sexp)
-
-(general-define-key
  :keymaps 'clojure-mode-map
  :states '(normal)
  :prefix user/leader-key
@@ -185,14 +130,6 @@
  "moR" 'user/clojure-reload-all
  "moab" 'user/clojure-aviary-browse
  "moae" 'user/clojure-aviary-export)
-
-(if nil (general-define-key
- :keymaps 'cider-repl-mode-hook
- :states '(normal insert)
- "C-n" (lambda (count)
-         (interactive "p") (cider-repl-next-input))
- "C-p" (lambda (count)
-         (interactive "p") (cider-repl-previous-input))))
 
 (general-define-key
  :keymaps 'anaconda-mode-map
