@@ -152,5 +152,5 @@
   :config
   (shx-global-mode 1))
 
-(provide 'user.shell)
-;;; shell.el ends here
+(provide 'user-shell)
+;;; user-shell.el ends here

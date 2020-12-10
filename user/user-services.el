@@ -50,5 +50,5 @@
   :tags '(cook)
   :stop-signal 'kill)
 
-(provide 'user.services)
-;;; services.el ends here
+(provide 'user-services)
+;;; user-services.el ends here

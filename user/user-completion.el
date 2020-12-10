@@ -60,5 +60,5 @@
   :config
   (general-add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(provide 'user.completion)
-;;; completion.el ends here
+(provide 'user-completion)
+;;; user-completion.el ends here

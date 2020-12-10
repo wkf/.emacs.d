@@ -98,6 +98,8 @@
 
 (load user/custom-file)
 (load user/private-file)
+;; (require 'custom)
+;; (require 'private)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 (savehist-mode 1)
@@ -208,5 +210,5 @@
   (interactive)
   (switch-to-buffer nil))
 
-(provide 'user.core)
-;;; core.el ends here
+(provide 'user-core)
+;;; user-core.el ends here

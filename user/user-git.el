@@ -69,6 +69,5 @@
                                 nil
                               '(display-buffer-same-window)))))))
 
-(provide 'user.git)
-
-;;; git.el ends here
+(provide 'user-git)
+;;; user-git.el ends here

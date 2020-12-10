@@ -1,6 +1,5 @@
-* Oddmacs
+* Know Thyself
 
-- [ ] rename to oddmacs
 - [X] push to github repo
 - [ ] cleanup config
 - [ ] either use custom file or get rid of it
@@ -37,3 +36,4 @@
 - [ ] investigate vterm segfaults
 - [ ] explore the evil collection
 - [ ] lazy load packages if possible
+- [ ] add some eshell aliases (like ls)

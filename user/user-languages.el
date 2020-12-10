@@ -491,5 +491,5 @@
 
 ;; (add-hook 'after-save-hook 'user/mmm-reapply)
 
-(provide 'user.languages)
-;;; languages.el ends here
+(provide 'user-languages)
+;;; user-languages.el ends here

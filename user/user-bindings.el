@@ -160,5 +160,5 @@
  "C-n" #'comint-next-input
  "C-p" #'comint-previous-input)
 
-(provide 'user.bindings)
-;;; bindings.el ends here
+(provide 'user-bindings)
+;;; user-bindings.el ends here

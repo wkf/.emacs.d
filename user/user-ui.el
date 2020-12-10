@@ -224,5 +224,5 @@
   :config (setq hl-line-sticky-flag nil
                 global-hl-line-sticky-flag nil))
 
-(provide 'user.ui)
-;;; ui.el ends here
+(provide 'user-ui)
+;;; user-ui.el ends here

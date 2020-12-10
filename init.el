@@ -167,25 +167,21 @@
 
 ;;
 
-(declare-function user/projectile-switch-to-project-file "user.core")
+(declare-function user/projectile-switch-to-project-file "user-core")
 
-;; (add-to-list 'load-path (expand-file-name "user" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "user" user-emacs-directory))
 
-;;(require 'user.core)
-
-(dolist (p '(
-             "user/core"
-             "user/ui"
-             "user/evil"
-             "user/git"
-             "user/completion"
-             "user/mode-line"
-             "user/shell"
-             "user/languages"
-             "user/services"
-             "user/database"
-             "user/bindings"))
-  (load-library (concat user-emacs-directory p)))
+(require 'user-core)
+(require 'user-ui)
+(require 'user-evil)
+(require 'user-git)
+(require 'user-completion)
+(require 'user-mode-line)
+(require 'user-shell)
+(require 'user-languages)
+(require 'user-services)
+(require 'user-database)
+(require 'user-bindings)
 
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")
 

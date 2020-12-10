@@ -45,5 +45,5 @@
           (lambda ()
             (toggle-truncate-lines t)))
 
-(provide 'user.database)
-;;; database.el ends here
+(provide 'user-database)
+;;; user-database.el ends here

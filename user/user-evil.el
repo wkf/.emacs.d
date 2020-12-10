@@ -1,4 +1,4 @@
-;;; user.evil --- user bindings
+;;; user-evil --- user bindings
 
 ;;; Commentary:
 
@@ -113,5 +113,5 @@
   :init (progn
           (add-to-list 'evil-emacs-state-modes 'prodigy-mode)))
 
-(provide 'user.evil)
-;;; evil.el ends here
+(provide 'user-evil)
+;;; user-evil.el ends here

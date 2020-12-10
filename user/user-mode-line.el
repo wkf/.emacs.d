@@ -1,4 +1,4 @@
-;;; package --- a sassy mode line
+;;; user-mode-line  --- a sassy mode line
 
 ;;; Commentary:
 
@@ -609,5 +609,5 @@
 
 (setq-default mode-line-format (user/mode-line))
 
-(provide 'user.mode-line)
-;;; mode-line.el ends here
+(provide 'user-mode-line)
+;;; user-mode-line.el ends here
