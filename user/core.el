@@ -227,5 +227,10 @@
     (projectile-switch-project-by-name directory)
     (setq projectile-switch-project-action default-action)))
 
+(defun user/switch-to-last-buffer ()
+  "Switch to last buffer in current window."
+  (interactive)
+  (switch-to-buffer nil))
+
 (provide 'user.core)
 ;;; core.el ends here

@@ -186,12 +186,32 @@
  `(fringe ((t (:foreground ,user/bright-black :background ,user/black :underline nil))))
  `(region ((t (:background ,user/bright-black))))
  `(hl-line ((t (:background ,user/light-black))))
+ `(org-todo ((t (:background ,user/black))))
+ `(org-done ((t (:background ,user/black :foreground ,user/bright-black))))
  `(avy-lead-face-0 ((t (:background ,user/yellow :foreground ,user/black))))
  `(avy-lead-face-1 ((t (:background ,user/yellow :foreground ,user/black))))
  `(avy-lead-face-2 ((t (:background ,user/yellow :foreground ,user/black))))
  `(avy-lead-face ((t (:background ,user/yellow :foreground ,user/black))))
  `(avy-background-face ((t (:foreground ,user/bright-black))))
  `(avy-goto-char-timer-face ((t (:inherit highlight)))))
+
+(defface org-checkbox-todo-text
+  '((t (:inherit org-todo)))
+  "Face for the text part of an unchecked org-mode checkbox.")
+
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
+ 'append)
+
+(defface org-checkbox-done-text
+  '((t (:inherit org-done)))
+  "Face for the text part of a checked org-mode checkbox.")
+
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
+ 'append)
 
 (use-package linum
   :config (progn

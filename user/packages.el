@@ -120,6 +120,15 @@
 (straight-use-package 'org)
 (straight-use-package 'evil-org)
 (straight-use-package 'focus)
+(straight-use-package 'prescient)
+(straight-use-package 'ivy-prescient)
+(straight-use-package 'olivetti)
+(straight-use-package 'markdown-mode)
+(straight-use-package 'shx)
+(straight-use-package 'dumb-jump)
+(straight-use-package 'aggressive-indent)
+;; (straight-use-package 'evil-mc)
+;; (straight-use-package 'evil-multiedit
 
 (provide 'user.packages)
 ;;; packages.el ends here

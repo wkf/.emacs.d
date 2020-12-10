@@ -34,12 +34,6 @@
         (shell-command "git log origin/production..production --no-merges --oneline --reverse | pbcopy")))
 
 (general-define-key
- :keymaps 'quickrun/mode-map
- :states '(normal)
- "q" 'quit-window
- "C-c C-c" 'quickrun/kill-running-process)
-
-(general-define-key
  "/" 'swiper
  "\\" 'evil-repeat-find-char-reverse
  "[ p" 'evil-unimpaired/paste-above
@@ -60,10 +54,11 @@
 
 (general-define-key
  :prefix user/leader-key
- "S"  'prodigy
- "F"  'focus-mode
- "," 'ivy-resume
- "SPC"  'counsel-projectile
+ "S"   'prodigy
+ "F"   'focus-mode
+ ","   'ivy-resume
+ "RET" 'user/switch-to-last-buffer
+ "SPC" 'counsel-projectile
  ":"  'counsel-M-x
  "bb" 'ivy-switch-buffer
  "bd" (lambda () (interactive) (kill-buffer))
@@ -84,21 +79,33 @@
 
 (general-define-key
  :prefix "SPC"
- "W" 'evil-avy-goto-subword-1
- "w" 'evil-avy-goto-word-1
- "a" 'evil-avy-goto-symbol-1)
+ :keymaps '(evil-normal-state-map
+            evil-visual-state-map)
+ "SPC" 'evil-avy-goto-char
+ "RET" 'evil-avy-goto-line
+ "k" 'evil-avy-goto-line-above
+ "j" 'evil-avy-goto-line-below
+ "S" 'evil-avy-goto-char-2-above
+ "s" 'evil-avy-goto-char-2-below
+ "B" 'evil-avy-goto-word-1-above
+ "W" 'evil-avy-goto-word-1-below
+ "A" 'evil-avy-goto-symbol-1-above
+ "a" 'evil-avy-goto-symbol-1-below)
 
 (add-hook
  'eshell-mode-hook
  (lambda ()
-   (general-define-key
+   (genera-define-key
     :keymaps 'eshell-mode-map
-    :states '(normal insert)
-    "RET" 'eshell-send-input
-    "C-n" 'eshell-next-input
-    "C-p" 'eshell-previous-input
-    "C-s" 'counsel-esh-history
-    ",sc" (lambda () (interactive) (eshell/clear) (eshell-send-input)))))
+    :states 'normal
+    ",sc" (lambda () (interactive) (eshell/clear) (eshell-send-input)))
+   (if nil (general-define-key
+            :keymaps 'eshell-mode-map
+            :states '(normal insert)
+            "RET" 'eshell-send-input
+            "C-n" 'eshell-next-input
+            "C-p" 'eshell-previous-input
+            "C-s" 'counsel-esh-history))))
 
 (general-define-key
  :keymaps 'git-messenger-map

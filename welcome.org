@@ -1,28 +1,34 @@
+Know thyself.
 
-* Emacs
-
-  Know thyself.
-
-** Ideas
-
-*** DONE push to github repo
-*** TODO cleanup config
-*** TODO either use custom file or get rid of it
-*** TODO clean up magit ui
-*** TODO configure prodigy
-*** TODO update lispy bindings
-*** TODO consider hydra?
-*** TODO configure org mode?
-*** TODO test drive focus (plugin)
-*** TODO bind K to eldoc describe thing at point
-*** TODO reload config without quitting?
-*** TODO schedule regular "config updates"?
-*** TODO test drive indium (evil bindings?)
-*** TODO try avy (remove snipe?)
-*** TODO use use-package more consistently
-*** TODO use general everywhere
-*** TODO consider purpose? (plugin)
-
-** Notes
-
-   Emacs is great.
+- [X] push to github repo
+- [ ] cleanup config
+- [ ] either use custom file or get rid of it
+- [X] clean up magit ui
+- [ ] configure prodigy
+- [ ] consider hydra?
+- [ ] configure org mode?
+- [X] test drive focus (plugin)
+- [ ] bind K to eldoc describe thing at point
+- [ ] reload config without quitting?
+- [ ] schedule regular "config updates"?
+- [ ] test drive indium (evil bindings?)
+- [X] try avy (remove snipe?)
+- [ ] use use-package more consistently
+- [ ] use general everywhere
+- [ ] consider purpose? (plugin)
+- [X] try shx?
+- [X] add prescient.el
+- [X] add dumb-jump
+- [ ] multiple cursors?
+- [X] aggressive indent?
+- [X] olivetti for text-mode?
+- [ ] fix projectile load project on startup
+- [X] markdown-mode
+- [X] use dir-locals for prodigy and projectile?
+- [ ] stop using line numbers??
+- [ ] use version locking with straight.el?
+- [X] avy in visual mode
+- [ ] update lispy bindings?
+- [X] tweak space to insert after openning paren
+- [X] tweak quote to include a space when on opening delim
+- [X] tweak quote to close string when at end

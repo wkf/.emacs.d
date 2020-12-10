@@ -51,5 +51,14 @@
                (set-buffer-modified-p nil)
                (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
 
+(use-package ivy-prescient
+  :after ivy
+  :config
+  (ivy-prescient-mode 1))
+
+(use-package dumb-jump
+  :config
+  (general-add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
 (provide 'user.completion)
 ;;; completion.el ends here

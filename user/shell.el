@@ -148,5 +148,9 @@
 (advice-add 'term-line-mode :after 'after-term-line-mode)
 (advice-add 'term-char-mode :after 'after-term-char-mode)
 
+(use-package shx
+  :config
+  (shx-global-mode 1))
+
 (provide 'user.shell)
 ;;; shell.el ends here

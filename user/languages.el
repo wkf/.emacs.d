@@ -30,7 +30,15 @@
 
 (general-add-hook user/lisp-mode-hooks #'eldoc-mode)
 (general-add-hook user/lisp-mode-hooks #'rainbow-delimiters-mode)
-(general-add-hook user/lisp-mode-hooks #'smartparens-mode)
+(general-add-hook user/lisp-mode-hooks #'aggressive-indent-mode)
+
+(defun user/lispy-space ()
+  "Like lispy space, but move the cursor back once."
+  (interactive)
+  (if (not (lispyville--at-left-p))
+      (call-interactively 'lispy-space)
+    (call-interactively 'lispy-space)
+    (backward-char)))
 
 (use-package cider
   :init
@@ -38,14 +46,14 @@
 
 (use-package lispy
   :init
+  (setq lispy-close-quotes-at-end-p t)
   (general-add-hook user/lisp-mode-hooks (lambda () (lispy-mode 1)))
   :config
-  (general-define-key
-   :keymaps 'lispy-mode-map-lispy
-   "\"" nil)
+  (lispy-define-key lispy-mode-map "SPC" #'user/lispy-space)
   (lispy-define-key lispy-mode-map "X" #'lispy-kill)
   (lispy-define-key lispy-mode-map "m" #'lispy-view)
   (lispy-define-key lispy-mode-map "v" #'lispyville-toggle-mark-type))
+
 
 (use-package lispyville
   :after lispy
@@ -55,7 +63,7 @@
   (progn
     (setq lispyville-motions-put-into-special t
           lispyville-commands-put-into-special t)
-    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy mark-toggle))
+    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy mark-toggle insert))
     (general-define-key
      :keymaps 'lispyville-mode-map
      :states 'normal
@@ -66,20 +74,9 @@
      "gO" 'lispyville-open-above-list
      "g<" 'lispyville-drag-forward
      "g>" 'lispyville-drag-backward
-     "gR" 'lispyville-raise-list
-     "gr" 'lispy-raise-sexp
-     "gJ" 'lispy-join
-     "gs" 'lispy-split
-     "gS" 'lispy-splice
-     "gt" 'transpose-sexps
-     "gC" 'lispy-convolute-sexp
      "g(" 'lispyville-wrap-round
      "g[" 'lispyville-wrap-brackets
      "g{" 'lispyville-wrap-braces
-     "[{" 'lispyville-previous-opening
-     "[}" 'lispyville-previous-closing
-     "]{" 'lispyville-next-opening
-     "]}" 'lispyville-next-closing
      "(" 'lispyville-backward-up-list
      ")" 'lispyville-up-list)))
 
@@ -201,6 +198,16 @@
 
 (add-hook 'rjsx-mode-hook 'prettier-js-mode)
 (add-hook 'rjsx-mode-hook 'smartparens-mode)
+
+(use-package olivetti
+  :config
+  (general-add-hook 'text-mode-hook 'olivetti-mode))
+
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+
 
 ;; (setq-default tab-width 2)
 ;; (setq-default indent-tabs-mode nil)
@@ -371,7 +378,6 @@
 (require 'css-mode)
 (require 'web-mode)
 
-
 (add-hook 'web-mode-hook 'prettier-js-mode)
 (add-hook 'web-mode-hook 'smartparens-mode)
 
@@ -461,6 +467,7 @@
 
 
 ;;             (add-hook 'after-save-hook 'user/mmm-reapply)))
+
 
 
 ;; (require 'mmm-auto)
