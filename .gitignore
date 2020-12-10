@@ -52,3 +52,4 @@ site-lisp/package/
 /projectile.cache
 /transient
 /semanticdb
+/undo-fu-session

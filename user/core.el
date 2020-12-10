@@ -32,29 +32,6 @@
   (defvar ns-use-native-fullscreen)
   (defvar ns-pop-up-frames))
 
-(setq frame-title-format nil)
-
-(mac-auto-operator-composition-mode)
-
-(set-frame-font "Fira Code 12" nil t)
-
-(setq ns-use-proxy-icon nil)
-
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-
-(set-frame-parameter (selected-frame) 'ns-appearance 'dark)
-(set-frame-parameter (selected-frame) 'ns-transparent-titlebar 't)
-
-(set-frame-position (selected-frame)
-                    (round (* (/ (display-pixel-width) 9.0) 2))
-                    0)
-(set-frame-size (selected-frame)
-                (- (round (* (/ (display-pixel-width) 9.0) 5)) 15)
-                (display-pixel-height)
-                t)
-
 (defvar user/backup-directory
   (expand-file-name (concat user-emacs-directory "backups")))
 
@@ -73,10 +50,10 @@
  package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
                     ("melpa" . "http://melpa.org/packages/")
                     ("org"   . "http://orgmode.org/elpa/"))
-
  indent-tabs-mode nil
  tab-width 2
  fill-column 80
+ frame-title-format nil
  sentence-end-double-space nil)
 
 (setq
@@ -101,10 +78,9 @@
  save-interprogram-paste-before-kill t
  create-lockfiles nil
  initial-major-mode 'org-mode
- ;; initial-major-mode 'fundamental-mode
- ;; initial-scratch-message "Know thyself."
  initial-scratch-message nil
  ns-use-srgb-colorspace t
+ ns-use-proxy-icon nil
  eval-expression-print-length nil
  eval-expression-print-level nil
  scroll-step 1
@@ -182,20 +158,20 @@
 ;;     (vterm-send-string command)
 ;;     (vterm-send-return)))
 
-(use-package dash)
+;; (use-package dash)
 
 (use-package hl-todo
   :init (progn
           (setq hl-todo-activate-in-modes '(prog-mode))
           (global-hl-todo-mode)))
 
-(use-package quickrun
-  :config (progn
-            (setq quickrun-timeout-seconds 60)
-            (quickrun-add-command
-              "python3"
-              '((:command . "python3"))
-              :default "python")))
+;; (use-package quickrun
+;;   :config (progn
+;;             (setq quickrun-timeout-seconds 60)
+;;             (quickrun-add-command
+;;               "python3"
+;;               '((:command . "python3"))
+;;               :default "python")))
 
 (use-package which-key
   :config (progn

@@ -96,11 +96,11 @@
             ;; (add-hook 'eshell-post-command-hook (lambda () (user/stop-mode-line-spinner 'eshell)))
             ))
 
-(use-package em-alias
-  :config (progn
-            (defalias 'E 'find-file)
-            (defalias 'e 'find-file-other-window)
-            (add-to-list 'eshell-command-aliases-list (list "l" "ls -alh"))))
+;; (use-package em-alias
+;;   :config (progn
+;;             (defalias 'E 'find-file)
+;;             (defalias 'e 'find-file-other-window)
+;;             (add-to-list 'eshell-command-aliases-list (list "l" "ls -alh"))))
 
 (use-package eshell-prompt-extras
   :config (setq eshell-highlight-prompt t

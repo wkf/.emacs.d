@@ -111,6 +111,8 @@
       flycheck-display-errors-delay 1.0)
 
 (use-package flycheck
+  :init
+  (setq-default flycheck-emacs-lisp-load-path 'inherit)
   :config (progn
             ;; (flycheck-pos-tip-mode)
             ;; (add-hook 'flycheck-mode-hook 'flycheck-popup-tip-mode)

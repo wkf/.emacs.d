@@ -1,5 +1,6 @@
-Know thyself.
+* Oddmacs
 
+- [ ] rename to oddmacs
 - [X] push to github repo
 - [ ] cleanup config
 - [ ] either use custom file or get rid of it
@@ -32,3 +33,7 @@ Know thyself.
 - [X] tweak space to insert after openning paren
 - [X] tweak quote to include a space when on opening delim
 - [X] tweak quote to close string when at end
+- [ ] revist eshell bindings
+- [ ] investigate vterm segfaults
+- [ ] explore the evil collection
+- [ ] lazy load packages if possible
