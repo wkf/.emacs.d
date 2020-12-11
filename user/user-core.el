@@ -20,84 +20,32 @@
 
 (require 'use-package)
 
-(eval-when-compile
-  (defvar ns-use-proxy-icon)
-  (defvar ns-use-srgb-colorspace)
-  (defvar undo-tree-auto-save-history)
-  (defvar savehist-file)
-  (defvar undo-tree-history-directory-alist)
-  (defvar global-auto-revert-non-file-buffers)
-  (defvar auto-revert-verbose)
-  (defvar longlines-show-hard-newlines)
-  (defvar ns-use-native-fullscreen)
-  (defvar ns-pop-up-frames))
+;; (eval-when-compile
+;;   (defvar ns-use-proxy-icon)
+;;   (defvar ns-use-srgb-colorspace)
+;;   (defvar undo-tree-auto-save-history)
+;;   (defvar savehist-file)
+;;   (defvar undo-tree-history-directory-alist)
+;;   (defvar global-auto-revert-non-file-buffers)
+;;   (defvar auto-revert-verbose)
+;;   (defvar longlines-show-hard-newlines)
+;;   (defvar package--init-file-ensured)
+;;   (defvar ns-use-native-fullscreen)
+;;   (defvar ns-pop-up-frames))
 
-(defvar user/backup-directory
-  (expand-file-name (concat user-emacs-directory "backups")))
+;; (defvar user/backup-directory
+;;   (expand-file-name (concat user-emacs-directory "backups")))
 
-(defvar user/custom-file
-  (expand-file-name "custom.el" user-emacs-directory))
+;; (defvar user/custom-file
+;;   (expand-file-name "custom.el" user-emacs-directory))
 
-(defvar user/private-file
-  (expand-file-name "private.el" user-emacs-directory))
+;; (defvar user/private-file
+;;   (expand-file-name "private.el" user-emacs-directory))
 
-(defvar user/savehist-file
-  (expand-file-name (concat user-emacs-directory ".cache/savehist")))
+;; (defvar user/savehist-file
+;;   (expand-file-name (concat user-emacs-directory ".cache/savehist")))
 
-(setq-default
- package--init-file-ensured t
- package-enable-at-startup nil
- package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
-                    ("melpa" . "http://melpa.org/packages/")
-                    ("org"   . "http://orgmode.org/elpa/"))
- indent-tabs-mode nil
- tab-width 2
- fill-column 80
- frame-title-format nil
- sentence-end-double-space nil)
 
-(setq
- inhibit-startup-message t
- ring-bell-function 'ignore
- undo-tree-auto-save-history nil
- savehist-file user/savehist-file
- custom-file user/custom-file
- backup-directory-alist `(("." . , user/backup-directory))
- auto-save-file-name-transforms `((".*" ,user/backup-directory t))
- undo-tree-history-directory-alist `(("." . , user/backup-directory))
- version-control t
- kept-new-versions 10
- kept-old-versions 0
- delete-old-versions t
- backup-by-copying t
- vc-make-backup-files t
- global-auto-revert-non-file-buffers t
- auto-revert-verbose nil
- longlines-show-hard-newlines t
- delete-by-moving-to-trash t
- save-interprogram-paste-before-kill t
- create-lockfiles nil
- initial-major-mode 'org-mode
- initial-scratch-message nil
- ns-use-srgb-colorspace t
- ns-use-proxy-icon nil
- eval-expression-print-length nil
- eval-expression-print-level nil
- scroll-step 1
- frame-resize-pixelwise t
- window-resize-pixelwise t
- window-combination-resize t
- mac-command-modifier 'meta
- mac-option-modifier 'alt
- mouse-wheel-scroll-amount '(5 ((shift) . 2))
- mouse-wheel-progressive-speed nil
- ns-use-native-fullscreen t
- ns-pop-up-frames nil
- split-height-threshold 100
- split-width-threshold 160)
-
-(load user/custom-file)
-(load user/private-file)
 ;; (require 'custom)
 ;; (require 'private)
 

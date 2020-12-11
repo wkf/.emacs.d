@@ -5,165 +5,14 @@
 (require 'general)
 (require 'eval-sexp-fu)
 (require 'smartparens-config)
-(require 'evil-cleverparens)
 (require 'rainbow-delimiters)
 (require 'cider)
 (require 'cider-eval-sexp-fu)
 (require 'flycheck)
 (require 'flycheck-clojure)
 
-(defvar user/lisp-mode-hooks
-  '(emacs-lisp-mode-hook
-    clojure-mode-hook
-    clojurec-mode-hook
-    clojurescript-mode-hook))
-
-(general-add-hook
- 'emacs-lisp-mode-hook
- (lambda ()
-   (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-eval-sexp-inner-sexp)))
-
-(general-add-hook
- 'clojure-mode-hook
- (lambda ()
-   (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-cider-eval-sexp-inner-sexp)))
-
-(general-add-hook user/lisp-mode-hooks #'eldoc-mode)
-(general-add-hook user/lisp-mode-hooks #'rainbow-delimiters-mode)
-(general-add-hook user/lisp-mode-hooks #'aggressive-indent-mode)
-
-(defun user/lispy-space ()
-  "Like lispy space, but move the cursor back once."
-  (interactive)
-  (if (not (lispyville--at-left-p))
-      (call-interactively 'lispy-space)
-    (call-interactively 'lispy-space)
-    (backward-char)))
-
-(use-package cider
-  :init
-  (setq cider-repl-pop-to-buffer-on-connect nil))
-
-(use-package lispy
-  :init
-  (setq lispy-close-quotes-at-end-p t)
-  (general-add-hook user/lisp-mode-hooks (lambda () (lispy-mode 1)))
-  :config
-  (lispy-define-key lispy-mode-map "SPC" #'user/lispy-space)
-  (lispy-define-key lispy-mode-map "X" #'lispy-kill)
-  (lispy-define-key lispy-mode-map "m" #'lispy-view)
-  (lispy-define-key lispy-mode-map "v" #'lispyville-toggle-mark-type))
 
 
-(use-package lispyville
-  :after lispy
-  :init
-  (general-add-hook user/lisp-mode-hooks #'lispyville-mode)
-  :config
-  (progn
-    (setq lispyville-motions-put-into-special t
-          lispyville-commands-put-into-special t)
-    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy mark-toggle insert))
-    (general-define-key
-     :keymaps 'lispyville-mode-map
-     :states 'normal
-     "X" 'lispy-kill
-     "gI" 'lispyville-insert-at-beginning-of-list
-     "gA" 'lispyville-insert-at-end-of-list
-     "go" 'lispyville-open-below-list
-     "gO" 'lispyville-open-above-list
-     "g<" 'lispyville-drag-forward
-     "g>" 'lispyville-drag-backward
-     "g(" 'lispyville-wrap-round
-     "g[" 'lispyville-wrap-brackets
-     "g{" 'lispyville-wrap-braces
-     "(" 'lispyville-backward-up-list
-     ")" 'lispyville-up-list)))
-
-(setq cider-cljs-lein-repl
-      "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/cljs-repl))")
-
-(defun user/clojure-reload ()
-  "Reload Clojure namespaces."
-  (interactive)
-  ("(require 'reloaded.repl) (reloaded.repl/reset)"
-   cider-interactive-eval))
-
-(defun user/clojure-reload-all ()
-  "Reload all Clojure namespaces."
-  (interactive)
-  (cider-interactive-eval
-   "(require 'reloaded.repl) (reloaded.repl/reset-all)"))
-
-(defun user/clojure-aviary-browse ()
-  "Browse to aviary page in default browser."
-  (interactive)
-  (cider-interactive-eval
-   "(require 'reloaded.repl) (require 'aviary.core) (aviary.core/browse reloaded.repl/system)"))
-
-(defun user/clojure-aviary-export ()
-  "Use aviary to export current project."
-  (interactive)
-  (cider-interactive-eval
-   "(require 'aviary.util) (@(resolve (symbol (str (aviary.util/lein-project-name) \".site\") \"export\")))"))
-
-(setq eldoc-idle-delay 0.5
-      flycheck-display-errors-delay 1.0)
-
-(use-package flycheck
-  :init
-  (setq-default flycheck-emacs-lisp-load-path 'inherit)
-  :config (progn
-            ;; (flycheck-pos-tip-mode)
-            ;; (add-hook 'flycheck-mode-hook 'flycheck-popup-tip-mode)
-            (flycheck-credo-setup)
-            (flycheck-clojure-setup)
-            (global-flycheck-mode)
-            (setq flycheck-indication-mode 'left-fringe)
-            (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
-              [192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192]
-              nil nil 'center)))
-
-(setenv "IPY_TEST_SIMPLE_PROMPT" "1")
-
-(use-package python
-  :mode ("\\.py\\'" . python-mode)
-  :interpreter ("python3" . python-mode)
-  :commands python-mode
-  :init (progn
-          (setq
-           python-shell-interpreter "ipython3"
-           python-shell-interpreter-args "--deep-reload")
-          (add-hook 'python-mode-hook 'flycheck-mode)
-          (add-hook 'python-mode-hook 'smartparens-mode))
-  :config (define-key python-mode-map (kbd "DEL") nil)) ; interferes with smartparens
-
-(use-package anaconda-mode
-  :after python
-  :init (progn
-          (add-hook 'python-mode-hook 'anaconda-mode)
-          (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-          (add-hook 'python-mode-hook 'eldoc-mode)
-          (setq
-           anaconda-mode-installation-directory (concat user-emacs-directory "anaconda/")
-           anaconda-mode-eldoc-as-single-line t)))
-
-(use-package company-anaconda
-  :after (company anaconda-mode)
-  :config (add-to-list 'company-backends '(company-anaconda :with company-capf)))
-
-(defun user/python-repl ()
-  (run-python python-shell-interpreter t t))
-
-(use-package repl-toggle
-  :config (progn
-            (rtog/add-repl 'python-mode 'user/python-repl)))
-
-(use-package elixir-mode
-  :init (progn
-          (add-hook 'elixir-mode-hook 'smartparens-mode)
-          (add-hook 'elixir-mode-hook
-                    #'(lambda () (setq evil-shift-width 2)))))
 
 (require 'tide)
 (require 'prettier-js)
@@ -201,14 +50,6 @@
 (add-hook 'rjsx-mode-hook 'prettier-js-mode)
 (add-hook 'rjsx-mode-hook 'smartparens-mode)
 
-(use-package olivetti
-  :config
-  (general-add-hook 'text-mode-hook 'olivetti-mode))
-
-(use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode)))
 
 
 ;; (setq-default tab-width 2)

@@ -607,7 +607,5 @@
         (powerline-fill (user/active-face 'mode-line) (powerline-width rhs))
         (powerline-render rhs))))))
 
-(setq-default mode-line-format (user/mode-line))
-
 (provide 'user-mode-line)
 ;;; user-mode-line.el ends here

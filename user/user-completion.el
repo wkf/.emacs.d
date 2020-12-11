@@ -16,8 +16,8 @@
   (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
   (setq isearch-forward nil))
 
-  (advice-add 'ivy-next-line :after #'user/swiper-update-search-ring-forward)
-  (advice-add 'ivy-previous-line :after #'user/swiper-update-search-ring-backward)
+(advice-add 'ivy-next-line :after #'user/swiper-update-search-ring-forward)
+(advice-add 'ivy-previous-line :after #'user/swiper-update-search-ring-backward)
 
 (use-package projectile
   :config (projectile-mode))

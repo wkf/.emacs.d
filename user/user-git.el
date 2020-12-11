@@ -4,19 +4,6 @@
 
 (require 'shackle)
 
-(defmacro def-popup! (&rest params)
-  "Define a shackle popup with PARAMS."
-  `(push ',params shackle-rules))
-
-(use-package gitconfig-mode
-  :mode ("/\\.?git/?config$" "/\\.gitmodules$")
-  :init (add-hook 'gitconfig-mode-hook 'flyspell-mode))
-
-(use-package gitignore-mode
-  :mode ("/\\.gitignore$"
-         "/\\.git/info/exclude$"
-         "/git/ignore$"))
-
 (use-package git-gutter
   :commands git-gutter-mode
   :init (progn
@@ -27,8 +14,10 @@
             (require 'git-gutter-fringe)
             (setq git-gutter-fr:side 'right-fringe)
 
-            (def-popup! "^\\*git-gutter.+\\*$"
-              :align below :size 15 :noselect t :regexp t)
+            (push
+             '("^\\*git-gutter.+\\*$"
+               :align below :size 15 :noselect t :regexp t)
+             shackle-rules)
 
             (define-fringe-bitmap 'git-gutter-fr:added
               [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
@@ -47,7 +36,9 @@
   :commands git-messenger:popup-message
   :init (defvar git-messenger-map (make-sparse-keymap))
   :config (progn
-            (def-popup! "*git-messenger*" :align left :size 55 :select t)
+            (push
+             '("*git-messenger*" :align left :size 55 :select t)
+             shackle-rules)
             (setq git-messenger:show-detail t)))
 
 (use-package magit

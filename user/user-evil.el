@@ -28,42 +28,6 @@
   (interactive "p")
   (dotimes (_ count) (save-excursion (evil-insert-newline-below))))
 
-(use-package evil
-  :init (setq evil-want-fine-undo t
-              evil-want-C-u-scroll t
-              evil-want-keybinding nil)
-  :config (progn
-            (evil-mode 1)
-
-            (setq evil-cross-lines t
-                  evil-move-beyond-eol t
-                  evil-emacs-state-cursor `(,user/yellow box)
-                  evil-insert-state-cursor `(,user/green bar)
-                  evil-motion-state-cursor `(,user/purple box)
-                  evil-normal-state-cursor `(,user/blue box)
-                  evil-replace-state-cursor `(,user/red bar)
-                  evil-visual-state-cursor `(,user/orange box))
-
-            ;; workaround for...
-            ;; https://github.com/abo-abo/swiper/issues/977
-            (defvar user/-evil-ex-minibuffer nil)
-
-            (defun user/-before-evil-ex-setup ()
-              (setq user/-evil-ex-minibuffer (current-buffer)))
-
-            (defun user/-around-evil-ex-teardown (f)
-              (when (eq user/-evil-ex-minibuffer (current-buffer))
-                (funcall f)
-                (setq user/-evil-ex-minibuffer nil)))
-
-            (advice-add 'evil-ex-setup :before 'user/-before-evil-ex-setup)
-            (advice-add 'evil-ex-teardown :around 'user/-around-evil-ex-teardown)
-            ;;
-
-            (evil-set-undo-system 'undo-fu)
-            (evil-collection-init 'vterm)
-            (evil-collection-init 'cider)
-            (evil-collection-init 'eshell)))
 
 (use-package evil-surround
   :after evil
