@@ -17,6 +17,18 @@
   ""
   :group 'user)
 
+(defcustom user/mode-line-colors
+  '((emacs . "yellow")
+    (insert . "green")
+    (motion . "blue")
+    (normal . "blue")
+    (replace . "red")
+    (visual . "orange")
+    (special . "orange"))
+  "Colors to use for mode-line segments."
+  :type 'list
+  :group 'user)
+
 (defface user/mode-line-info
   `((t (:inherit mode-line)))
   "")
@@ -26,35 +38,35 @@
   "")
 
 (defface user/mode-line-changed
-  `((t (:inherit mode-line :foreground ,user/yellow)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'diff-changed))))
   "")
 
 (defface user/mode-line-locked
-  `((t (:inherit mode-line :foreground ,user/red)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'error))))
   "")
 
 (defface user/mode-line-added
-  `((t (:inherit mode-line :foreground ,user/green)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'diff-added))))
   "")
 
 (defface user/mode-line-deleted
-  `((t (:inherit mode-line :foreground ,user/red)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'diff-removed))))
   "")
 
 (defface user/mode-line-warning
-  `((t (:inherit mode-line :foreground ,user/yellow)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'warning))))
   "")
 
 (defface user/mode-line-alert
-  `((t (:inherit mode-line :foreground ,user/orange)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'warning))))
   "")
 
 (defface user/mode-line-error
-  `((t (:inherit mode-line :foreground ,user/red)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'error))))
   "")
 
 (defface user/mode-line-success
-  `((t (:inherit mode-line :foreground ,user/green)))
+  `((t (:inherit mode-line :foreground ,(face-foreground 'success))))
   "")
 
 (defface user/mode-line-inactive
@@ -73,48 +85,36 @@
   `((t (:inherit mode-line :foreground ,(face-foreground 'default))))
   "")
 
-(defface user/mode-line-hud-enabled
-  `((t (:inherit mode-line :background ,(face-foreground 'mode-line))))
-  "")
-
 (defface user/mode-line-hud-disabled
   `((t (:inherit mode-line)))
   "")
 
 (defface user/mode-line-emacs-state
-  `((t (:foreground ,(face-background 'default) :background ,user/yellow)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'emacs user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-insert-state
-  `((t (:foreground ,(face-background 'default) :background ,user/green)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'insert user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-motion-state
-  `((t (:foreground ,(face-background 'default) :background ,user/purple)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'motion user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-normal-state
-  `((t (:foreground ,(face-background 'default) :background ,user/blue)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'normal user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-replace-state
-  `((t (:foreground ,(face-background 'default) :background ,user/red)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'replace user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-visual-state
-  `((t (:foreground ,(face-background 'default) :background ,user/orange)))
-  "")
-
-(defface user/mode-line-inactive-state
-  `((t (:foreground ,(face-background 'default) :background ,user/orange)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'visual user/mode-line-colors)))))
   "")
 
 (defface user/mode-line-special-state
-  `((t (:foreground ,(face-background 'default) :background ,user/pink)))
-  "")
-
-(defface user/mode-line-confusing-state
-  `((t (:foreground ,(face-background 'default) :background ,user/cyan)))
+  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'special user/mode-line-colors)))))
   "")
 
 (defvar user/evil-state-faces

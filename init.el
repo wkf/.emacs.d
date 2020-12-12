@@ -11,7 +11,8 @@
 
 (set-frame-font "Fira Code 12" nil t)
 (set-frame-parameter (selected-frame) 'ns-appearance 'dark)
-(set-frame-parameter (selected-frame) 'ns-transparent-titlebar 't)
+;; (set-frame-parameter (selected-frame) 'ns-transparent-titlebar 't)
+(set-frame-parameter (selected-frame) 'ns-transparent-titlebar t)
 (set-frame-position (selected-frame) (round (* (/ (display-pixel-width) 9.0) 2)) 0)
 (set-frame-size (selected-frame) (- (round (* (/ (display-pixel-width) 9.0) 5)) 15) (display-pixel-height) t)
 
@@ -123,7 +124,7 @@
  ns-use-native-fullscreen t
  ns-pop-up-frames nil
  eldoc-idle-delay 0.5
- split-height-threshold 100
+ split-height-threshold 160
  split-width-threshold 160)
 
 (load user/custom-file)
@@ -134,6 +135,8 @@
 (add-to-list 'load-path (expand-file-name "user" user-emacs-directory))
 
 (defvar user/leader-key ",")
+
+(defvar user/theme-colors)
 
 (eval-when-compile
   (require 'use-package))
@@ -147,12 +150,35 @@
 (use-package dash)
 
 (use-package base16-theme
+  :init
+  (setq base16-distinct-fringe-background nil)
   :config
-  (load-theme 'base16-material-darker t))
+  (load-theme 'base16-material-darker t)
 
-(use-package user-ui
-  :straight nil
-  :after (base16-theme))
+  (setq user/theme-colors
+        `(:black ,(plist-get base16-material-darker-colors :base00)
+          :white ,(plist-get base16-material-darker-colors :base07)
+          :red ,(plist-get base16-material-darker-colors :base08)
+          :orange ,(plist-get base16-material-darker-colors :base09)
+          :yellow ,(plist-get base16-material-darker-colors :base0A)
+          :green ,(plist-get base16-material-darker-colors :base0B)
+          :cyan ,(plist-get base16-material-darker-colors :base0C)
+          :blue ,(plist-get base16-material-darker-colors :base0D)
+          :magenta ,(plist-get base16-material-darker-colors :base0E)
+          :pink ,(plist-get base16-material-darker-colors :base0F)))
+
+  (dolist (c `((black . ,(plist-get base16-material-darker-colors :base00))
+               (white . ,(plist-get base16-material-darker-colors :base07))
+               (red . ,(plist-get base16-material-darker-colors :base08))
+               (orange . ,(plist-get base16-material-darker-colors :base09))
+               (yellow . ,(plist-get base16-material-darker-colors :base0A))
+               (green . ,(plist-get base16-material-darker-colors :base0B))
+               (cyan . ,(plist-get base16-material-darker-colors :base0C))
+               (blue . ,(plist-get base16-material-darker-colors :base0D))
+               (magenta . ,(plist-get base16-material-darker-colors :base0E))
+               (pink . ,(plist-get base16-material-darker-colors :base0F))))
+    (face-spec-set (car c) `((t (:foreground ,(cdr c)
+                                 :background ,(face-background 'default)))))))
 
 (use-package user-util
   :straight nil
@@ -160,14 +186,35 @@
 
 (use-package user-mode-line
   :straight nil
+  :after (base16-theme)
+  :init (setq user/mode-line-colors
+              `((emacs . ,(plist-get user/theme-colors :yellow))
+                (insert . ,(plist-get user/theme-colors :green))
+                (motion . ,(plist-get user/theme-colors :magenta))
+                (normal . ,(plist-get user/theme-colors :blue))
+                (replace . ,(plist-get user/theme-colors :red))
+                (visual . ,(plist-get user/theme-colors :orange))
+                (special . ,(plist-get user/theme-colors :cyan))))
+  :custom-face
+  (user/mode-line-emacs-state ((t (:inherit yellow :inverse-video t))))
+  (user/mode-line-insert-state ((t (:inherit green :inverse-video t))))
+  (user/mode-line-motion-state ((t (:inherit magenta :inverse-video t))))
+  (user/mode-line-normal-state ((t (:inherit blue :inverse-video t))))
+  (user/mode-line-replace-state ((t (:inherit red :inverse-video t))))
+  (user/mode-line-visual-state ((t (:inherit orange :inverse-video t))))
+  (user/mode-line-special-state ((t (:inherit pink :inverse-video t))))
   :after (powerline spinner projectile flycheck lispyville)
   :config (setq-default mode-line-format (user/mode-line)))
 
 (use-package linum
+  :custom-face
+  (linum ((t (:inherit font-lock-comment-face :underline nil))))
   :ghook 'prog-mode-hook 'text-mode-hook
   :init (setq linum-format " %3d "))
 
 (use-package hl-line
+  :custom-face
+  (hl-line ((t (:background "gray15"))))
   :ghook 'prog-mode-hook
   :init (setq hl-line-sticky-flag nil
               global-hl-line-sticky-flag nil))
@@ -193,9 +240,62 @@
             (exec-path-from-shell-initialize)
             (setq-default eshell-path-env (getenv "PATH"))))
 
-(use-package org)
+(use-package org
+  :preface
+  (defface org-checkbox-todo-text
+    '((t (:inherit org-todo)))
+    "Face for the text part of an unchecked org-mode checkbox.")
+  (defface org-checkbox-done-text
+    '((t (:inherit org-done)))
+    "Face for the text part of a checked org-mode checkbox.")
+  :custom-face
+  (org-todo ((t (:inherit default :background unspecified))))
+  (org-done ((t (:inherit default :background unspecified :foreground "gray23"))))
+  :config
+  (font-lock-add-keywords
+   'org-mode
+   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
+   'append)
+  (font-lock-add-keywords
+   'org-mode
+   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
+   'append))
+
+(use-package term
+  :straight nil
+  :config
+  (defun after-term-line-mode ()
+    (setq evil-emacs-state-cursor `(,(face-foreground 'yellow) box)
+          evil-insert-state-cursor `(,(face-foreground 'green) bar)
+          evil-motion-state-cursor `(,(face-foreground 'magenta) box)
+          evil-normal-state-cursor `(,(face-foreground 'blue) box)
+          evil-replace-state-cursor `(,(face-foreground 'red) bar)
+          evil-visual-state-cursor `(,(face-foreground 'orange) box))
+    (evil-refresh-cursor))
+
+  (defun after-term-char-mode ()
+    (setq evil-emacs-state-cursor `(,(face-foreground 'yellow) hbar)
+          evil-insert-state-cursor `(,(face-foreground 'green) hbar)
+          evil-motion-state-cursor `(,(face-foreground 'magenta) hbar)
+          evil-normal-state-cursor `(,(face-foreground 'blue) hbar)
+          evil-replace-state-cursor `(,(face-foreground 'red) hbar)
+          evil-visual-state-cursor `(,(face-foreground 'orange) hbar))
+    (evil-refresh-cursor))
+
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (make-local-variable 'evil-emacs-state-cursor)
+              (make-local-variable 'evil-insert-state-cursor)
+              (make-local-variable 'evil-motion-state-cursor)
+              (make-local-variable 'evil-normal-state-cursor)
+              (make-local-variable 'evil-replace-state-cursor)
+              (make-local-variable 'evil-visual-state-cursor)))
+
+  (advice-add 'term-line-mode :after 'after-term-line-mode)
+  (advice-add 'term-char-mode :after 'after-term-char-mode))
 
 (use-package evil
+  :after base16-theme
   :general
   (:states '(normal visual)
    "/" (lambda () (interactive) (setq isearch-forward t) (swiper))
@@ -207,8 +307,9 @@
    "gk" 'evil-previous-line)
   (:prefix user/leader-key
    :states '(normal visual)
-   "bd" (lambda () (interactive) (kill-buffer))
-   "fr" 'user/rename-this-buffer-and-file)
+   "RET" 'user/switch-to-last-buffer
+   "fr" 'user/rename-this-buffer-and-file
+   "bd" (lambda () (interactive) (kill-buffer)))
 
   :init (setq evil-want-fine-undo t
               evil-want-C-u-scroll t
@@ -217,12 +318,12 @@
   (evil-mode 1)
   (setq evil-cross-lines t
         evil-move-beyond-eol t
-        evil-emacs-state-cursor `(,user/yellow box)
-        evil-insert-state-cursor `(,user/green bar)
-        evil-motion-state-cursor `(,user/purple box)
-        evil-normal-state-cursor `(,user/blue box)
-        evil-replace-state-cursor `(,user/red bar)
-        evil-visual-state-cursor `(,user/orange box)
+        evil-emacs-state-cursor `(,(face-foreground 'yellow) box)
+        evil-insert-state-cursor `(,(face-foreground 'green) bar)
+        evil-motion-state-cursor `(,(face-foreground 'magenta) box)
+        evil-normal-state-cursor `(,(face-foreground 'blue) box)
+        evil-replace-state-cursor `(,(face-foreground 'red) bar)
+        evil-visual-state-cursor `(,(face-foreground 'orange) box)
         general-default-keymaps 'evil-normal-state-map)
   (evil-set-undo-system 'undo-fu)
   ;; workaround for...
@@ -262,39 +363,10 @@
   (avy-lead-face-2 ((t (:inherit match :foreground unspecified :background unspecified))))
   (avy-background-face ((t (:inherit match :foreground unspecified)))))
 
-(defun after-term-line-mode ()
-  (setq evil-emacs-state-cursor `(,user/yellow box)
-        evil-insert-state-cursor `(,user/green bar)
-        evil-motion-state-cursor `(,user/purple box)
-        evil-normal-state-cursor `(,user/blue box)
-        evil-replace-state-cursor `(,user/red bar)
-        evil-visual-state-cursor `(,user/orange box))
-  (evil-refresh-cursor))
-
-(defun after-term-char-mode ()
-  (setq evil-emacs-state-cursor `(,user/yellow hbar)
-        evil-insert-state-cursor `(,user/green hbar)
-        evil-motion-state-cursor `(,user/purple hbar)
-        evil-normal-state-cursor `(,user/blue hbar)
-        evil-replace-state-cursor `(,user/red hbar)
-        evil-visual-state-cursor `(,user/orange hbar))
-  (evil-refresh-cursor))
-
-(add-hook 'term-mode-hook
-          (lambda ()
-            (make-local-variable 'evil-emacs-state-cursor)
-            (make-local-variable 'evil-insert-state-cursor)
-            (make-local-variable 'evil-motion-state-cursor)
-            (make-local-variable 'evil-normal-state-cursor)
-            (make-local-variable 'evil-replace-state-cursor)
-            (make-local-variable 'evil-visual-state-cursor)))
-
-(advice-add 'term-line-mode :after 'after-term-line-mode)
-(advice-add 'term-char-mode :after 'after-term-char-mode)
-
 (use-package evil-collection
   :after evil
   :config
+  (evil-collection-init 'ivy)
   (evil-collection-init 'vterm)
   (evil-collection-init 'cider)
   ;; FIXME: this is gonna take some work to actually use
@@ -323,6 +395,10 @@
   :config (evil-org-set-key-theme '(navigation insert textobjects todo)))
 
 (use-package prodigy
+  :custom-face
+  (prodigy-green-face ((t (:inherit success))))
+  (prodigy-red-face ((t (:inherit error))))
+  (prodigy-yellow-face ((t (:inherit warning))))
   :general (:prefix user/leader-key :states 'normal "S" 'prodigy))
 
 (use-package shackle)
@@ -389,12 +465,6 @@
   (magit-log-graph ((t (:inherit font-lock-comment-face))))
   (magit-refname ((t (:inherit default))))
   (magit-section-heading ((t (:inherit font-lock-type-face :weight bold))))
-  ;; (magit-section-heading-selection ((t (:foreground ,user/bright-cyan))))
-  ;; (magit-sequence-drop ((t (:foreground ,user/red))))
-  ;; (magit-sequence-head ((t (:foreground ,user/blue))))
-  ;; (magit-sequence-part ((t (:foreground ,user/yellow))))
-  ;; (magit-sequence-stop ((t (:foreground ,user/green))))
-
   :commands magit-status
   :config
   (setq
@@ -430,11 +500,12 @@
   (setq ivy-use-virtual-buffers t)
   :general
   (:keymaps 'ivy-minibuffer-map
-            "<C-return>" 'ivy-immediate-done
-            "C-c C-c" 'minibuffer-keyboard-quit
-            "ESC ESC ESC" 'minibuffer-keyboard-quit)
-  (:prefix
-   user/leader-key
+   "<C-return>" 'ivy-dispatching-done
+   "C-c RET" 'ivy-immediate-done
+   "C-c C-c" 'minibuffer-keyboard-quit
+   "C-c o" 'ivy-occur
+   "ESC ESC ESC" 'minibuffer-keyboard-quit)
+  (:prefix user/leader-key
    ","  'ivy-resume
    "bb" 'ivy-switch-buffer)
   :config
@@ -519,28 +590,32 @@
   (general-add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 (use-package xterm-color
+  :after base16-theme
   :init
-  (setq xterm-color-names `[,user/black
-                            ,user/red
-                            ,user/green
-                            ,user/yellow
-                            ,user/blue
-                            ,user/magenta
-                            ,user/cyan
-                            ,user/white]
-        xterm-color-names-bright `[,user/bright-black
-                                   ,user/red
-                                   ,user/green
-                                   ,user/yellow
-                                   ,user/blue
-                                   ,user/magenta
-                                   ,user/cyan
-                                   ,user/bright-white]))
+  (setq xterm-color-names `[,(face-foreground 'black)
+                            ,(face-foreground 'red)
+                            ,(face-foreground 'green)
+                            ,(face-foreground 'yellow)
+                            ,(face-foreground 'blue)
+                            ,(face-foreground 'magenta)
+                            ,(face-foreground 'cyan)
+                            ,(face-foreground 'white)]
+        xterm-color-names-bright `[,(face-foreground 'black)
+                                   ,(face-foreground 'red)
+                                   ,(face-foreground 'green)
+                                   ,(face-foreground 'yellow)
+                                   ,(face-foreground 'blue)
+                                   ,(face-foreground 'magenta)
+                                   ,(face-foreground 'cyan)
+                                   ,(face-foreground 'white)]))
 
 (use-package eshell
-  :general (:prefix user/leader-key
-                    "ss" 'user/run-eshell
-                    "sn" 'user/run-new-eshell)
+  :custom-face
+  (eshell-prompt ((t (:inherit eshell-ls-special :weight bold))))
+  :general
+  (:prefix user/leader-key
+   "ss" 'user/run-eshell
+   "sn" 'user/run-new-eshell)
   :config
   ;; http://emacs.stackexchange.com/questions/27849/how-can-i-setup-eshell-to-use-ivy-for-tab-completion
   (general-add-hook 'eshell-mode-hook
@@ -631,7 +706,10 @@
  "moab" 'user/clojure-aviary-browse
  "moae" 'user/clojure-aviary-export)
 
-(use-package eval-sexp-fu)
+(use-package eval-sexp-fu
+  :custom-face
+  (eval-sexp-fu-flash ((t (:inherit success :inverse-video t))))
+  (eval-sexp-fu-flash-error ((t (:inherit error :inverse-video t)))))
 
 (use-package flycheck-clojure
   :after flycheck

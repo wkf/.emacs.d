@@ -51,21 +51,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(clojure-keyword-face ((t (:inherit font-lock-keyword-face))))
- '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
- '(diff-hl-change ((t (:foreground "#ffcb6b"))))
- '(diff-hl-delete ((t (:foreground "#f07178"))))
- '(diff-hl-insert ((t (:foreground "#c3e88d"))))
- '(elixir-atom-face ((t (:inherit font-lock-constant-face))))
- '(elixir-attribute-face ((t (:inherit font-lock-keyword-face))))
- '(eshell-prompt ((t (:foreground "#c792ea" :weight bold))))
- '(eval-sexp-fu-flash ((t (:background "#82aaff" :foreground "#ffffff" :weight bold))))
- '(eval-sexp-fu-flash-error ((t (:foreground "#f07178" :weight bold))))
- '(flycheck-error-list-info ((t (:inherit success))))
- '(fringe ((t (:background "#212121"))))
- '(linum ((t (:foreground "#4a4a4a" :background "#212121"))))
- '(prodigy-green-face ((t (:foreground "#c3e88d"))))
- '(prodigy-red-face ((t (:foreground "#f07178"))))
- '(prodigy-yellow-face ((t (:foreground "#ffcb6b"))))
- '(tide-hl-identifier-face ((t (:inherit highlight)))))
+ )
