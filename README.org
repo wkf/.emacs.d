@@ -2,7 +2,7 @@
 
 - [X] push to github repo
 - [ ] cleanup config
-- [ ] either use custom file or get rid of it
+- [X] either use custom file or get rid of it
 - [X] clean up magit ui
 - [ ] configure prodigy
 - [ ] consider hydra?
@@ -13,19 +13,17 @@
 - [ ] schedule regular "config updates"?
 - [ ] test drive indium (evil bindings?)
 - [X] try avy (remove snipe?)
-- [ ] use use-package more consistently
-- [ ] use general everywhere
+- [X] use use-package more consistently
+- [X] use general everywhere
 - [ ] consider purpose? (plugin)
 - [X] try shx?
 - [X] add prescient.el
 - [X] add dumb-jump
-- [ ] multiple cursors?
 - [X] aggressive indent?
 - [X] olivetti for text-mode?
 - [ ] fix projectile load project on startup
 - [X] markdown-mode
 - [X] use dir-locals for prodigy and projectile?
-- [ ] stop using line numbers??
 - [ ] use version locking with straight.el?
 - [X] avy in visual mode
 - [ ] update lispy bindings?
@@ -37,3 +35,12 @@
 - [ ] explore the evil collection
 - [ ] lazy load packages if possible
 - [ ] add some eshell aliases (like ls)
+- [X] change diff-change back to yellow
+- [ ] package up user-mode-line
+- [X] continue cleaning up init.el at lispy
+- [X] show startup time in echo area
+- [ ] practice with markers, they are useful
+- [ ] learn about paste and C-p/C-p
+- [ ] update modeline when using evil-multiedit
+- [ ] try again with evil-mc?
+- [ ] debug D and C in evil-multiedit region

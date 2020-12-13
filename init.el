@@ -3,18 +3,10 @@
 ;;; Commentary:
 
 ;;; Code:
+
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-
-(mac-auto-operator-composition-mode)
-
-(set-frame-font "Fira Code 12" nil t)
-(set-frame-parameter (selected-frame) 'ns-appearance 'dark)
-;; (set-frame-parameter (selected-frame) 'ns-transparent-titlebar 't)
-(set-frame-parameter (selected-frame) 'ns-transparent-titlebar t)
-(set-frame-position (selected-frame) (round (* (/ (display-pixel-width) 9.0) 2)) 0)
-(set-frame-size (selected-frame) (- (round (* (/ (display-pixel-width) 9.0) 5)) 15) (display-pixel-height) t)
 
 ;;;
 
@@ -127,16 +119,9 @@
  split-height-threshold 160
  split-width-threshold 160)
 
-(load user/custom-file)
-(load user/private-file)
-
 ;;
 
-(add-to-list 'load-path (expand-file-name "user" user-emacs-directory))
-
 (defvar user/leader-key ",")
-
-(defvar user/theme-colors)
 
 (eval-when-compile
   (require 'use-package))
@@ -144,84 +129,101 @@
 (use-package general)
 
 (use-package f)
-
 (use-package s)
-
 (use-package dash)
+(use-package diff)
 
 (use-package base16-theme
+  :after faces
   :init
   (setq base16-distinct-fringe-background nil)
   :config
-  (load-theme 'base16-material-darker t)
+  (load-theme 'base16-material-darker t))
 
-  (setq user/theme-colors
-        `(:black ,(plist-get base16-material-darker-colors :base00)
-          :white ,(plist-get base16-material-darker-colors :base07)
-          :red ,(plist-get base16-material-darker-colors :base08)
-          :orange ,(plist-get base16-material-darker-colors :base09)
-          :yellow ,(plist-get base16-material-darker-colors :base0A)
-          :green ,(plist-get base16-material-darker-colors :base0B)
-          :cyan ,(plist-get base16-material-darker-colors :base0C)
-          :blue ,(plist-get base16-material-darker-colors :base0D)
-          :magenta ,(plist-get base16-material-darker-colors :base0E)
-          :pink ,(plist-get base16-material-darker-colors :base0F)))
+(use-package user-ui
+  :straight nil
+  :load-path "user"
+  :after (base16-theme diff)
+  :init
+  (mac-auto-operator-composition-mode)
+  :config
+  (let ((frame (selected-frame)))
+    (set-frame-font "Fira Code 12" nil t)
+    (set-frame-parameter frame 'ns-appearance 'dark)
+    (set-frame-parameter frame 'ns-transparent-titlebar t)
+    (user-ui/reposition-frame frame 2 0)
+    (user-ui/resize-frame frame 5 1))
+  (set-face-attribute 'region nil
+                      :background (plist-get user-ui/colors :gray5))
+  (set-face-attribute 'font-lock-comment-face nil
+                      :slant 'italic))
 
-  (dolist (c `((black . ,(plist-get base16-material-darker-colors :base00))
-               (white . ,(plist-get base16-material-darker-colors :base07))
-               (red . ,(plist-get base16-material-darker-colors :base08))
-               (orange . ,(plist-get base16-material-darker-colors :base09))
-               (yellow . ,(plist-get base16-material-darker-colors :base0A))
-               (green . ,(plist-get base16-material-darker-colors :base0B))
-               (cyan . ,(plist-get base16-material-darker-colors :base0C))
-               (blue . ,(plist-get base16-material-darker-colors :base0D))
-               (magenta . ,(plist-get base16-material-darker-colors :base0E))
-               (pink . ,(plist-get base16-material-darker-colors :base0F))))
-    (face-spec-set (car c) `((t (:foreground ,(cdr c)
-                                 :background ,(face-background 'default)))))))
+(use-package diff
+  :straight nil
+  :custom-face
+  (diff-changed ((t (:foreground ,(plist-get user-ui/colors :yellow))))))
 
 (use-package user-util
   :straight nil
+  :load-path "user"
   :after (f ivy cider projectile))
 
 (use-package user-mode-line
   :straight nil
-  :after (base16-theme)
-  :init (setq user/mode-line-colors
-              `((emacs . ,(plist-get user/theme-colors :yellow))
-                (insert . ,(plist-get user/theme-colors :green))
-                (motion . ,(plist-get user/theme-colors :magenta))
-                (normal . ,(plist-get user/theme-colors :blue))
-                (replace . ,(plist-get user/theme-colors :red))
-                (visual . ,(plist-get user/theme-colors :orange))
-                (special . ,(plist-get user/theme-colors :cyan))))
-  :custom-face
-  (user/mode-line-emacs-state ((t (:inherit yellow :inverse-video t))))
-  (user/mode-line-insert-state ((t (:inherit green :inverse-video t))))
-  (user/mode-line-motion-state ((t (:inherit magenta :inverse-video t))))
-  (user/mode-line-normal-state ((t (:inherit blue :inverse-video t))))
-  (user/mode-line-replace-state ((t (:inherit red :inverse-video t))))
-  (user/mode-line-visual-state ((t (:inherit orange :inverse-video t))))
-  (user/mode-line-special-state ((t (:inherit pink :inverse-video t))))
-  :after (powerline spinner projectile flycheck lispyville)
-  :config (setq-default mode-line-format (user/mode-line)))
+  :load-path "user"
+  ;; TODO check for these at runtime so we can load mode-line sooner
+  ;; :after (user-ui powerline spinner projectile flycheck lispyville)
+  :after (user-ui powerline spinner projectile flycheck)
+  :init
+  (setq user-mode-line/emacs-state-color (plist-get user-ui/colors :yellow)
+        user-mode-line/insert-state-color (plist-get user-ui/colors :green)
+        user-mode-line/motion-state-color (plist-get user-ui/colors :magenta)
+        user-mode-line/normal-state-color (plist-get user-ui/colors :blue)
+        user-mode-line/replace-state-color (plist-get user-ui/colors :red)
+        user-mode-line/visual-state-color (plist-get user-ui/colors :orange)
+        user-mode-line/special-state-color (plist-get user-ui/colors :cyan))
+  :config
+  (setq-default mode-line-format (user-mode-line)))
 
 (use-package linum
+  :init
+  (setq linum-format " %3d ")
+  :ghook
+  'prog-mode-hook
+  'text-mode-hook
   :custom-face
-  (linum ((t (:inherit font-lock-comment-face :underline nil))))
-  :ghook 'prog-mode-hook 'text-mode-hook
-  :init (setq linum-format " %3d "))
+  (linum ((t (:inherit font-lock-comment-face :underline nil)))))
 
 (use-package hl-line
+  :init
+  (setq hl-line-sticky-flag nil
+        global-hl-line-sticky-flag nil)
+  :ghook
+  'prog-mode-hook
   :custom-face
-  (hl-line ((t (:background "gray15"))))
-  :ghook 'prog-mode-hook
-  :init (setq hl-line-sticky-flag nil
-              global-hl-line-sticky-flag nil))
+  (hl-line ((t (:background ,(plist-get user-ui/colors :gray0))))))
 
 (use-package hl-todo
-  :init (setq hl-todo-activate-in-modes '(prog-mode))
-  :config (global-hl-todo-mode))
+  :init
+  (setq hl-todo-include-modes '(prog-mode)
+        hl-todo-keyword-faces
+        `(("HOLD" . ,(plist-get user-ui/colors :yellow))
+          ("TODO" . ,(plist-get user-ui/colors :magenta))
+          ("NEXT" . ,(plist-get user-ui/colors :yellow))
+          ("THEM" . ,(plist-get user-ui/colors :yellow))
+          ("PROG" . ,(plist-get user-ui/colors :yellow))
+          ("OKAY" . ,(plist-get user-ui/colors :green))
+          ("DONT" . ,(plist-get user-ui/colors :red))
+          ("FAIL" . ,(plist-get user-ui/colors :red))
+          ("DONE" . ,(plist-get user-ui/colors :green))
+          ("NOTE" . ,(plist-get user-ui/colors :yellow))
+          ("KLUDGE" . ,(plist-get user-ui/colors :red))
+          ("HACK" . ,(plist-get user-ui/colors :red))
+          ("FIXME" . ,(plist-get user-ui/colors :red))
+          ("XXX" . ,(plist-get user-ui/colors :red))
+          ("XXXX" . ,(plist-get user-ui/colors :red))))
+  :config
+  (global-hl-todo-mode t))
 
 (use-package which-key
   :config
@@ -231,27 +233,25 @@
 (use-package undo-fu)
 
 (use-package undo-fu-session
-  :config (global-undo-fu-session-mode))
+  :config
+  (global-undo-fu-session-mode))
 
 ;; On OSX, in GUI Emacs, `exec-path' isn't populated properly (it should match
 ;; $PATH in my shell). `exec-path-from-shell' fixes this.
 (use-package exec-path-from-shell
-  :config (when window-system
-            (exec-path-from-shell-initialize)
-            (setq-default eshell-path-env (getenv "PATH"))))
+  :if window-system
+  :config
+  (exec-path-from-shell-initialize)
+  (setq-default eshell-path-env (getenv "PATH")))
 
 (use-package org
-  :preface
+  :config
   (defface org-checkbox-todo-text
     '((t (:inherit org-todo)))
     "Face for the text part of an unchecked org-mode checkbox.")
   (defface org-checkbox-done-text
     '((t (:inherit org-done)))
     "Face for the text part of a checked org-mode checkbox.")
-  :custom-face
-  (org-todo ((t (:inherit default :background unspecified))))
-  (org-done ((t (:inherit default :background unspecified :foreground "gray23"))))
-  :config
   (font-lock-add-keywords
    'org-mode
    `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
@@ -259,73 +259,36 @@
   (font-lock-add-keywords
    'org-mode
    `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
-   'append))
-
-(use-package term
-  :straight nil
-  :config
-  (defun after-term-line-mode ()
-    (setq evil-emacs-state-cursor `(,(face-foreground 'yellow) box)
-          evil-insert-state-cursor `(,(face-foreground 'green) bar)
-          evil-motion-state-cursor `(,(face-foreground 'magenta) box)
-          evil-normal-state-cursor `(,(face-foreground 'blue) box)
-          evil-replace-state-cursor `(,(face-foreground 'red) bar)
-          evil-visual-state-cursor `(,(face-foreground 'orange) box))
-    (evil-refresh-cursor))
-
-  (defun after-term-char-mode ()
-    (setq evil-emacs-state-cursor `(,(face-foreground 'yellow) hbar)
-          evil-insert-state-cursor `(,(face-foreground 'green) hbar)
-          evil-motion-state-cursor `(,(face-foreground 'magenta) hbar)
-          evil-normal-state-cursor `(,(face-foreground 'blue) hbar)
-          evil-replace-state-cursor `(,(face-foreground 'red) hbar)
-          evil-visual-state-cursor `(,(face-foreground 'orange) hbar))
-    (evil-refresh-cursor))
-
-  (add-hook 'term-mode-hook
-            (lambda ()
-              (make-local-variable 'evil-emacs-state-cursor)
-              (make-local-variable 'evil-insert-state-cursor)
-              (make-local-variable 'evil-motion-state-cursor)
-              (make-local-variable 'evil-normal-state-cursor)
-              (make-local-variable 'evil-replace-state-cursor)
-              (make-local-variable 'evil-visual-state-cursor)))
-
-  (advice-add 'term-line-mode :after 'after-term-line-mode)
-  (advice-add 'term-char-mode :after 'after-term-char-mode))
+   'append)
+  :custom-face
+  (org-todo ((t (:inherit default :background unspecified))))
+  (org-done ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray2))))))
 
 (use-package evil
   :after base16-theme
-  :general
-  (:states '(normal visual)
-   "/" (lambda () (interactive) (setq isearch-forward t) (swiper))
-   "\\" 'evil-repeat-find-char-reverse)
-  (:states '(normal motion)
-   "j" 'evil-next-visual-line
-   "k" 'evil-previous-visual-line
-   "gj" 'evil-next-line
-   "gk" 'evil-previous-line)
-  (:prefix user/leader-key
-   :states '(normal visual)
-   "RET" 'user/switch-to-last-buffer
-   "fr" 'user/rename-this-buffer-and-file
-   "bd" (lambda () (interactive) (kill-buffer)))
-
-  :init (setq evil-want-fine-undo t
-              evil-want-C-u-scroll t
-              evil-want-keybinding nil)
+  :init
+  (setq evil-want-fine-undo t
+        evil-want-C-u-scroll t
+        evil-want-keybinding nil)
   :config
   (evil-mode 1)
   (setq evil-cross-lines t
         evil-move-beyond-eol t
-        evil-emacs-state-cursor `(,(face-foreground 'yellow) box)
-        evil-insert-state-cursor `(,(face-foreground 'green) bar)
-        evil-motion-state-cursor `(,(face-foreground 'magenta) box)
-        evil-normal-state-cursor `(,(face-foreground 'blue) box)
-        evil-replace-state-cursor `(,(face-foreground 'red) bar)
-        evil-visual-state-cursor `(,(face-foreground 'orange) box)
-        general-default-keymaps 'evil-normal-state-map)
+        evil-emacs-state-cursor `(,(plist-get user-ui/colors :yellow) box)
+        evil-insert-state-cursor `(,(plist-get user-ui/colors :green) bar)
+        evil-motion-state-cursor `(,(plist-get user-ui/colors :magenta) box)
+        evil-normal-state-cursor `(,(plist-get user-ui/colors :blue) box)
+        evil-replace-state-cursor `(,(plist-get user-ui/colors :red) bar)
+        evil-visual-state-cursor `(,(plist-get user-ui/colors :orange) box))
   (evil-set-undo-system 'undo-fu)
+
+  ;; On OSX, stop copying each visual state move to the clipboard:
+  ;; https://bitbucket.org/lyro/evil/issue/336/osx-visual-state-copies-the-region-on
+  ;; Most of this code grokked from:
+  ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
+  (when (or (featurep 'mac) (featurep 'ns))
+    (general-add-advice 'evil-visual-update-x-selection :override 'ignore))
+
   ;; workaround for...
   ;; https://github.com/abo-abo/swiper/issues/977
   (defvar user/-evil-ex-minibuffer nil)
@@ -338,14 +301,28 @@
       (funcall f)
       (setq user/-evil-ex-minibuffer nil)))
 
-  (advice-add 'evil-ex-setup :before 'user/-before-evil-ex-setup)
-  (advice-add 'evil-ex-teardown :around 'user/-around-evil-ex-teardown))
+  (general-add-advice 'evil-ex-setup :before 'user/-before-evil-ex-setup)
+  (general-add-advice 'evil-ex-teardown :around 'user/-around-evil-ex-teardown)
+  :general
+  (:states '(normal visual)
+   "\\" 'evil-repeat-find-char-reverse)
+  (:states '(normal motion)
+   "j" 'evil-next-visual-line
+   "k" 'evil-previous-visual-line
+   "gj" 'evil-next-line
+   "gk" 'evil-previous-line)
+  (:prefix user/leader-key
+   :states '(normal visual)
+   "RET" 'user/switch-to-last-buffer
+   "fr" 'user/rename-this-buffer-and-file
+   "bd" (lambda () (interactive) (kill-buffer))))
 
 (use-package avy
+  ;;  installed along with evil
   :straight nil
   :general
-  (:prefix "SPC"
-   :states '(normal visual)
+  (:states '(normal visual)
+   :prefix "SPC"
    "SPC" 'evil-avy-goto-char
    "RET" 'evil-avy-goto-line
    "k" 'evil-avy-goto-line-above
@@ -363,21 +340,26 @@
   (avy-lead-face-2 ((t (:inherit match :foreground unspecified :background unspecified))))
   (avy-background-face ((t (:inherit match :foreground unspecified)))))
 
+(defvar user/evil-collection-packages
+  '(ivy
+    vterm
+    ;; FIXME: this is gonna take some work to actually use
+    ;; lispy
+    cider
+    eshell
+    prodigy
+    unimpaired))
+
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init 'ivy)
-  (evil-collection-init 'vterm)
-  (evil-collection-init 'cider)
-  ;; FIXME: this is gonna take some work to actually use
-  ;; (evil-collection-init 'lispy)
-  (evil-collection-init 'eshell)
-  (evil-collection-init 'prodigy)
-  (evil-collection-init 'unimpaired))
+  (dolist (p user/evil-collection-packages)
+    (evil-collection-init p)))
 
 (use-package evil-surround
   :after evil
-  :config (global-evil-surround-mode 1))
+  :config
+  (global-evil-surround-mode 1))
 
 (use-package evil-snipe
   :after evil
@@ -387,45 +369,81 @@
 
 (use-package evil-commentary
   :after evil
-  :config (evil-commentary-mode))
+  :config
+  (evil-commentary-mode))
 
 (use-package evil-org
-  :ghook 'org-mode-hook
   :after (org evil)
-  :config (evil-org-set-key-theme '(navigation insert textobjects todo)))
+  :config (evil-org-set-key-theme '(navigation insert textobjects todo))
+  :ghook 'org-mode-hook)
+
+(use-package evil-multiedit
+  :init
+  (setq evil-multiedit-store-in-search-history t)
+  :config
+  (evil-ex-define-cmd "ie[dit]" 'evil-multiedit-ex-match)
+  :general
+  (:states 'visual
+   "gs" 'evil-multiedit-match-all
+   "gS" 'evil-multiedit-restore)
+  (:states '(normal visual)
+   "gn" 'evil-multiedit-match-and-next
+   "gN" 'evil-multiedit-match-and-prev)
+  (:states 'insert
+   "C-s" 'evil-multiedit-toggle-marker-here)
+  (:states 'motion
+   "RET" 'evil-multiedit-toggle-or-restrict-region)
+  (:keymaps '(evil-multiedit-state-map
+              evil-multiedit-insert-state-map)
+   "C-n" 'evil-multiedit-next
+   "C-p" 'evil-multiedit-prev)
+  :custom-face
+  (iedit-occurrence ((t (:inherit warning :inverse-video t)))))
 
 (use-package prodigy
+  :general
+  (:states 'normal
+   :prefix user/leader-key
+   "S" 'prodigy)
   :custom-face
   (prodigy-green-face ((t (:inherit success))))
   (prodigy-red-face ((t (:inherit error))))
-  (prodigy-yellow-face ((t (:inherit warning))))
-  :general (:prefix user/leader-key :states 'normal "S" 'prodigy))
+  (prodigy-yellow-face ((t (:inherit warning)))))
 
 (use-package shackle)
 
 (use-package gitconfig-mode
-  :ghook ('gitconfig-mode-hook #'flyspell-mode)
-  :mode ("/\\.?git/?config$" "/\\.gitmodules$"))
+  :mode
+  ("/\\.gitmodules$"
+   "/\\.?git/?config$")
+  :gfhook
+  #'flyspell-mode)
 
 (use-package gitignore-mode
-  :mode ("/\\.gitignore$" "/\\.git/info/exclude$" "/git/ignore$"))
+  :mode
+  ("/git/ignore$"
+   "/\\.gitignore$"
+   "/\\.git/info/exclude$"))
 
 (use-package git-gutter
+  :after shackle
+  :commands git-gutter-mode
+  :init
+  (setq git-gutter:window-width -1)
+  :config
+  (push
+   '("^\\*git-gutter.+\\*$" :align below :size 15 :noselect t :regexp t) shackle-rules)
+  (advice-add 'evil-force-normal-state :after 'git-gutter)
   :ghook
   'text-mode-hook
   'prog-mode-hook
   'conf-mode-hook
-  ('focus-in-hook #'git-gutter:update-all-windows)
-  :commands git-gutter-mode
-  :config
-  (push
-   '("^\\*git-gutter.+\\*$" :align below :size 15 :noselect t :regexp t) shackle-rules)
-  (advice-add 'evil-force-normal-state :after 'git-gutter))
+  ('focus-in-hook #'git-gutter:update-all-windows))
 
 (use-package fringe-helper)
 
 (use-package git-gutter-fringe
-  :after git-gutter
+  :after (git-gutter fringe-helper)
   :config
   (setq git-gutter-fr:side 'right-fringe)
   (define-fringe-bitmap 'git-gutter-fr:added
@@ -436,35 +454,25 @@
     nil nil 'center)
   (define-fringe-bitmap 'git-gutter-fr:deleted
     [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
-    nil nil 'center))
+    nil nil 'center)
+  :custom-face
+
+  (git-gutter-fr:modified ((t (:foreground ,(plist-get user-ui/colors :yellow)))))
+  )
 
 (use-package git-messenger
-  :general (:keymaps 'git-messenger-map "q" 'git-messenger:popup-close)
   :commands git-messenger:popup-message
-  :init (defvar git-messenger-map (make-sparse-keymap))
+  :init
+  (defvar git-messenger-map (make-sparse-keymap))
   :config
   (setq git-messenger:show-detail t)
-  (push '("*git-messenger*" :align left :size 55 :select t) shackle-rules))
+  (push '("*git-messenger*" :align left :size 55 :select t) shackle-rules)
+  :general
+  ('git-messenger-map
+   "q" 'git-messenger:popup-close))
 
 (use-package magit
-  :custom-face
-  (magit-bisect-bad ((t (:inherit magit-signature-error))))
-  (magit-bisect-good ((t (:inherit magit-signature-good))))
-  (magit-bisect-skip ((t (:inherit magit-signature-untrusted))))
-  (magit-diff-added ((t (:inherit diff-added))))
-  (magit-diff-added-highlight ((t (:inherit diff-added :background "gray17"))))
-  (magit-diff-base ((t (:inherit diff-changed))))
-  (magit-diff-base-highlight ((t (:inherit diff-changed :background "gray17"))))
-  (magit-diff-lines-heading ((t (:inherit diff-file-header))))
-  (magit-diff-removed ((t (:inherit diff-removed))))
-  (magit-diff-removed-highlight ((t (:inherit diff-removed :background "gray17"))))
-  (magit-diffstat-added ((t (:inherit diff-added))))
-  (magit-diffstat-removed ((t (:inherit diff-removed))))
-  (magit-dimmed ((t (:inherit font-lock-comment-face))))
-  (magit-log-date ((t (:inherit font-lock-comment-face))))
-  (magit-log-graph ((t (:inherit font-lock-comment-face))))
-  (magit-refname ((t (:inherit default))))
-  (magit-section-heading ((t (:inherit font-lock-type-face :weight bold))))
+  :after evil-snipe
   :commands magit-status
   :config
   (setq
@@ -481,102 +489,119 @@
                               magit-status-mode)))
                  nil
                '(display-buffer-same-window)))))
-  (general-define-key
+  :general
+  (:states '(normal visual)
    :prefix user/leader-key
-   :keymaps '(evil-normal-state-map
-              evil-visual-state-map)
    "gs" 'magit-status
    "gb" 'magit-blame
    "gq" 'magit-blame-quit
    "gc" (lambda ()
           (interactive)
           (shell-command "git log origin/production..production --no-merges --oneline --reverse | pbcopy")))
-  (general-add-hook 'magit-mode-hook 'turn-off-evil-snipe-override-mode))
+  :gfhook
+  #'turn-off-evil-snipe-override-mode
+  :custom-face
+  (magit-bisect-bad ((t (:inherit magit-signature-error))))
+  (magit-bisect-good ((t (:inherit magit-signature-good))))
+  (magit-bisect-skip ((t (:inherit magit-signature-untrusted))))
+  (magit-diff-added ((t (:inherit diff-added))))
+  (magit-diff-added-highlight ((t (:inherit diff-added :background ,(plist-get user-ui/colors :gray1)))))
+  (magit-diff-base ((t (:inherit diff-changed))))
+  (magit-diff-base-highlight ((t (:inherit diff-changed :background ,(plist-get user-ui/colors :gray1)))))
+  (magit-diff-lines-heading ((t (:inherit diff-file-header))))
+  (magit-diff-removed ((t (:inherit diff-removed))))
+  (magit-diff-removed-highlight ((t (:inherit diff-removed :background ,(plist-get user-ui/colors :gray1)))))
+  (magit-diffstat-added ((t (:inherit diff-added))))
+  (magit-diffstat-removed ((t (:inherit diff-removed))))
+  (magit-dimmed ((t (:inherit font-lock-comment-face))))
+  (magit-log-date ((t (:inherit font-lock-comment-face))))
+  (magit-log-graph ((t (:inherit font-lock-comment-face))))
+  (magit-refname ((t (:inherit default))))
+  (magit-section-heading ((t (:inherit font-lock-type-face :weight bold)))))
 
 (use-package evil-magit)
 
 (use-package ivy
   :init
   (setq ivy-use-virtual-buffers t)
+  :config
+  (ivy-mode 1)
   :general
-  (:keymaps 'ivy-minibuffer-map
+  ('ivy-minibuffer-map
    "<C-return>" 'ivy-dispatching-done
    "C-c RET" 'ivy-immediate-done
    "C-c C-c" 'minibuffer-keyboard-quit
    "C-c o" 'ivy-occur
    "ESC ESC ESC" 'minibuffer-keyboard-quit)
-  (:prefix user/leader-key
+  (:states '(normal visual)
+   :prefix user/leader-key
    ","  'ivy-resume
-   "bb" 'ivy-switch-buffer)
-  :config
-  (ivy-mode 1))
+   "bb" 'ivy-switch-buffer))
 
 (use-package swiper
-  ;; :general
-  ;; (:states '(normal visual)
-  ;;  "/" (lambda () (interactive) (setq isearch-forward t) (swiper)))
   :config
   (general-add-advice
    '(ivy-next-line ivy-previous-line)
    :after (lambda (arg)
             (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
-            (setq isearch-forward t))))
-
-;; (defun user/swiper-update-search-ring-forward (&rest args)
-;;   "Update swiper results so n/N bindings work, ignoring ARGS."
-;;   (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
-;;   (setq isearch-forward t))
-
-;; (defun user/swiper-update-search-ring-backward (&rest args)
-;;   "Update swiper results so n/N bindings work, ignoring ARGS."
-;;   (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
-;;   (setq isearch-forward nil))
-
-;; (advice-add 'ivy-next-line :after #'user/swiper-update-search-ring-forward)
-;; (advice-add 'ivy-previous-line :after #'user/swiper-update-search-ring-backward)
-
-;; (defun user/swiper-update-search-ring (&rest args)
-;;   "Update swiper results so n/N bindings work, ignoring ARGS."
-;;   (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
-;;   (setq isearch-forward t))
-
+            (setq isearch-forward t)))
+  :general
+  (:states '(normal visual)
+   "/" (lambda () (interactive) (setq isearch-forward t) (swiper))))
 
 (use-package projectile
-  :config (projectile-mode))
+  :init
+  (setq projectile-completion-system 'ivy
+        projectile-enable-caching nil
+        projectile-file-exists-local-cache-expire 30
+        projectile-globally-ignored-directories
+        '(".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules"))
+  :config
+  (projectile-mode))
 
 (use-package perspective
-  :config (persp-mode))
+  :config
+  (persp-mode))
 
 (use-package persp-projectile
-  :general (:prefix user/leader-key "pp" 'projectile-persp-switch-project))
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "pp" 'projectile-persp-switch-project))
 
 (use-package counsel
-  :general (:prefix user/leader-key
-                    ":"  'counsel-M-x
-                    "ff" 'counsel-find-file))
+  :init
+  (setq counsel-find-file-ignore-regexp nil)
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   ":"  'counsel-M-x
+   "ff" 'counsel-find-file))
 
 (use-package counsel-projectile
-  :general (:prefix user/leader-key
-                    "SPC" 'counsel-projectile
-                    "pf" 'counsel-projectile-find-file
-                    "pd" 'counsel-projectile-find-dir
-                    "pb" 'counsel-projectile-switch-to-buffer
-                    "p/" 'counsel-projectile-ag)
-  :config (counsel-projectile-mode))
+  :config
+  (counsel-projectile-mode)
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "SPC" 'counsel-projectile
+   "pf" 'counsel-projectile-find-file
+   "pd" 'counsel-projectile-find-dir
+   "pb" 'counsel-projectile-switch-to-buffer
+   "p/" 'counsel-projectile-ag))
 
 (use-package company
-  :custom-face
-  (company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
-  (company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
-
   :config
   (global-company-mode)
   (setq company-idle-delay 0.2
         company-tooltip-align-annotations t)
-  (general-define-key
-   :keymaps 'company-active-map
+  :general
+  ('company-active-map
    "C-n" 'company-select-next
-   "C-p" 'company-select-previous))
+   "C-p" 'company-select-previous)
+  :custom-face
+  (company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
+  (company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
 
 (use-package prescient)
 
@@ -586,102 +611,141 @@
   (ivy-prescient-mode 1))
 
 (use-package dumb-jump
+  :ghook
+  ('xref-backend-function #'dumb-jump-xref-activate))
+
+(use-package term
+  :straight nil
   :config
-  (general-add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+  (defun after-term-line-mode ()
+    (setq evil-emacs-state-cursor `(,(plist-get user-ui/colors :yellow) box)
+          evil-insert-state-cursor `(,(plist-get user-ui/colors :green) bar)
+          evil-motion-state-cursor `(,(plist-get user-ui/colors :magenta) box)
+          evil-normal-state-cursor `(,(plist-get user-ui/colors :blue) box)
+          evil-replace-state-cursor `(,(plist-get user-ui/colors :red) bar)
+          evil-visual-state-cursor `(,(plist-get user-ui/colors :orange) box))
+    (evil-refresh-cursor))
+
+  (defun after-term-char-mode ()
+    (setq evil-emacs-state-cursor `(,(plist-get user-ui/colors :yellow) hbar)
+          evil-insert-state-cursor `(,(plist-get user-ui/colors :green) hbar)
+          evil-motion-state-cursor `(,(plist-get user-ui/colors :magenta) hbar)
+          evil-normal-state-cursor `(,(plist-get user-ui/colors :blue) hbar)
+          evil-replace-state-cursor `(,(plist-get user-ui/colors :red) hbar)
+          evil-visual-state-cursor `(,(plist-get user-ui/colors :orange) hbar))
+    (evil-refresh-cursor))
+
+  (add-hook 'term-mode-hook (lambda ()
+                              (make-local-variable 'evil-emacs-state-cursor)
+                              (make-local-variable 'evil-insert-state-cursor)
+                              (make-local-variable 'evil-motion-state-cursor)
+                              (make-local-variable 'evil-normal-state-cursor)
+                              (make-local-variable 'evil-replace-state-cursor)
+                              (make-local-variable 'evil-visual-state-cursor)))
+
+  (advice-add 'term-line-mode :after 'after-term-line-mode)
+  (advice-add 'term-char-mode :after 'after-term-char-mode))
 
 (use-package xterm-color
   :after base16-theme
   :init
-  (setq xterm-color-names `[,(face-foreground 'black)
-                            ,(face-foreground 'red)
-                            ,(face-foreground 'green)
-                            ,(face-foreground 'yellow)
-                            ,(face-foreground 'blue)
-                            ,(face-foreground 'magenta)
-                            ,(face-foreground 'cyan)
-                            ,(face-foreground 'white)]
-        xterm-color-names-bright `[,(face-foreground 'black)
-                                   ,(face-foreground 'red)
-                                   ,(face-foreground 'green)
-                                   ,(face-foreground 'yellow)
-                                   ,(face-foreground 'blue)
-                                   ,(face-foreground 'magenta)
-                                   ,(face-foreground 'cyan)
-                                   ,(face-foreground 'white)]))
+  (setq xterm-color-names `[,(plist-get user-ui/colors :black)
+                            ,(plist-get user-ui/colors :red)
+                            ,(plist-get user-ui/colors :green)
+                            ,(plist-get user-ui/colors :yellow)
+                            ,(plist-get user-ui/colors :blue)
+                            ,(plist-get user-ui/colors :magenta)
+                            ,(plist-get user-ui/colors :cyan)
+                            ,(plist-get user-ui/colors :white)]
+        xterm-color-names-bright `[,(plist-get user-ui/colors :black)
+                                   ,(plist-get user-ui/colors :red)
+                                   ,(plist-get user-ui/colors :green)
+                                   ,(plist-get user-ui/colors :yellow)
+                                   ,(plist-get user-ui/colors :blue)
+                                   ,(plist-get user-ui/colors :magenta)
+                                   ,(plist-get user-ui/colors :cyan)
+                                   ,(plist-get user-ui/colors :white)]))
 
 (use-package eshell
-  :custom-face
-  (eshell-prompt ((t (:inherit eshell-ls-special :weight bold))))
+  :init
+  (setenv "TERM" "xterm-256color")
+  (setq eshell-preoutput-filter-functions
+        '(xterm-color-filter))
+  (setq eshell-output-filter-functions
+        '(eshell-postoutput-scroll-to-bottom eshell-handle-control-codes))
+  :gfhook
+  (nil (lambda ()
+         (general-def '(normal insert) 'eshell-mode-map
+           "C-n" 'eshell-next-input
+           "C-p" 'eshell-previous-input
+           "C-s" 'counsel-esh-history
+           ;; http://emacs.stackexchange.com/questions/27849/how-can-i-setup-eshell-to-use-ivy-for-tab-completion
+           "TAB" (lambda () (interactive) (pcomplete-std-complete))
+           "<C-return>" (lambda () (interactive) (eshell/clear-scrollback) (eshell-send-input nil nil t)))))
+  ('eshell-before-prompt-hook (lambda ()
+                                (setq xterm-color-preserve-properties t)))
   :general
-  (:prefix user/leader-key
+  (:states '(normal visual)
+   :prefix user/leader-key
    "ss" 'user/run-eshell
    "sn" 'user/run-new-eshell)
-  :config
-  ;; http://emacs.stackexchange.com/questions/27849/how-can-i-setup-eshell-to-use-ivy-for-tab-completion
-  (general-add-hook 'eshell-mode-hook
-                    (lambda ()
-                      (setenv "TERM" "xterm-256color")
-                      (define-key eshell-mode-map (kbd "<tab>")
-                        (lambda () (interactive) (pcomplete-std-complete)))))
-  (general-add-hook 'eshell-before-prompt-hook
-                    (lambda ()
-                      (setq xterm-color-preserve-properties t)))
-  (general-add-hook
-   'eshell-mode-hook
-   (lambda ()
-     (genera-define-key
-      :keymaps 'eshell-mode-map
-      :states 'normal
-      ",sc" (lambda () (interactive) (eshell/clear) (eshell-send-input)))
-     (if nil (general-define-key
-              :keymaps 'eshell-mode-map
-              :states '(normal insert)
-              "RET" 'eshell-send-input
-              "C-n" 'eshell-next-input
-              "C-p" 'eshell-previous-input
-              "C-s" 'counsel-esh-history))))
-  (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-  (setq eshell-output-filter-functions
-        (remove 'eshell-handle-ansi-color eshell-output-filter-functions)))
+  :custom-face
+  (eshell-prompt ((t (:inherit eshell-ls-special :weight bold :foreground unspecified)))))
 
 (use-package eshell-prompt-extras
-  :config (setq eshell-highlight-prompt t
-                eshell-banner-message ""
-                eshell-prompt-function 'user/eshell-prompt-theme))
+  :after eshell
+  :config
+  (setq eshell-highlight-prompt t
+        eshell-banner-message ""
+        eshell-prompt-function 'user/eshell-prompt-theme)
+  :custom-face
+  (epe-symbol-face ((t (:inherit eshell-ls-special :weight bold)))))
 
 (use-package multi-eshell
-  :general (:prefix user/leader-key "sb" 'multi-eshell-go-back))
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "sb" 'multi-eshell-go-back))
 
 (use-package vterm
-  :general (:prefix user/leader-key "sv" 'vterm))
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "sv" 'vterm))
 
 (use-package shx
-  :config (shx-global-mode 1))
+  :config
+  (shx-global-mode 1))
 
 (use-package olivetti
-  :config
-  (general-add-hook 'text-mode-hook 'olivetti-mode))
+  :ghook
+  'text-mode-hook)
 
 (use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode)))
+  :mode
+  (("README\\.md\\'" . gfm-mode)
+   ("\\.md\\'" . markdown-mode)
+   ("\\.markdown\\'" . markdown-mode)))
 
 (use-package focus
-  :general (:prefix user/leader-key "F" 'focus-mode))
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "F" 'focus-mode))
 
 (use-package flycheck
-  :custom-face
-  (flycheck-error-list-info ((t (:inherit success))))
   :init
   (setq-default flycheck-emacs-lisp-load-path 'inherit)
+  (setq flycheck-display-errors-function 'flycheck-display-error-messages)
   :config
   (setq flycheck-display-errors-delay 1.0
         flycheck-indication-mode 'left-fringe
         flycheck-check-syntax-automatically '(save mode-enabled))
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192 192]
-    nil nil 'center))
+    nil nil 'center)
+  :custom-face
+  (flycheck-error-list-info ((t (:inherit success)))))
 
 (use-package flycheck-tip)
 
@@ -697,29 +761,102 @@
 (general-add-hook user/lisp-mode-hooks #'flycheck-mode)
 (general-add-hook 'emacs-lisp-mode-hook (lambda () (setq-local lisp-indent-function #'user/lisp-indent-function)))
 
-(general-define-key
- :keymaps 'clojure-mode-map
- :states '(normal)
- :prefix user/leader-key
- "mor" 'user/clojure-reload
- "moR" 'user/clojure-reload-all
- "moab" 'user/clojure-aviary-browse
- "moae" 'user/clojure-aviary-export)
-
-(use-package eval-sexp-fu
-  :custom-face
-  (eval-sexp-fu-flash ((t (:inherit success :inverse-video t))))
-  (eval-sexp-fu-flash-error ((t (:inherit error :inverse-video t)))))
+(use-package clojure-mode
+  :init
+  (setq clojure-indent-style :always-indent)
+  :general
+  ('clojure-mode-map
+   :states '(normal)
+   :prefix user/leader-key
+   "mor" 'user/clojure-reload
+   "moR" 'user/clojure-reload-all
+   "moab" 'user/clojure-aviary-browse
+   "moae" 'user/clojure-aviary-export))
 
 (use-package flycheck-clojure
   :after flycheck
-  :config (flycheck-clojure-setup))
+  :config
+  (flycheck-clojure-setup))
 
 (use-package rainbow-delimiters
-  :config (general-add-hook user/lisp-mode-hooks #'rainbow-delimiters-mode))
+  :ghook
+  user/lisp-mode-hooks)
 
 (use-package aggressive-indent
-  :config (general-add-hook user/lisp-mode-hooks #'aggressive-indent-mode))
+  :ghook
+  user/lisp-mode-hooks)
+
+(use-package lispy
+  :init
+  (setq lispy-close-quotes-at-end-p t)
+  :ghook
+  user/lisp-mode-hooks
+  :general
+  ('lispy-mode-map
+   :definer 'lispy
+   "X" #'lispy-kill
+   "m" #'lispy-view))
+
+(use-package lispyville
+  :after lispy
+  :init
+  (setq lispyville-motions-put-into-special t
+        lispyville-commands-put-into-special t)
+  :config
+  (lispyville-set-key-theme
+   '(operators
+     c-w
+     c-u
+     prettify
+     text-objects
+     commentary
+     (atom-movement t)
+     slurp/barf-lispy
+     mark-toggle))
+  ;; FIXME need to do something similar for colon, apparently
+  (defun user/lispy-space ()
+    "Like lispy space, but move the cursor back once."
+    (interactive)
+    (if (not (lispyville--at-left-p))
+        (call-interactively 'lispy-space)
+      (call-interactively 'lispy-space)
+      (backward-char)
+      (when (lispyville--at-left-p)
+        (forward-char))))
+  :ghook
+  'lispy-mode-hook
+  :general
+  ('lispy-mode-map
+   :definer 'lispy
+   "v" #'lispyville-toggle-mark-type
+   "SPC" #'user/lispy-space)
+  ('normal
+   'lispyville-mode-map
+   "X" 'lispy-kill
+   "gI" 'lispyville-insert-at-beginning-of-list
+   "gA" 'lispyville-insert-at-end-of-list
+   "go" 'lispyville-open-below-list
+   "gO" 'lispyville-open-above-list
+   "gr" 'lispy-raise-sexp
+   "gR" 'lispyville-raise-list
+   "g<" 'lispyville-drag-forward
+   "g>" 'lispyville-drag-backward
+   "g(" 'lispyville-wrap-round
+   "g[" 'lispyville-wrap-brackets
+   "g{" 'lispyville-wrap-braces
+   "(" 'lispyville-backward-up-list
+   ")" 'lispyville-up-list))
+
+(use-package eval-sexp-fu
+  :after lispy
+  :ghook
+  ('emacs-lisp-mode-hook (lambda ()
+                           (general-def 'lispy-mode-map
+                             :definer 'lispy
+                             "e" 'eval-sexp-fu-eval-sexp-inner-sexp)))
+  :custom-face
+  (eval-sexp-fu-flash ((t (:inherit success :inverse-video t))))
+  (eval-sexp-fu-flash-error ((t (:inherit error :inverse-video t)))))
 
 (use-package cider
   :init
@@ -727,124 +864,91 @@
         "(do (require 'figwheel-sidecar.repl-api) (figwheel-sidecar.repl-api/cljs-repl))"
         cider-repl-pop-to-buffer-on-connect nil))
 
-(use-package cider-eval-sexp-fu)
+(use-package cider-eval-sexp-fu
+  :after (cider lispy)
+  :ghook
+  ('clojure-mode-hook (lambda ()
+                        (general-def 'lispy-mode-map
+                          :definer 'lispy
+                          "e" 'eval-sexp-fu-cider-eval-sexp-inner-sexp))))
 
-(defun user/lispy-space ()
-  "Like lispy space, but move the cursor back once."
-  (interactive)
-  (if (not (lispyville--at-left-p))
-      (call-interactively 'lispy-space)
-    (call-interactively 'lispy-space)
-    (backward-char)))
-
-(use-package lispy
-  :init
-  (setq lispy-close-quotes-at-end-p t)
-  (general-add-hook user/lisp-mode-hooks (lambda () (lispy-mode 1)))
-  :config
-  (lispy-define-key lispy-mode-map "SPC" #'user/lispy-space)
-  (lispy-define-key lispy-mode-map "X" #'lispy-kill)
-  (lispy-define-key lispy-mode-map "m" #'lispy-view)
-  (general-add-hook
-   'emacs-lisp-mode-hook
-   (lambda ()
-     (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-eval-sexp-inner-sexp)))
-  (general-add-hook
-   'clojure-mode-hook
-   (lambda ()
-     (lispy-define-key lispy-mode-map "e" 'eval-sexp-fu-cider-eval-sexp-inner-sexp))))
-
-(use-package lispyville
-  :after lispy
-  :init
-  (general-add-hook user/lisp-mode-hooks #'lispyville-mode)
-  :config
-  (progn
-    (setq lispyville-motions-put-into-special t
-          lispyville-commands-put-into-special t)
-    (lispyville-set-key-theme '(operators c-w c-u prettify text-objects commentary (atom-movement t) slurp/barf-lispy mark-toggle insert))
-    (lispy-define-key lispy-mode-map "v" #'lispyville-toggle-mark-type)
-    (general-define-key
-     :keymaps 'lispyville-mode-map
-     :states 'normal
-     "X" 'lispy-kill
-     "gI" 'lispyville-insert-at-beginning-of-list
-     "gA" 'lispyville-insert-at-end-of-list
-     "go" 'lispyville-open-below-list
-     "gO" 'lispyville-open-above-list
-     "g<" 'lispyville-drag-forward
-     "g>" 'lispyville-drag-backward
-     "g(" 'lispyville-wrap-round
-     "g[" 'lispyville-wrap-brackets
-     "g{" 'lispyville-wrap-braces
-     "(" 'lispyville-backward-up-list
-     ")" 'lispyville-up-list)))
 
 ;;;  python
 
-(setenv "IPY_TEST_SIMPLE_PROMPT" "1")
-
 (use-package python
-  :mode ("\\.py\\'" . python-mode)
-  :interpreter ("python3" . python-mode)
+  :mode
+  ("\\.py\\'" . python-mode)
+  :interpreter
+  ("python3" . python-mode)
   :commands python-mode
-  :init (progn
-          (setq
-           python-shell-interpreter "ipython3"
-           python-shell-interpreter-args "--deep-reload")
-          (add-hook 'python-mode-hook 'flycheck-mode)
-          (add-hook 'python-mode-hook 'smartparens-mode))
-  :config (define-key python-mode-map (kbd "DEL") nil)) ; interferes with smartparens
+  :general
+  ('python-mode-map
+   "DEL" nil)           ; interferes with smartparens
+  :gfhook
+  #'eldoc-mode
+  #'flycheck-mode
+  #'smartparens-mode
+  :preface
+  (setenv "IPY_TEST_SIMPLE_PROMPT" "1")
+  :init
+  (setq
+   python-shell-interpreter "ipython3"
+   python-shell-interpreter-args "--deep-reload"
+   python-indent-guess-indent-offset nil))
 
 (use-package anaconda-mode
-  :general
-  (:keymaps 'anaconda-mode-map
-            :states '(normal)
-            "gd" 'anaconda-mode-find-definitions)
-  (:keymaps 'anaconda-nav-mode-map
-            :states '(normal)
-            "ESC" 'anaconda-nav-quit)
   :after python
-  :init (progn
-          (add-hook 'python-mode-hook 'anaconda-mode)
-          (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-          (add-hook 'python-mode-hook 'eldoc-mode)
-          (setq
-           anaconda-mode-installation-directory (concat user-emacs-directory "anaconda/")
-           anaconda-mode-eldoc-as-single-line t)))
+  :general
+  ('normal
+   'anaconda-mode-map
+   "gd" 'anaconda-mode-find-definitions)
+  ('normal
+   'anaconda-nav-mode-map
+   "ESC" 'anaconda-nav-quit)
+  :init
+  (setq
+   anaconda-mode-installation-directory (concat user-emacs-directory "anaconda/")
+   anaconda-mode-eldoc-as-single-line t)
+  :ghook
+  'python-mode-hook
+  ('python-mode-hook #'anaconda-eldoc-mode))
 
 (use-package company-anaconda
   :after (company anaconda-mode)
-  :config (add-to-list 'company-backends '(company-anaconda :with company-capf)))
+  :config
+  (add-to-list 'company-backends '(company-anaconda :with company-capf)))
 
 (use-package repl-toggle
-  :general (:prefix user/leader-key "sr" 'rtog/toggle-repl)
-  :config (rtog/add-repl 'python-mode (lambda () (run-python python-shell-interpreter t t))))
+  :config
+  (rtog/add-repl 'python-mode (lambda () (run-python python-shell-interpreter t t)))
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "sr" 'rtog/toggle-repl))
 
-(use-package nose)
 (use-package pip-requirements)
 
 ;;;  elixir
 
 (use-package elixir-mode
+  :gfhook
+  #'smartparens-mode
+  #'(lambda () (setq evil-shift-width 2))
   :custom-face
   (elixir-atom-face ((t (:inherit font-lock-constant-face))))
-  (elixir-attribute-face ((t (:inherit font-lock-keyword-face))))
-
-  :init
-  (general-add-hook 'elixir-mode-hook 'smartparens-mode)
-  (general-add-hook 'elixir-mode-hook
-                    #'(lambda () (setq evil-shift-width 2))))
+  (elixir-attribute-face ((t (:inherit font-lock-keyword-face)))))
 
 (use-package alchemist
-  :general (:keymaps 'alchemist-iex-mode-map
-            :states '(normal insert)
-            "C-n" #'comint-next-input
-            "C-p" #'comint-previous-input))
+  :general
+  ('(normal insert)
+   'alchemist-iex-mode-map
+   "C-n" #'comint-next-input
+   "C-p" #'comint-previous-input))
 
 (use-package flycheck-credo
   :after flycheck
-  :config (flycheck-credo-setup))
+  :config
+  (flycheck-credo-setup))
 
 ;;  javascript
 
@@ -854,50 +958,56 @@
     rjsx-mode-hook))
 
 (use-package js2-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+  :after flycheck
+  :mode
+  ("\\.js\\'")
+  :gfhook
+  #'flycheck-mode
+  :init
+  (setq js2-strict-trailing-comma-warning nil))
 
 (use-package rjsx-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode)))
+  :after flycheck
+  :mode
+  ("\\.jsx\\'")
+  :gfhook
+  #'flycheck-mode)
 
 (use-package prettier-js
-  :config
-  (general-add-hook user/js-mode-hooks 'prettier-js-mode))
+  :ghook
+  user/js-mode-hooks)
 
 (use-package smartparens
-  :config
-  (general-add-hook user/js-mode-hooks 'smartparens-mode))
+  :ghook
+  user/js-mode-hooks)
 
 (use-package tide
-  :after (flycheck)
+  :init
+  (setq tide-filter-out-warning-completions t)
   :config
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
-  (general-add-hook user/js-mode-hooks
-                    (lambda ()
-                      (tide-setup)
-                      (tide-format-before-save)
-                      (tide-hl-identifier-mode 1)
-                      (flycheck-mode 1))))
+  :ghook
+  (user/js-mode-hooks (lambda ()
+                        (tide-setup)
+                        (tide-format-before-save)
+                        (tide-hl-identifier-mode 1))))
 
 (use-package add-node-modules-path
-  :config
-  (general-add-hook user/js-mode-hooks #'add-node-modules-path))
+  :ghook
+  (user/js-mode-hooks #'add-node-modules-path))
 
 (use-package indium)
 
-;;;  others
-
-(general-define-key
- :prefix user/leader-key
- "dd" 'user/sql-connect
- "dn" 'user/sql-new-connect)
-
-(general-define-key
- :keymaps 'sql-interactive-mode-map
- :states '(normal insert)
- "C-n" #'comint-next-input
- "C-p" #'comint-previous-input)
+(use-package sql
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "dd" 'user/sql-connect
+   "dn" 'user/sql-new-connect)
+  ('(normal insert)
+   'sql-interactive-mode-map
+   "C-n" #'comint-next-input
+   "C-p" #'comint-previous-input))
 
 (use-package lua-mode)
 (use-package typescript-mode)
@@ -912,6 +1022,9 @@
 (use-package wgrep)
 (use-package highlight2clipboard)
 
+(load user/custom-file)
+(load user/private-file)
+
 (fset 'yes-or-no-p 'y-or-n-p)
 (savehist-mode 1)
 (global-auto-revert-mode 1)
@@ -921,15 +1034,8 @@
 (general-add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
 (general-add-hook 'find-file-hook 'user/check-large-file)
 
-;; TODO this can be moved inside use-package evil
-(with-eval-after-load "evil"
-  ;; On OSX, stop copying each visual state move to the clipboard:
-  ;; https://bitbucket.org/lyro/evil/issue/336/osx-visual-state-copies-the-region-on
-  ;; Most of this code grokked from:
-  ;; http://stackoverflow.com/questions/15873346/elisp-rename-macro
-  (when (or (featurep 'mac) (featurep 'ns))
-    (advice-add 'evil-visual-update-x-selection :override 'ignore)))
-
+(defun display-startup-echo-area-message ()
+  (message (emacs-init-time)))
 ;;
 
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")

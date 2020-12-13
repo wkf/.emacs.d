@@ -65,6 +65,7 @@
                (set-visited-file-name new-name)
                (set-buffer-modified-p nil)
                (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
+
 (defun user/tramp-file-p ()
   "Is current file loaded with tramp."
   (tramp-tramp-file-p default-directory))

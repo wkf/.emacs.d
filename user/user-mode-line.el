@@ -11,23 +11,46 @@
 (require 'powerline)
 (require 'eshell)
 (require 'flycheck)
-(require 'lispyville)
+;; (require 'lispyville)
 
-(defgroup user/mode-line nil
+(defgroup user-mode-line nil
   ""
   :group 'user)
 
-(defcustom user/mode-line-colors
-  '((emacs . "yellow")
-    (insert . "green")
-    (motion . "blue")
-    (normal . "blue")
-    (replace . "red")
-    (visual . "orange")
-    (special . "orange"))
-  "Colors to use for mode-line segments."
-  :type 'list
-  :group 'user)
+(defcustom user-mode-line/emacs-state-color "yellow"
+  "Color to use for Emacs state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/insert-state-color "green"
+  "Color to use for insert state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/motion-state-color "magenta"
+  "Color to use for motion state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/normal-state-color "blue"
+  "Color to use for normal state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/replace-state-color "red"
+  "Color to use for replace state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/visual-state-color "orange"
+  "Color to use for visual state."
+  :type 'string
+  :group 'user-mode-line)
+
+(defcustom user-mode-line/special-state-color "cyan"
+  "Color to use for special state."
+  :type 'string
+  :group 'user-mode-line)
 
 (defface user/mode-line-info
   `((t (:inherit mode-line)))
@@ -90,31 +113,31 @@
   "")
 
 (defface user/mode-line-emacs-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'emacs user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/emacs-state-color)))
   "")
 
 (defface user/mode-line-insert-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'insert user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/insert-state-color)))
   "")
 
 (defface user/mode-line-motion-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'motion user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/motion-state-color)))
   "")
 
 (defface user/mode-line-normal-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'normal user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/normal-state-color)))
   "")
 
 (defface user/mode-line-replace-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'replace user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/replace-state-color)))
   "")
 
 (defface user/mode-line-visual-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'visual user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/visual-state-color)))
   "")
 
 (defface user/mode-line-special-state
-  `((t (:foreground ,(face-background 'default) :background ,(car (assoc 'special user/mode-line-colors)))))
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/special-state-color)))
   "")
 
 (defvar user/evil-state-faces
@@ -166,7 +189,8 @@
 (defun user/get-evil-state-highlight-face ()
   "Set the highlight face depending on the evil state."
   (if (bound-and-true-p evil-local-mode)
-      (if (lispyville--lispy-keybindings-active-p)
+      (if (and (featurep 'lispyvile)
+               (lispyville--lispy-keybindings-active-p))
           'user/mode-line-special-state
         (let* ((state (user/get-evil-state))
                (face (assq state user/evil-state-faces)))
@@ -586,7 +610,7 @@
                (buffer-read-only 'user/mode-line-locked)
                (t 'user/mode-line-buffer-name))))))
 
-(defun user/mode-line ()
+(defun user-mode-line ()
   "Return mode-line format."
   `("%e"
     (:eval
