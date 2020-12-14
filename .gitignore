@@ -55,3 +55,4 @@ site-lisp/package/
 /straight/build
 /straight/repos
 /straight/build-cache.el
+/perspective-state
