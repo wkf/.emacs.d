@@ -337,12 +337,33 @@
   (avy-lead-face-2 ((t (:inherit match :foreground unspecified :background unspecified))))
   (avy-background-face ((t (:inherit match :foreground unspecified)))))
 
+(use-package daemons
+  :general
+  (:states '(normal visual)
+   :prefix user/leader-key
+   "D" 'daemons))
+
 (defvar user/evil-collection-packages
   '(ivy
+    man
+    term
+    tide
     vterm
     cider
+    custom
     eshell
+    indium
+    python
+    comint
     prodigy
+    daemons
+    company
+    js2-mode
+    rjsx-mode
+    alchemist
+    elisp-mode
+    diff-mode
+    which-key
     unimpaired))
 
 (use-package evil-collection
@@ -593,10 +614,6 @@
   (global-company-mode)
   (setq company-idle-delay 0.2
         company-tooltip-align-annotations t)
-  :general
-  ('company-active-map
-   "C-n" 'company-select-next
-   "C-p" 'company-select-previous)
   :custom-face
   (company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
   (company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
@@ -787,6 +804,7 @@
 (use-package hydra)
 
 (use-package lispy
+  :after hydra
   :init
   (setq lispy-colon-p nil
         lispy-close-quotes-at-end-p t
@@ -803,6 +821,7 @@
     ("L" lispy-outline-goto-child "child outline")
     ("e" lispy-eval-and-insert "eval and insert")
     ("E" lispy-eval-other-window "eval other window")
+    ("Q" lispy-convolute-left "eval other window")
     ("x" hydra-lispy-x/body "x mode")
     ("o" lispy-other-mode "o mode")
     ("+" lispy-widen "widen")
@@ -810,14 +829,6 @@
     ("(" lispy-wrap-round "wrap parens")
     ("[" lispy-wrap-brackets "wrap brackets")
     ("{" lispy-wrap-braces "wrap braces"))
-  ;; (defun user/lispy-wrap-no-space (f arg)
-  ;;   (let ((space-p lispy-insert-space-after-wrap))
-  ;;     (setq lispy-insert-space-after-wrap nil)
-  ;;     (funcall f arg)
-  ;;     (setq lispy-insert-space-after-wrap space-p)))
-
-  ;; (general-add-advice 'lispy-brackets :around 'user/lispy-wrap-no-space)
-  ;; (general-add-advice 'lispy-braces :around 'user/lispy-wrap-no-space)
   :ghook
   user/lisp-mode-hooks
   :general
@@ -846,8 +857,7 @@
    "L" 'lispy-backward
    "g" 'user/lispy-g-hydra/body
    "S" 'lispy-move-up
-   "q" 'lispy-convolute
-   "Q" 'lispy-convolute-left
+   "Q" 'lispy-convolute
    "x" 'lispy-splice
    "T" '(lispy-teleport
          :override '(cond ((looking-at lispy-outline)
@@ -920,10 +930,9 @@
    "I" 'user/lispy-insert-at-beginning-of-list)
   ('normal
    'lispyville-mode-map
-   "X" 'lispy-kill
+   "gD" 'lispy-kill
    "gS" 'lispy-split
-   "gq" 'lispy-convolute
-   "gQ" 'lispy-convolute-left
+   "gQ" 'lispy-convolute-sexp
    "gI" 'lispyville-insert-at-beginning-of-list
    "gA" 'lispyville-insert-at-end-of-list
    "go" 'lispyville-open-below-list

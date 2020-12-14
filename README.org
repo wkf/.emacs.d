@@ -5,7 +5,7 @@
 - [X] either use custom file or get rid of it
 - [X] clean up magit ui
 - [ ] configure prodigy
-- [ ] consider hydra?
+- [X] consider hydra?
 - [ ] configure org mode?
 - [X] test drive focus (plugin)
 - [ ] bind K to eldoc describe thing at point
@@ -26,7 +26,7 @@
 - [X] use dir-locals for prodigy and projectile?
 - [X] use version locking with straight.el?
 - [X] avy in visual mode
-- [ ] update lispy bindings?
+- [X] update lispy bindings?
 - [X] tweak space to insert after openning paren
 - [X] tweak quote to include a space when on opening delim
 - [X] tweak quote to close string when at end
@@ -42,6 +42,8 @@
 - [ ] practice with markers, they are useful
 - [ ] practice with macros, they might be useful?
 - [ ] learn about paste and C-p/C-p
-- [ ] update modeline when using evil-multiedit
+- [X] update modeline when using evil-multiedit
 - [ ] try again with evil-mc?
 - [X] debug D and C in evil-multiedit region
+- [ ] tweak evil-multiedit colors
+- [ ] practice lispy mode bindings
