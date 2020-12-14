@@ -1099,6 +1099,8 @@
 (use-package indium)
 
 (use-package sql
+  :gfhook
+  ('sql-interactive-mode-hook (lambda () (toggle-truncate-lines t)))
   :general
   (:states '(normal visual)
    :prefix user/leader-key
@@ -1136,6 +1138,7 @@
 
 (defun display-startup-echo-area-message ()
   (message (emacs-init-time)))
+
 ;;
 
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")
