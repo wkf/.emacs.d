@@ -195,13 +195,13 @@
         (let* ((state (user/get-evil-state))
                (face (assq state user/evil-state-faces)))
           (or (cdr face) 'default)))
-    'default))
+    'user/mode-line-special-state))
 
 (defun user/get-project-name ()
   "Get current projectile project name."
   (when (projectile-project-p)
     (propertize (projectile-project-name)
-		'face (user/active-face 'user/mode-line-info))))
+		            'face (user/active-face 'user/mode-line-info))))
 
 (defun user/project-root (&optional strict-p)
   "Get the path to the root of your project.  STRICT-P determines if project root is required."

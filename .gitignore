@@ -48,8 +48,10 @@ site-lisp/package/
 /network-security.data
 /anaconda
 .cask*
-/straight
 /projectile.cache
 /transient
 /semanticdb
 /undo-fu-session
+/straight/build
+/straight/repos
+/straight/build-cache.el

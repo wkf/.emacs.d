@@ -254,11 +254,8 @@
     "Face for the text part of a checked org-mode checkbox.")
   (font-lock-add-keywords
    'org-mode
-   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
-   'append)
-  (font-lock-add-keywords
-   'org-mode
-   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
+   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend)
+     ("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
    'append)
   :custom-face
   (org-todo ((t (:inherit default :background unspecified))))
@@ -383,10 +380,13 @@
   :config
   (evil-ex-define-cmd "ie[dit]" 'evil-multiedit-ex-match)
   :general
-  (:states 'visual
+  (:states '(normal visual)
    "gs" 'evil-multiedit-match-all
    "gS" 'evil-multiedit-restore)
-  (:states '(normal visual)
+  (:states 'normal
+   "gn" 'evil-multiedit-match-symbol-and-next
+   "gN" 'evil-multiedit-match-symbol-and-prev)
+  (:states 'visual
    "gn" 'evil-multiedit-match-and-next
    "gN" 'evil-multiedit-match-and-prev)
   (:states 'insert
@@ -788,14 +788,43 @@
 
 (use-package lispy
   :init
-  (setq lispy-close-quotes-at-end-p t)
+  (setq lispy-colon-p nil
+        lispy-close-quotes-at-end-p t)
   :ghook
   user/lisp-mode-hooks
   :general
   ('lispy-mode-map
    :definer 'lispy
-   "X" #'lispy-kill
-   "m" #'lispy-view))
+   "f" '(lispy-ace-paren
+         :override '(cond ((bound-and-true-p view-mode)
+                           (View-quit))))
+   ;; "d" (evil-collection-lispy-action-then-next-sexp
+   ;;      'evil-collection-lispy-delete)
+   "d" 'lispy-kill
+   "o" 'lispy-different
+   "p" 'lispy-paste
+   "P" 'lispy-eval-other-window
+   "y" 'lispy-new-copy
+   "z" 'lispy-view
+   "J" 'lispy-join
+   "K" 'lispy-describe
+   ">" 'lispy-slurp-or-barf-right
+   "<" 'lispy-slurp-or-barf-left
+   "/" 'lispy-occur
+   ;; "TAB" 'lispy-tab
+   ;; "m" 'lispy-view
+   ;; "+" 'lispy-join
+   ;; "G" 'end-of-defun
+   ;; "g" 'g-knight/body
+   "q" 'lispy-x
+   "Q" 'lispy-other-mode
+   "v" 'lispy-mark-list
+   "t" 'lispy-ace-char
+   "n" 'lispy-flow
+   "x" 'lispy-splice
+   "T" '(lispy-teleport
+         :override '(cond ((looking-at lispy-outline)
+                           (end-of-line))))))
 
 (use-package lispyville
   :after lispy
@@ -811,9 +840,33 @@
      text-objects
      commentary
      (atom-movement t)
-     slurp/barf-lispy
+     slurp/barf-cp
      mark-toggle))
-  ;; FIXME need to do something similar for colon, apparently
+
+  (defun user/lispy-insert-at-end-of-list ()
+    "Forward list and enter insert state."
+    (interactive)
+    (if (not (lispyville--at-left-p))
+        (call-interactively 'lispyville-insert-at-end-of-list)
+      (forward-char)
+      (call-interactively 'lispyville-insert-at-end-of-list)
+      (backward-char)
+      (if (not (lispyville--at-right-p))
+          (forward-char)
+        (forward-char)
+        (insert " "))))
+
+  (defun user/lispy-insert-at-beginning-of-list ()
+    "Backward list and enter insert state."
+    (interactive)
+    (if (not (lispyville--at-left-p))
+        (call-interactively 'lispyville-insert-at-beginning-of-list)
+      (forward-char)
+      (call-interactively 'lispyville-insert-at-beginning-of-list)
+      (when (lispyville--at-left-p)
+        (insert " ")
+        (backward-char))))
+
   (defun user/lispy-space ()
     "Like lispy space, but move the cursor back once."
     (interactive)
@@ -828,7 +881,9 @@
   :general
   ('lispy-mode-map
    :definer 'lispy
-   "v" #'lispyville-toggle-mark-type
+   "v" 'lispyville-toggle-mark-type
+   "A" 'user/lispy-insert-at-end-of-list
+   "I" 'user/lispy-insert-at-beginning-of-list
    "SPC" #'user/lispy-space)
   ('normal
    'lispyville-mode-map

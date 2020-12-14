@@ -30,7 +30,7 @@
 - [X] tweak space to insert after openning paren
 - [X] tweak quote to include a space when on opening delim
 - [X] tweak quote to close string when at end
-- [ ] revist eshell bindings
+- [ ] revisit eshell bindings
 - [ ] investigate vterm segfaults
 - [ ] explore the evil collection
 - [ ] lazy load packages if possible
@@ -40,7 +40,8 @@
 - [X] continue cleaning up init.el at lispy
 - [X] show startup time in echo area
 - [ ] practice with markers, they are useful
+- [ ] practice with macros, they might be useful?
 - [ ] learn about paste and C-p/C-p
 - [ ] update modeline when using evil-multiedit
 - [ ] try again with evil-mc?
-- [ ] debug D and C in evil-multiedit region
+- [X] debug D and C in evil-multiedit region
