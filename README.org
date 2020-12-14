@@ -47,3 +47,4 @@
 - [X] debug D and C in evil-multiedit region
 - [ ] tweak evil-multiedit colors
 - [ ] practice lispy mode bindings
+- [X] find a way to make three window layout work

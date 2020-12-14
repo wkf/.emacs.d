@@ -117,7 +117,10 @@
  ns-pop-up-frames nil
  eldoc-idle-delay 0.5
  split-height-threshold 160
- split-width-threshold 160)
+ split-width-threshold 160
+ display-buffer-alist '((".*" (display-buffer-reuse-window display-buffer-same-window)))
+ display-buffer-reuse-frames t
+ even-window-sizes nil)
 
 ;;
 
@@ -302,7 +305,8 @@
   (general-add-advice 'evil-ex-teardown :around 'user/-around-evil-ex-teardown)
   :general
   (:states '(normal visual)
-   "\\" 'evil-repeat-find-char-reverse)
+   "\\" 'evil-repeat-find-char-reverse
+   "ZZ" 'save-buffers-kill-terminal)
   (:states '(normal motion)
    "j" 'evil-next-visual-line
    "k" 'evil-previous-visual-line
@@ -579,8 +583,11 @@
   (projectile-mode))
 
 (use-package perspective
+  :init
+  (setq persp-state-default-file (expand-file-name "perspective-state" user-emacs-directory))
   :config
-  (persp-mode))
+  (persp-mode)
+  (general-add-hook 'kill-emacs-hook #'persp-state-save))
 
 (use-package persp-projectile
   :general
@@ -1130,7 +1137,6 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (savehist-mode 1)
 (global-auto-revert-mode 1)
-;; (desktop-save-mode 1)
 
 (general-add-hook 'before-save-hook 'delete-trailing-whitespace)
 (general-add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
@@ -1141,6 +1147,7 @@
 
 ;;
 
-(user/projectile-switch-to-project-file user-emacs-directory "README.org")
+
+(persp-state-load persp-state-default-file)
 
 ;;; init.el ends here
