@@ -52,6 +52,11 @@
   :type 'string
   :group 'user-mode-line)
 
+(defcustom user-mode-line/unknown-state-color "pink"
+  "Color to use for unknown state."
+  :type 'string
+  :group 'user-mode-line)
+
 (defface user/mode-line-info
   `((t (:inherit mode-line)))
   "")
@@ -140,6 +145,10 @@
   `((t (:foreground ,(face-background 'default) :background ,user-mode-line/special-state-color)))
   "")
 
+(defface user/mode-line-unknown-state
+  `((t (:foreground ,(face-background 'default) :background ,user-mode-line/unknown-state-color)))
+  "")
+
 (defvar user/evil-state-faces
   `((emacs . user/mode-line-emacs-state)
     (insert . user/mode-line-insert-state)
@@ -194,8 +203,8 @@
           'user/mode-line-special-state
         (let* ((state (user/get-evil-state))
                (face (assq state user/evil-state-faces)))
-          (or (cdr face) 'default)))
-    'user/mode-line-special-state))
+          (or (cdr face) 'user/mode-line-unknown-state)))
+    'user/mode-line-unknown-state))
 
 (defun user/get-project-name ()
   "Get current projectile project name."

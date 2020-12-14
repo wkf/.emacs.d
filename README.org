@@ -24,7 +24,7 @@
 - [ ] fix projectile load project on startup
 - [X] markdown-mode
 - [X] use dir-locals for prodigy and projectile?
-- [ ] use version locking with straight.el?
+- [X] use version locking with straight.el?
 - [X] avy in visual mode
 - [ ] update lispy bindings?
 - [X] tweak space to insert after openning paren

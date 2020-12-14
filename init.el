@@ -172,7 +172,6 @@
   :straight nil
   :load-path "user"
   ;; TODO check for these at runtime so we can load mode-line sooner
-  ;; :after (user-ui powerline spinner projectile flycheck lispyville)
   :after (user-ui powerline spinner projectile flycheck)
   :init
   (setq user-mode-line/emacs-state-color (plist-get user-ui/colors :yellow)
@@ -181,7 +180,8 @@
         user-mode-line/normal-state-color (plist-get user-ui/colors :blue)
         user-mode-line/replace-state-color (plist-get user-ui/colors :red)
         user-mode-line/visual-state-color (plist-get user-ui/colors :orange)
-        user-mode-line/special-state-color (plist-get user-ui/colors :cyan))
+        user-mode-line/special-state-color (plist-get user-ui/colors :cyan)
+        user-mode-line/unknown-state-color (plist-get user-ui/colors :pink))
   :config
   (setq-default mode-line-format (user-mode-line)))
 
@@ -340,8 +340,6 @@
 (defvar user/evil-collection-packages
   '(ivy
     vterm
-    ;; FIXME: this is gonna take some work to actually use
-    ;; lispy
     cider
     eshell
     prodigy
@@ -381,8 +379,8 @@
   (evil-ex-define-cmd "ie[dit]" 'evil-multiedit-ex-match)
   :general
   (:states '(normal visual)
-   "gs" 'evil-multiedit-match-all
-   "gS" 'evil-multiedit-restore)
+   "gm" 'evil-multiedit-match-all
+   "gM" 'evil-multiedit-restore)
   (:states 'normal
    "gn" 'evil-multiedit-match-symbol-and-next
    "gN" 'evil-multiedit-match-symbol-and-prev)
@@ -398,7 +396,7 @@
    "C-n" 'evil-multiedit-next
    "C-p" 'evil-multiedit-prev)
   :custom-face
-  (iedit-occurrence ((t (:inherit warning :inverse-video t)))))
+  (iedit-occurrence ((t (:foreground ,(plist-get user-ui/colors :black) :background ,(plist-get user-ui/colors :pink))))))
 
 (use-package prodigy
   :general
@@ -786,10 +784,40 @@
   :ghook
   user/lisp-mode-hooks)
 
+(use-package hydra)
+
 (use-package lispy
   :init
   (setq lispy-colon-p nil
-        lispy-close-quotes-at-end-p t)
+        lispy-close-quotes-at-end-p t
+        lispy-insert-space-after-wrap nil)
+  :config
+  (defhydra user/lispy-g-hydra (:color blue :hint nil :idle .3 :columns 3)
+    ("j" lispy-knight-down "knight down")
+    ("k" lispy-knight-up "knight up")
+    ("g" lispy-beginning-of-defun "beginning of def")
+    ("d" lispy-goto "goto")
+    ("D" lispy-goto-local "goto local")
+    ("J" lispy-outline-next "next outline")
+    ("K" lispy-outline-prev "prev outline")
+    ("L" lispy-outline-goto-child "child outline")
+    ("e" lispy-eval-and-insert "eval and insert")
+    ("E" lispy-eval-other-window "eval other window")
+    ("x" hydra-lispy-x/body "x mode")
+    ("o" lispy-other-mode "o mode")
+    ("+" lispy-widen "widen")
+    ("-" lispy-narrow "narrow")
+    ("(" lispy-wrap-round "wrap parens")
+    ("[" lispy-wrap-brackets "wrap brackets")
+    ("{" lispy-wrap-braces "wrap braces"))
+  ;; (defun user/lispy-wrap-no-space (f arg)
+  ;;   (let ((space-p lispy-insert-space-after-wrap))
+  ;;     (setq lispy-insert-space-after-wrap nil)
+  ;;     (funcall f arg)
+  ;;     (setq lispy-insert-space-after-wrap space-p)))
+
+  ;; (general-add-advice 'lispy-brackets :around 'user/lispy-wrap-no-space)
+  ;; (general-add-advice 'lispy-braces :around 'user/lispy-wrap-no-space)
   :ghook
   user/lisp-mode-hooks
   :general
@@ -798,12 +826,14 @@
    "f" '(lispy-ace-paren
          :override '(cond ((bound-and-true-p view-mode)
                            (View-quit))))
-   ;; "d" (evil-collection-lispy-action-then-next-sexp
-   ;;      'evil-collection-lispy-delete)
-   "d" 'lispy-kill
-   "o" 'lispy-different
+   "t" 'lispy-ace-char
+   "c" 'lispy-ace-symbol-replace
+   "P" 'lispy-clone
+   "C" 'lispy-kill
+   "%" 'lispy-different
+   "^" 'lispy-splice-sexp-killing-backward
+   "$" 'lispy-splice-sexp-killing-forward
    "p" 'lispy-paste
-   "P" 'lispy-eval-other-window
    "y" 'lispy-new-copy
    "z" 'lispy-view
    "J" 'lispy-join
@@ -811,20 +841,23 @@
    ">" 'lispy-slurp-or-barf-right
    "<" 'lispy-slurp-or-barf-left
    "/" 'lispy-occur
-   ;; "TAB" 'lispy-tab
-   ;; "m" 'lispy-view
-   ;; "+" 'lispy-join
-   ;; "G" 'end-of-defun
-   ;; "g" 'g-knight/body
-   "q" 'lispy-x
-   "Q" 'lispy-other-mode
-   "v" 'lispy-mark-list
-   "t" 'lispy-ace-char
-   "n" 'lispy-flow
+   "w" 'lispy-flow
+   "H" 'lispy-forward
+   "L" 'lispy-backward
+   "g" 'user/lispy-g-hydra/body
+   "S" 'lispy-move-up
+   "q" 'lispy-convolute
+   "Q" 'lispy-convolute-left
    "x" 'lispy-splice
    "T" '(lispy-teleport
          :override '(cond ((looking-at lispy-outline)
-                           (end-of-line))))))
+                           (end-of-line)))))
+  ('lispy-mode-map
+   "TAB" 'lispy-tab
+   "[" 'lispy-brackets
+   "]" 'lispy-close-square
+   "{" 'lispy-braces
+   "}" 'lispy-close-curly))
 
 (use-package lispyville
   :after lispy
@@ -881,13 +914,16 @@
   :general
   ('lispy-mode-map
    :definer 'lispy
+   "SPC" 'user/lispy-space
    "v" 'lispyville-toggle-mark-type
    "A" 'user/lispy-insert-at-end-of-list
-   "I" 'user/lispy-insert-at-beginning-of-list
-   "SPC" #'user/lispy-space)
+   "I" 'user/lispy-insert-at-beginning-of-list)
   ('normal
    'lispyville-mode-map
    "X" 'lispy-kill
+   "gS" 'lispy-split
+   "gq" 'lispy-convolute
+   "gQ" 'lispy-convolute-left
    "gI" 'lispyville-insert-at-beginning-of-list
    "gA" 'lispyville-insert-at-end-of-list
    "go" 'lispyville-open-below-list
