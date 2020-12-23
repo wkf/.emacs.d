@@ -73,7 +73,8 @@
  indent-tabs-mode nil
  tab-width 2
  fill-column 80
- sentence-end-double-space nil)
+ sentence-end-double-space nil
+ cursor-in-non-selected-windows nil)
 
 (setq
  mode-line-format nil
@@ -931,6 +932,17 @@
         beacon-blink-when-point-moves-vertically 10)
   :config
   (beacon-mode 1))
+
+(use-package ace-window
+  :init
+  (setq aw-keys '(?a ?e ?i ?d ?h ?t ?s)
+        aw-dispatch-always t
+        aw-leading-char-style 'path)
+  :general
+  ("C-c w" 'ace-window)
+  :custom-face
+  (aw-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3)))))
+  (aw-leading-char-face ((t (:foreground ,(plist-get user-ui/colors :yellow) :bold t)))))
 
 (use-package olivetti)
 
