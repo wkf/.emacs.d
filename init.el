@@ -1136,9 +1136,10 @@ non-nil, then only do this and skip per-buffer teardown.)"
   (defun user/lispy-delete-char-or-splice ()
     (interactive)
     (call-interactively 'lispyville-delete-char-or-splice)
-    (unless (bolp)
-      (forward-char))
-    (evil-normal-state))
+    (unless (evil-normal-state-p)
+      (unless (or (bolp) (eolp))
+        (forward-char))
+      (evil-normal-state)))
 
   :ghook
   'lispy-mode-hook
