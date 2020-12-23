@@ -876,24 +876,51 @@
   :config
   (purpose-x-kill-setup))
 
-(use-package dired-sidebar
-  :after evil-collection
+(use-package treemacs
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
-  (evil-collection-init 'dired-sidebar)
-  (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
-  (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+  (setq
+   treemacs-no-png-images                 t
+   treemacs-follow-after-init             t
+   treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+   treemacs-is-never-other-window         t
+   treemacs-project-follow-cleanup        t
+   treemacs-user-mode-line-format         'none)
 
-  (setq dired-sidebar-subtree-line-prefix "__"
-        dired-sidebar-theme 'ascii
-        ;; dired-sidebar-theme 'nerd
-        dired-sidebar-use-term-integration t)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode t)
+  (pcase (cons (not (null (executable-find "git")))
+               (not (null treemacs-python-executable)))
+    (`(t . t)
+     (treemacs-git-mode 'extended))
+    (`(t . _)
+     (treemacs-git-mode 'simple)))
   :general
-  ("C-c T" 'dired-sidebar-toggle-sidebar)
-  ('normal
-   'dired-sidebar-mode-map
-   "C" 'dired-do-copy
-   "D" 'dired-do-delete
-   "R" 'dired-do-rename))
+  ("M-0"       'treemacs-select-window
+   "C-c t 1"   'treemacs-delete-other-windows
+   "C-c t t"   'treemacs
+   "C-c t B"   'treemacs-bookmark
+   "C-c t C-t" 'treemacs-find-file
+   "C-c t M-t" 'treemacs-find-tag)
+  :custom-face
+  (treemacs-root-face ((t (:inherit font-lock-constant-face :bold t)))))
+
+(use-package treemacs-evil
+  :after treemacs evil)
+
+(use-package treemacs-projectile
+  :after treemacs projectile)
+
+(use-package treemacs-magit
+  :after treemacs magit)
+
+(use-package treemacs-perspective
+  :after treemacs perspective
+  :config (treemacs-set-scope-type 'Perspectives))
+
 (use-package beacon
   :init
   (setq beacon-size 10
