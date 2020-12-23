@@ -653,5 +653,11 @@
         (powerline-fill (user/active-face 'mode-line) (powerline-width rhs))
         (powerline-render rhs))))))
 
+(defun user-mode-line/treemacs ()
+  "Return mode-line format for treemacs buffer."
+  `("%e"
+    (:eval
+     (powerline-fill (user/active-face 'mode-line) 0))))
+
 (provide 'user-mode-line)
 ;;; user-mode-line.el ends here

@@ -878,17 +878,14 @@
   (purpose-x-kill-setup))
 
 (use-package treemacs
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :after user-mode-line
   :config
-  (setq
-   treemacs-no-png-images                 t
-   treemacs-follow-after-init             t
-   treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-   treemacs-is-never-other-window         t
-   treemacs-project-follow-cleanup        t
-   treemacs-user-mode-line-format         'none)
+  (setq treemacs-no-png-images                 t
+        treemacs-follow-after-init             t
+        treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+        treemacs-is-never-other-window         t
+        treemacs-project-follow-cleanup        t
+        treemacs-user-mode-line-format         (user-mode-line/treemacs))
 
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
@@ -900,14 +897,17 @@
     (`(t . _)
      (treemacs-git-mode 'simple)))
   :general
-  ("M-0"       'treemacs-select-window
-   "C-c t 1"   'treemacs-delete-other-windows
-   "C-c t t"   'treemacs
-   "C-c t B"   'treemacs-bookmark
-   "C-c t C-t" 'treemacs-find-file
-   "C-c t M-t" 'treemacs-find-tag)
+  ("C-c t s"     'treemacs-select-window
+   "C-c t 1"     'treemacs-delete-other-windows
+   "C-c t t"     'treemacs
+   "C-c t B"     'treemacs-bookmark
+   "C-c t C-t"   'treemacs-find-file
+   "C-c t C-S-t" 'treemacs-find-tag)
   :custom-face
-  (treemacs-root-face ((t (:inherit font-lock-constant-face :bold t)))))
+  (treemacs-root-face ((t (:inherit font-lock-keyword-face :bold t))))
+  (treemacs-git-added-face ((t (:inherit diff-added))))
+  (treemacs-git-modified-face ((t (:inherit diff-changed))))
+  (treemacs-git-untracked-face ((t (:inherit font-lock-constant-face)))))
 
 (use-package treemacs-evil
   :after treemacs evil)
