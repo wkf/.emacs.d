@@ -894,6 +894,16 @@
    "C" 'dired-do-copy
    "D" 'dired-do-delete
    "R" 'dired-do-rename))
+(use-package beacon
+  :init
+  (setq beacon-size 10
+        beacon-color (plist-get user-ui/colors :blue)
+        beacon-blink-delay 0
+        beacon-blink-duration 0.5
+        beacon-blink-when-focused t
+        beacon-blink-when-point-moves-vertically 10)
+  :config
+  (beacon-mode 1))
 
 (use-package olivetti)
 
