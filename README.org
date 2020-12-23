@@ -41,9 +41,9 @@
 - [X] show startup time in echo area
 - [ ] practice with markers, they are useful
 - [ ] practice with macros, they might be useful?
-- [ ] learn about paste and C-p/C-p
+- [ ] learn about paste and C-n/C-p
 - [X] update modeline when using evil-multiedit
-- [ ] try again with evil-mc?
+- [X] try again with evil-mc?
 - [X] debug D and C in evil-multiedit region
 - [X] tweak evil-multiedit colors
 - [ ] practice lispy mode bindings
@@ -81,7 +81,8 @@
 - [ ] fix org header insert
 - [X] get rid of vim leader key
 - [X] find a place for rename buffer/file
-- [ ] higher contrast avy face?
+- [X] higher contrast avy face?
+- [ ] learn about .dir-locals
 
 #+begin_src restclient
 GET https://gnu.org/software/emacs
