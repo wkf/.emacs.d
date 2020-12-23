@@ -15,13 +15,13 @@
 - [X] try avy (remove snipe?)
 - [X] use use-package more consistently
 - [X] use general everywhere
-- [ ] consider purpose? (plugin)
+- [X] consider purpose? (plugin)
 - [X] try shx?
 - [X] add prescient.el
 - [X] add dumb-jump
 - [X] aggressive indent?
 - [X] olivetti for text-mode?
-- [ ] fix projectile load project on startup
+- [X] fix projectile load project on startup
 - [X] markdown-mode
 - [X] use dir-locals for prodigy and projectile?
 - [X] use version locking with straight.el?
@@ -30,9 +30,9 @@
 - [X] tweak space to insert after openning paren
 - [X] tweak quote to include a space when on opening delim
 - [X] tweak quote to close string when at end
-- [ ] revisit eshell bindings
+- [X] revisit eshell bindings
 - [ ] investigate vterm segfaults
-- [ ] explore the evil collection
+- [X] explore the evil collection
 - [ ] lazy load packages if possible
 - [ ] add some eshell aliases (like ls)
 - [X] change diff-change back to yellow
@@ -45,6 +45,61 @@
 - [X] update modeline when using evil-multiedit
 - [ ] try again with evil-mc?
 - [X] debug D and C in evil-multiedit region
-- [ ] tweak evil-multiedit colors
+- [X] tweak evil-multiedit colors
 - [ ] practice lispy mode bindings
 - [X] find a way to make three window layout work
+- [ ] try golden ratio?
+- [ ] learn more about emacs window openning
+- [X] try meghanada (for java devn)
+- [ ] setup lsp javascript
+- [ ] fix forward word motion stopping on quotes
+- [X] setup swiper-avy (just need a keybind)
+- [X] learn more about magit forge
+- [X] style mini-frame
+- [X] try ace-window
+- [ ] try grip-mode?
+- [ ] debug mini-frame when loading package
+- [ ] reduce startup time (esup?)
+- [X] fix flashing in mini-frame?
+- [X] try eshell-z?
+- [ ] really ripoff aweshell
+  - [ ] run some commands with vterm automatically
+  - [ ] C-return to run command in another window
+  - [ ] toggle/visor shell mode
+  - [ ] handle more control codes (get jest working)
+  - [ ] make buffer names more descriptive
+- [ ] setup stow for config management
+- [X] use restclient-mode! in org???
+- [ ] use purpose windows and update modeline
+- [X] use beacon to find cursor (bind it, not auto)
+- [X] fix mini-frame messing with mode-line
+- [ ] try org-roam?
+# - [ ] persistent scratch?
+- [X] find a useful project directory tree (or maybe just dired?)
+- [ ] swap eglot in for lsp-mode
+- [ ] setup vb4c bindings?
+- [ ] fix org header insert
+- [X] get rid of vim leader key
+- [X] find a place for rename buffer/file
+- [ ] higher contrast avy face?
+
+#+begin_src restclient
+GET https://gnu.org/software/emacs
+Accept: application/json
+Content-Type: application/json
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(setq display-buffer-alist '((".*" (display-buffer-reuse-window display-buffer-same-window)))
+      display-buffer-reuse-frames t
+      even-window-sizes nil)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(add-to-list 'eshell-visual-commands "npm")
+(add-to-list 'eshell-visual-subcommands '("npm" "test"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(user/projectile-switch-to-project-file user-emacs-directory "README.org")
+#+end_src

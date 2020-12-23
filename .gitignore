@@ -56,3 +56,12 @@ site-lisp/package/
 /straight/repos
 /straight/build-cache.el
 /perspective-state
+/org-roam.db
+/meghanada
+/logview-cache.extmap
+/forge-database.sqlite
+/eclipse.jdt.ls
+/bookmarks
+/amx-items
+/.persistent-scratch
+/.lsp-session-*

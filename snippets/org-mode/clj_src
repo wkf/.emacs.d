@@ -1,0 +1,6 @@
+# key: clj
+# name: clj_src
+# --
+#+begin_src clojure :ns user
+$0
+#+end_src

@@ -5,23 +5,23 @@
 ;;; Code:
 
 (require 'f)
-(require 'ivy)
+;; (require 'ivy)
 (require 'tramp)
-(require 'cider)
-(require 'projectile)
+;; (require 'cider)
+;; (require 'projectile)
 
-(defmacro -> (&rest body)
-  "Arrow the BODY."
-  (let ((result (pop body)))
-    (dolist (form body result)
-      (setq result (append (list (car form) result)
-                           (cdr form))))))
+;; (defmacro -> (&rest body)
+;;   "Arrow the BODY."
+;;   (let ((result (pop body)))
+;;     (dolist (form body result)
+;;       (setq result (append (list (car form) result)
+;;                            (cdr form))))))
 
-(defmacro ->> (&rest body)
-  "Double arrow the BODY."
-  (let ((result (pop body)))
-    (dolist (form body result)
-      (setq result (append form (list result))))))
+;; (defmacro ->> (&rest body)
+;;   "Double arrow the BODY."
+;;   (let ((result (pop body)))
+;;     (dolist (form body result)
+;;       (setq result (append form (list result))))))
 
 ;; check when opening large files
 (defun user/check-large-file ()
@@ -107,15 +107,19 @@
       (projectile-run-eshell)
     (eshell)))
 
-(defun user/run-new-eshell ()
-  "Switch to eshell, ignoring IGNORED."
+(defun user/run-new-eshell (&optional command)
+  "Switch to eshell, optionally running COMMAND."
   (interactive)
   (let ((current-prefix-arg '(4)))
     (if (projectile-project-p)
         (let ((eshell-buffer-name (concat "*eshell " (projectile-project-name) "*")))
           (projectile-with-default-dir (projectile-project-root)
             (call-interactively 'eshell)))
-      (call-interactively 'eshell))))
+      (call-interactively 'eshell)))
+  (when command
+    (eshell-return-to-prompt)
+    (insert command)
+    (eshell-send-input)))
 
 (defun user/clojure-reload ()
   "Reload Clojure namespaces."
@@ -143,18 +147,18 @@
 
 (defun user/-sql-connect (new)
   "Connect to sql, creating a new buffer if NEW is t."
-  (if (get-buffer "*SQL*")
-      (switch-to-buffer-other-window "*SQL*")
-    (ivy-read "Connect: " sql-connection-alist
-              :action (lambda (db)
-                        (setq sql-product
-                              (->> sql-connection-alist
-                                   (alist-get (car db))
-                                   (alist-get 'sql-product)
-                                   (cadar)))
-                        (if new
-                            (sql-connect (car db) (car db))
-                          (sql-connect (car db)))))))
+  (if nil (if (get-buffer "*SQL*")
+              (switch-to-buffer-other-window "*SQL*")
+            (ivy-read "Connect: " sql-connection-alist
+                      :action (lambda (db)
+                                (setq sql-product
+                                      (->> sql-connection-alist
+                                           (alist-get (car db))
+                                           (alist-get 'sql-product)
+                                           (cadar)))
+                                (if new
+                                    (sql-connect (car db) (car db))
+                                  (sql-connect (car db))))))))
 
 (defun user/sql-connect ()
   "Connect to a sql database."

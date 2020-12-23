@@ -161,13 +161,23 @@
 
 (defun user/set-selected-window (&rest args)
   "Set selected window and ignore ARGS."
-  (when (not (minibuffer-window-active-p (frame-selected-window)))
-    (setq user/-selected-window (frame-selected-window))))
+  (progn (message "selected-window-in")
+         (when (not (minibuffer-window-active-p (frame-selected-window)))
+           (message "selected-window")
+           (setq user/-selected-window (frame-selected-window)))))
 
-(add-hook 'focus-in-hook 'user/set-selected-window)
-(add-hook 'window-configuration-change-hook 'user/set-selected-window)
-(advice-add 'select-window :after #'user/set-selected-window)
-(advice-add 'handle-switch-frame :after #'user/set-selected-window)
+;; (add-hook 'focus-in-hook 'user/set-selected-window)
+;; (add-hook 'window-configuration-change-hook 'user/set-selected-window)
+;; (advice-add 'select-window :after #'user/set-selected-window)
+;; (advice-add 'handle-switch-frame :after #'user/set-selected-window)
+
+(general-add-hook
+ 'post-command-hook (lambda ()
+                      (unless (minibuffer-window-active-p (frame-selected-window))
+                        (setq user/-selected-window (selected-window)))))
+
+(general-add-hook
+ 'buffer-list-update-hook (lambda () (force-mode-line-update t)))
 
 (defsubst user/selected-window-p ()
   "Predicate returning t if current window is the selected window."
@@ -179,7 +189,7 @@
     (propertize
      " " 'display
      (let ((data nil)
-	   (i 0))
+	         (i 0))
        (setq data (make-list height (make-list width 1)))
        (pl/make-xpm "percent" color color (reverse data))))))
 
@@ -237,39 +247,41 @@
 
 (defun user/buffer-path-segment ()
   "Displays the buffer's full path relative to the project root, excluding the file basename."
-  (let ((max-length (truncate (* (window-body-width) 0.4))))
-    (cond (buffer-file-name
-           (let* ((default-directory (f-dirname buffer-file-name))
-                  (buffer-path (f-relative default-directory (user/project-root)))
-                  (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
-             (and short-buffer-path (concat short-buffer-path "/"))))
-          ((eq major-mode 'eshell-mode)
-           (let* ((default-directory (eshell/pwd))
-                  (buffer-path (if (projectile-project-p)
-                                   (f-relative default-directory (user/project-root))
-                                 (abbreviate-file-name default-directory)))
-                  (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
-             (if short-buffer-path
-                 (concat short-buffer-path "/")
-               "")))
-          ((eq major-mode 'vterm-mode)
-           (let* ((default-directory (or (vterm--get-pwd 1) "."))
-                  (buffer-path (if (projectile-project-p)
-                                   (f-relative default-directory (user/project-root))
-                                 (abbreviate-file-name default-directory)))
-                  (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
-             (if (equal short-buffer-path "./")
-                 ""
-               short-buffer-path))
-           )
-          ((eq major-mode 'term-mode)
-           (let* ((buffer-path (if (projectile-project-p)
-                                   (f-relative default-directory (user/project-root))
-                                 (abbreviate-file-name default-directory)))
-                  (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
-             (if (equal short-buffer-path "./")
-                 ""
-               short-buffer-path))))))
+  (let* ((max-length (truncate (* (window-body-width) 0.4)))
+         (buffer-path (cond (buffer-file-name
+                             (let* ((default-directory (f-dirname buffer-file-name))
+                                    (buffer-path (f-relative default-directory (user/project-root)))
+                                    (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
+                               (and short-buffer-path (concat short-buffer-path "/"))))
+                            ((eq major-mode 'eshell-mode)
+                             (let* ((default-directory (eshell/pwd))
+                                    (buffer-path (if (projectile-project-p)
+                                                     (f-relative default-directory (user/project-root))
+                                                   (abbreviate-file-name default-directory)))
+                                    (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
+                               (if short-buffer-path
+                                   (concat short-buffer-path "/")
+                                 "")))
+                            ((eq major-mode 'vterm-mode)
+                             (let* ((default-directory (or (vterm--get-pwd 1) "."))
+                                    (buffer-path (if (projectile-project-p)
+                                                     (f-relative default-directory (user/project-root))
+                                                   (abbreviate-file-name default-directory)))
+                                    (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
+                               (if (equal short-buffer-path "./")
+                                   ""
+                                 short-buffer-path))
+                             )
+                            ((eq major-mode 'term-mode)
+                             (let* ((buffer-path (if (projectile-project-p)
+                                                     (f-relative default-directory (user/project-root))
+                                                   (abbreviate-file-name default-directory)))
+                                    (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
+                               (if (equal short-buffer-path "./")
+                                   ""
+                                 short-buffer-path))))))
+    (and buffer-path
+         (propertize buffer-path 'face (user/active-face 'user/mode-line-info)))))
 
 ;; user/-mode-line-spinner-reasons
 ;; user/-mode-line-spinner-timers
@@ -578,7 +590,8 @@
             (not (user/special-buffer-p)))
     (let ((project-name (user/get-project-name)))
       (and project-name
-           (concat project-name "/")))))
+           (concat project-name
+                   (propertize "/" 'face (user/active-face 'user/mode-line-info)))))))
 
 (defun user/get-git-file-status ()
   "Get status of file from git."

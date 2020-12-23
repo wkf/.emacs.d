@@ -37,7 +37,7 @@
 (defun user-ui/resize-frame (frame width height)
   "Resize FRAME to HEIGHT and WIDTH on grid."
   (set-frame-size frame
-                  ;; HACK it is unclear to me why subtracting 15 pixels is necessary to match moom's grid
+                  ;; HACK: it is unclear to me why subtracting 15 pixels is necessary to match moom's grid
                   (- (round (* (/ (display-pixel-width) (float user-ui/grid-width)) width)) 15)
                   (round (* (/ (display-pixel-height) (float user-ui/grid-height)) height))
                   t))
