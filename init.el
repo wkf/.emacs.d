@@ -590,6 +590,7 @@
       (setq ivy-read-action-function f)))
 
   :general
+  ("C-c /" 'ivy-resume)
   ('ivy-minibuffer-map
    "<C-return>" 'user/ivy-alt-done
    "C-c RET" 'ivy-immediate-done
