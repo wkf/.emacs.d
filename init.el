@@ -1315,6 +1315,7 @@ non-nil, then only do this and skip per-buffer teardown.)"
 
 ;; FIXME: for some reason this makes identifiers in js green now
 (use-package tide
+  :disabled t
   :after evil-collection
   :init
   (setq tide-filter-out-warning-completions t)
