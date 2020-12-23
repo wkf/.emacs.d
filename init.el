@@ -367,11 +367,11 @@
    "B" 'evil-avy-goto-symbol-1-above
    "W" 'evil-avy-goto-symbol-1-below)
   :custom-face
-  (avy-lead-face ((t (:inherit match :foreground unspecified :background unspecified))))
-  (avy-lead-face-0 ((t (:inherit match :foreground unspecified :background unspecified))))
-  (avy-lead-face-1 ((t (:inherit match :foreground unspecified :background unspecified))))
-  (avy-lead-face-2 ((t (:inherit match :foreground unspecified :background unspecified))))
-  (avy-background-face ((t (:inherit match :foreground unspecified)))))
+  (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
+  (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
+  (avy-lead-face-1 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
+  (avy-lead-face-2 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
+  (avy-background-face ((t (:inherit isearch :weight bold :foreground unspecified)))))
 
 (use-package daemons
   :after evil-collection
