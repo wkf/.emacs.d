@@ -724,7 +724,7 @@
 (use-package company
   :after evil-collection
   :init
-  (setq company-idle-delay 0
+  (setq company-idle-delay 0.5
         company-tooltip-align-annotations t
         company-minimum-prefix-length 2
         company-selection-wrap-around t
