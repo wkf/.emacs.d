@@ -613,10 +613,12 @@
    "C-d" 'ivy-scroll-down-command))
 
 (use-package mini-frame
-  ;; FIXME:
+  ;; FIXME: mini-frame popping up unexpectedly
   ;; Running the following code:
   ;; (shell-command "sleep 1; echo $?" t)
-  ;; ...causes the mini-frame to show on to the left, unclear why
+  ;; ...causes the mini-frame to pop up off to the left, without focus
+  ;; FIXME: mini-frame goes into a loop when using ivy actions (recursive minibuffer?)
+  :disabled t
   :init
   (setq
    mini-frame-color-shift-step 11
