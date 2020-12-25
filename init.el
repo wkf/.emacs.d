@@ -128,6 +128,10 @@
 (eval-when-compile
   (require 'use-package))
 
+(use-package gcmh
+  :config
+  (gcmh-mode 1))
+
 (use-package general)
 (use-package el-patch)
 
