@@ -939,10 +939,12 @@
   :config (treemacs-set-scope-type 'Perspectives))
 
 (use-package beacon
+  ;; FIXME: beacon start sticking, possibly after avy command?
+  :disabled t
   :init
   (setq beacon-size 10
         beacon-color (plist-get user-ui/colors :blue)
-        beacon-blink-delay 0
+        beacon-blink-delay 0.1
         beacon-blink-duration 0.5
         beacon-blink-when-focused t
         beacon-blink-when-point-moves-vertically 10)
