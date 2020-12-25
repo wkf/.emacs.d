@@ -897,13 +897,12 @@
 (use-package treemacs
   :after user-mode-line
   :config
-  (setq treemacs-no-png-images                 t
-        treemacs-follow-after-init             t
-        treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-        treemacs-is-never-other-window         t
-        treemacs-project-follow-cleanup        t
-        treemacs-user-mode-line-format         (user-mode-line/treemacs))
-
+  (setq treemacs-no-png-images          t
+        treemacs-follow-after-init      t
+        treemacs-collapse-dirs          (if treemacs-python-executable 3 0)
+        treemacs-is-never-other-window  t
+        treemacs-project-follow-cleanup t
+        treemacs-user-mode-line-format  (user-mode-line/treemacs))
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode t)
