@@ -652,13 +652,18 @@
 (use-package swiper
   :config
   (general-add-advice
+   'swiper--action
+   :after
+   (lambda (_)
+     (goto-char (match-beginning 0))))
+  (general-add-advice
    '(ivy-next-line ivy-previous-line)
-   :after (lambda (arg)
+   :after (lambda (_)
             (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
             (setq isearch-forward t)))
   :general
   ('swiper-map
-   "<C-return>" 'swiper-avy)
+   "C-s" 'swiper-avy)
   (:states '(normal visual)
    "/" (lambda () (interactive) (setq isearch-forward t) (swiper))))
 
