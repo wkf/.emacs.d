@@ -590,27 +590,17 @@
   :config
   (ivy-mode 1)
   (evil-collection-init 'ivy)
-
-  (defun user/ivy-alt-done ()
-    "Make ivy selection with second action, for example, open in other buffer."
-    (interactive)
-    (let ((f ivy-read-action-function))
-      (setq ivy-read-action-function (lambda (actions)
-                                       (message "")
-                                       (setcar actions 2)
-                                       (ivy-set-action actions)))
-      (call-interactively 'ivy-dispatching-done)
-      (setq ivy-read-action-function f)))
-
   :general
   ("C-c /" 'ivy-resume)
   ('ivy-minibuffer-map
-   "<C-return>" 'user/ivy-alt-done
+   "<C-return>" 'ivy-dispatching-done
    "C-c RET" 'ivy-immediate-done
-   "C-c <C-return>" 'ivy-dispatching-done
+   "C-s" 'ivy-avy
    "C-w" 'ivy-backward-kill-word
    "C-u" 'ivy-scroll-up-command
    "C-d" 'ivy-scroll-down-command))
+
+(use-package ivy-avy)
 
 (use-package mini-frame
   ;; FIXME: mini-frame popping up unexpectedly
@@ -683,7 +673,7 @@
   (general-add-hook 'kill-emacs-hook #'persp-state-save))
 
 (use-package projectile
-  :defer nil
+  :demand t
   :init
   (setq projectile-completion-system 'ivy
         projectile-enable-caching nil
@@ -714,14 +704,89 @@
   ('projectile-mode-map
    "C-c p p" 'projectile-persp-switch-project))
 
+(use-package rg)
+
+(use-package ace-window
+  :after evil
+  :demand t
+  :preface
+  (setq aw-dispatch-alist
+        ;; TODO: add key for last buffer? maybe w?
+        '((?d aw-delete-window "Delete Window")
+          (?x aw-swap-window "Swap Windows")
+          (?m aw-move-window "Move Window")
+          (?y aw-copy-window "Copy Window")
+          (?v aw-split-window-horz "Split Window Vertically")
+          (?h aw-split-window-vert "Split Window Horizontally")
+          (?1 delete-other-windows "Delete Other Windows")
+          (?? aw-show-dispatch-help)))
+  :init
+  (setq aw-keys '(?a ?o ?e ?u ?t ?n ?s)
+        aw-dispatch-always t
+        aw-dispatch-when-more-than 1
+        aw-leading-char-style 'path)
+  :general
+  ("C-t" 'ace-window)
+  (:states '(normal visual)
+   "C-t" 'ace-window)
+  :custom-face
+  (aw-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3) :underline nil))))
+  (aw-leading-char-face ((t (:foreground ,(plist-get user-ui/colors :yellow) :bold t)))))
+
 (use-package counsel-projectile
-  :after projectile
-  :defer nil
+  :after ivy projectile ace-window
+  :demand t
   :config
   (counsel-projectile-mode)
+
+  (defun user/counsel-projectile-action (name)
+    (if (member name counsel-projectile--buffers)
+        (switch-to-buffer name nil 'force-same-window)
+      (find-file (with-ivy-window (projectile-expand-root name)))))
+
+  (defun user/counsel-projectile-action-go (window name)
+    (set-frame-selected-window nil window)
+    (user/counsel-projectile-action name))
+
+  (defun user/counsel-projectile-action-stay (window name)
+    (with-selected-window window
+      (user/counsel-projectile-action name)))
+
+  (defun user/counsel-projectile-action-ace-go (name)
+    ;;  without redisplaying, the ace-window overlay is off by the heght of the minibuffer
+    (redisplay t)
+    (user/counsel-projectile-action-go (aw-select "select window") name))
+
+  (defun user/counsel-projectile-action-ace-stay (name)
+    ;;  without redisplaying, the ace-window overlay is off by the heght of the minibuffer
+    (redisplay t)
+    (user/counsel-projectile-action-stay (aw-select "select window") name))
+
+  (defun user/counsel-projectile-action-horiz-go (name)
+    (user/counsel-projectile-action-go (split-window-vertically) name))
+
+  (defun user/counsel-projectile-action-horiz-stay (name)
+    (user/counsel-projectile-action-stay (split-window-vertically) name))
+
+  (defun user/counsel-projectile-action-vert-go (name)
+    (user/counsel-projectile-action-go (split-window-horizontally) name))
+
+  (defun user/counsel-projectile-action-vert-stay (name)
+    (user/counsel-projectile-action-stay (split-window-horizontally) name))
+
+  (ivy-set-actions
+   'counsel-projectile
+   '(("t" user/counsel-projectile-action-ace-go "to window, go")
+     ("T" user/counsel-projectile-action-ace-stay "to window, stay")
+     ("h" user/counsel-projectile-action-horiz-go "split horiz, go")
+     ("H" user/counsel-projectile-action-horiz-stay "split horiz, stay")
+     ("v" user/counsel-projectile-action-vert-go "split vert, go")
+     ("V" user/counsel-projectile-action-vert-stay "split vert, stay")))
+
   :general
   ('projectile-mode-map
-   "C-c p /" 'counsel-projectile-ag))
+   "C-SPC" 'counsel-projectile
+   "C-/" 'counsel-projectile-rg))
 
 (use-package company
   :after evil-collection
@@ -736,7 +801,8 @@
   (evil-collection-init 'company)
   :general
   ('company-active-map
-   "C-w" 'evil-delete-backward-word)
+   "C-w" 'evil-delete-backward-word
+   "C-s" 'counsel-company)
   :custom-face
   (company-scrollbar-bg ((t (:background ,(plist-get user-ui/colors :gray3)))))
   (company-scrollbar-fg ((t (:background ,(plist-get user-ui/colors :white)))))
@@ -952,17 +1018,6 @@
         beacon-blink-when-point-moves-vertically 10)
   :config
   (beacon-mode 1))
-
-(use-package ace-window
-  :init
-  (setq aw-keys '(?a ?e ?i ?d ?h ?t ?s)
-        aw-dispatch-always t
-        aw-leading-char-style 'path)
-  :general
-  ("C-c w" 'ace-window)
-  :custom-face
-  (aw-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3)))))
-  (aw-leading-char-face ((t (:foreground ,(plist-get user-ui/colors :yellow) :bold t)))))
 
 (use-package olivetti)
 

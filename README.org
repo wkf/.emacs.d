@@ -1,4 +1,4 @@
-* Know Thyself
+* TODO Know Thyself
 
 - [X] push to github repo
 - [ ] cleanup config
@@ -83,6 +83,10 @@
 - [X] find a place for rename buffer/file
 - [X] higher contrast avy face?
 - [ ] learn about .dir-locals
+- [ ] try out hyperbole??
+- [ ] try counsel-projectile-org-capture!!
+- [ ] bind C-n/C-p when selecting first company candidate
+- [ ] dry up ace window functions
 
 #+begin_src restclient
 GET https://gnu.org/software/emacs
@@ -104,3 +108,50 @@ Content-Type: application/json
 #+begin_src emacs-lisp :tangle yes
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")
 #+end_src
+
+ace-window
+
+    C-t
+        a w? select (enable always select mode temporarily?)
+        v vsplit
+        h hsplit
+        y copy
+        d delete
+        m move
+        x swap
+        1 only window
+        ? help
+
+** ivy
+
+     - [X] C-return action with ace window select
+     - [X] add actions for v and h splitting
+     - [X] open in other window (move cursor)
+     - [X] open in other window (don't move cursor)
+     - [X] remap C-return back to ivy-dispatching read
+
+    rather than having a bunch of different ace-window commands, use open other window when there's only one window,
+    and then use t/T when there's more than one window
+
+        if 1 window, split window sensibly
+        if 2+ windows, use ace-window
+
+** eshell
+
+     C-return run command with ace window select
+
+** treemacs
+
+     C-return open file with ace window select
+
+
+ bindings
+
+ C-t ace-window ("teleport")
+
+ SPC avy-goto-char-2
+ RET avy-goto-line
+
+ C-/ counsel-projectile-rg
+
+ C-SPC counsel-projectile
