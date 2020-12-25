@@ -585,6 +585,7 @@
   :after (flx evil-collection)
   :init
   (setq ivy-use-virtual-buffers t
+        ;; FIXME: I think this gets masked by ivy-prescient?
         ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
   :config
   (ivy-mode 1)
