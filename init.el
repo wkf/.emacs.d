@@ -168,6 +168,14 @@
   (set-face-attribute 'font-lock-comment-face nil
                       :slant 'italic))
 
+(use-package highlight-numbers
+  :ghook
+  'prog-mode-hook)
+
+(use-package highlight-escape-sequences
+  :config
+  (hes-mode))
+
 (use-package user-util
   :straight nil
   :load-path "user"
