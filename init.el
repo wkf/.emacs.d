@@ -372,13 +372,12 @@
   :straight nil
   :general
   (:states '(normal visual)
-   :prefix "g"
-   "SPC" 'evil-avy-goto-char
+   "SPC" 'evil-avy-goto-char-2
    "RET" 'evil-avy-goto-line
-   "S" 'evil-avy-goto-char-2-above
-   "s" 'evil-avy-goto-char-2-below
-   "B" 'evil-avy-goto-symbol-1-above
-   "W" 'evil-avy-goto-symbol-1-below)
+   "gS" 'evil-avy-goto-char-2-above
+   "gs" 'evil-avy-goto-char-2-below
+   "gB" 'evil-avy-goto-symbol-1-above
+   "gW" 'evil-avy-goto-symbol-1-below)
   :custom-face
   (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
   (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
