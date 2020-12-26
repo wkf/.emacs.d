@@ -1135,6 +1135,7 @@ non-nil, then only do this and skip per-buffer teardown.)"
     ("[" lispy-wrap-brackets "wrap brackets")
     ("{" lispy-wrap-braces "wrap braces"))
 
+  ;;  NOTE: I wonder if this is what's causing a problem for x returning to normal mode?
   (general-add-advice '(lispy-forward
                         lispy-backward)
                       :after (lambda (arg) (evil-insert-state)))
