@@ -370,6 +370,8 @@
 (use-package avy
   ;;  installed along with evil
   :straight nil
+  :init
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
   :general
   (:states '(normal visual)
    "SPC" 'evil-avy-goto-char-2
@@ -721,7 +723,7 @@
           (?1 delete-other-windows "Delete Other Windows")
           (?? aw-show-dispatch-help)))
   :init
-  (setq aw-keys '(?a ?o ?e ?u ?t ?n ?s)
+  (setq aw-keys '(?a ?o ?e ?u ?i ?t ?n ?s)
         aw-dispatch-always t
         aw-dispatch-when-more-than 1
         aw-leading-char-style 'path)
