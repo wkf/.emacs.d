@@ -91,7 +91,7 @@
 - [ ] reconsider electric spaces for lispy/lispville
 - [ ] quick way to flip between buffers
 - [ ] add ace/split actions to more ivy commands
-- [ ] make E motion land on the end of symbol, not after
+- [X] make E motion land on the end of symbol, not after
 - [X] add evil ex command for evil multiedit
 
 #+begin_src restclient

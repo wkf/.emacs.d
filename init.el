@@ -1334,6 +1334,14 @@ non-nil, then only do this and skip per-buffer teardown.)"
         (forward-char))
       (evil-normal-state)))
 
+  (general-add-advice
+   'lispyville-forward-atom-end
+   :before (lambda (_) (forward-char)))
+
+  (general-add-advice
+   'lispyville-forward-atom-end
+   :after (lambda (_) (backward-char)))
+
   :ghook
   'lispy-mode-hook
   :general
