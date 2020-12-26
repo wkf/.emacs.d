@@ -725,6 +725,14 @@
         aw-dispatch-always t
         aw-dispatch-when-more-than 1
         aw-leading-char-style 'path)
+  :config
+
+  (defun user/aw-select ()
+    ;;  without redisplaying, the ace-window overlay is off by the height of the minibuffer
+    (redisplay t)
+    (with-selected-window (frame-selected-window)
+      (aw-select "select window")))
+
   :general
   ("C-t" 'ace-window)
   (:states '(normal visual)
@@ -753,14 +761,10 @@
       (user/counsel-projectile-action name)))
 
   (defun user/counsel-projectile-action-ace-go (name)
-    ;;  without redisplaying, the ace-window overlay is off by the heght of the minibuffer
-    (redisplay t)
-    (user/counsel-projectile-action-go (aw-select "select window") name))
+    (user/counsel-projectile-action-go (user/aw-select) name))
 
   (defun user/counsel-projectile-action-ace-stay (name)
-    ;;  without redisplaying, the ace-window overlay is off by the heght of the minibuffer
-    (redisplay t)
-    (user/counsel-projectile-action-stay (aw-select "select window") name))
+    (user/counsel-projectile-action-stay (user/aw-select) name))
 
   (defun user/counsel-projectile-action-horiz-go (name)
     (user/counsel-projectile-action-go (split-window-vertically) name))
@@ -876,7 +880,7 @@
 
 
 (use-package eshell
-  :after (evil-collection exec-path-from-shell)
+  :after evil-collection exec-path-from-shell ace-window
   :init
   (setq-default eshell-path-env (getenv "PATH"))
   (setq eshell-destroy-buffer-when-process-dies nil
@@ -911,11 +915,6 @@
             (user/eshell-run-command name root command))
         (set-frame-selected-window nil window)
         (user/eshell-run-command name root command))))
-
-  (defun user/aw-select ()
-    (redisplay t)
-    (with-selected-window (frame-selected-window)
-      (aw-select "select window")))
 
   (defun user/eshell-run-command-vert-go ()
     (interactive)
