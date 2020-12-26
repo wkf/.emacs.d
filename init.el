@@ -1083,11 +1083,17 @@
         beacon-blink-duration 0.5
         beacon-blink-when-focused t
         beacon-blink-when-point-moves-vertically 10)
+  :config
+  (defun user/beacon-blink ()
+    (interactive)
+    (let ((size beacon-size))
+      (setq beacon-size (- (window-body-width) (current-column)))
+      (beacon-blink)
+      (setq beacon-size size)))
   ;; FIXME: beacon start sticking, possibly after avy command?
-  ;; :config
   ;; (beacon-mode 1)
   :general
-  ("C-c b" 'beacon-blink))
+  ("C-c B" 'user/beacon-blink))
 
 (use-package olivetti)
 
