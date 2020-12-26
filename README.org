@@ -85,14 +85,15 @@
 - [ ] learn about .dir-locals
 - [ ] try out hyperbole??
 - [ ] try counsel-projectile-org-capture!!
-- [ ] bind C-n/C-p when selecting first company candidate
-- [ ] dry up ace window functions
+- [ ] bind C-n/C-p when selecting first company candidate?
+- [X] dry up ace window functions
 - [ ] add better lispy open, bind to C-RET?
 - [ ] reconsider electric spaces for lispy/lispville
 - [ ] quick way to flip between buffers
 - [ ] add ace/split actions to more ivy commands
 - [X] make E motion land on the end of symbol, not after
 - [X] add evil ex command for evil multiedit
+- [ ] reflect on (and update) lispy/lispyville bindings
 
 #+begin_src restclient
 GET https://gnu.org/software/emacs
