@@ -62,6 +62,7 @@
  ("forge" . "e14a49d8f2ede96d0da4f0a327449d0826a72e7a")
  ("fringe-helper.el" . "ef4a9c023bae18ec1ddd7265f1f2d6d2e775efdd")
  ("fullframe" . "8cc4aebf4a1054812b34f9704c38c1616571078c")
+ ("gcmh" . "0089f9c3a6d4e9a310d0791cf6fa8f35642ecfd9")
  ("general.el" . "a0b17d207badf462311b2eef7c065b884462cb7c")
  ("ghub" . "f4cf786246606fdaf4239d6308eba4fb5b4b4c45")
  ("git-gutter" . "56308dc1a1196583791cb24aa86b2669d343b9f3")
