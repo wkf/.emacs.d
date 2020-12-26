@@ -657,7 +657,14 @@
   "Return mode-line format for treemacs buffer."
   `("%e"
     (:eval
-     (powerline-fill (user/active-face 'mode-line) 0))))
+     (concat
+      (powerline-render (list (powerline-raw (user/evil-state-segment))))
+      (if t
+          (powerline-fill (user/active-face 'mode-line) 0)
+        (powerline-fill (user/active-face 'mode-line) 5)
+        (powerline-render (list (powerline-hud (user/active-face
+                                                (user/get-evil-state-highlight-face))
+                                               'user/mode-line-hud-disabled 5))))))))
 
 (provide 'user-mode-line)
 ;;; user-mode-line.el ends here
