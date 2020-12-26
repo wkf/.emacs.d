@@ -888,8 +888,76 @@
           eshell-watch-for-password-prompt))
   :config
   (evil-collection-init 'eshell)
+
+  (defun user/eshell-run-command (name dir command)
+    "Open a new eshell named NAME in DIR and run COMMAND."
+    (let ((current-prefix-arg t))
+      (let ((eshell-buffer-name (concat "*eshell " (or name "-") "*")))
+        (let ((default-directory (or dir default-directory)))
+          (call-interactively 'eshell))))
+    (eshell-return-to-prompt)
+    (insert command)
+    (eshell-send-input))
+
+  (defun user/eshell-run-command-in-window (window stay)
+    (eshell-update-markers eshell-last-output-end)
+    (let ((name (projectile-project-name))
+          (root (projectile-project-root))
+          (command (buffer-substring-no-properties eshell-last-input-start eshell-last-input-end)))
+      (eshell-add-input-to-history command)
+      (eshell-reset)
+      (if stay
+          (with-selected-window window
+            (user/eshell-run-command name root command))
+        (set-frame-selected-window nil window)
+        (user/eshell-run-command name root command))))
+
+  (defun user/aw-select ()
+    (redisplay t)
+    (with-selected-window (frame-selected-window)
+      (aw-select "select window")))
+
+  (defun user/eshell-run-command-vert-go ()
+    (interactive)
+    (user/eshell-run-command-in-window (split-window-horizontally) nil))
+
+  (defun user/eshell-run-command-vert-stay ()
+    (interactive)
+    (user/eshell-run-command-in-window (split-window-horizontally) t))
+
+  (defun user/eshell-run-command-horiz-go ()
+    (interactive)
+    (user/eshell-run-command-in-window (split-window-vertically) nil))
+
+  (defun user/eshell-run-command-horiz-stay ()
+    (interactive)
+    (user/eshell-run-command-in-window (split-window-vertically) t))
+
+  (defun user/eshell-run-command-ace-go ()
+    (interactive)
+    (user/eshell-run-command-in-window (user/aw-select) nil))
+
+  (defun user/eshell-run-command-ace-stay ()
+    (interactive)
+    (user/eshell-run-command-in-window (user/aw-select) t))
+
+  (defhydra user/eshell-actions-hydra (:color blue :hint nil :idle .3 :columns 3)
+    ("RET" eshell-send-input "send input")
+    ("t" user/eshell-run-command-ace-go "send input to window, go")
+    ("T" user/eshell-run-command-ace-stay "send input to window, stay")
+    ("v" user/eshell-run-command-vert-go "send input to vert split, go")
+    ("V" user/eshell-run-command-vert-stay "send input to vert split, stay")
+    ("h" user/eshell-run-command-horiz-go "send input to horiz split, go")
+    ("H" user/eshell-run-command-horiz-stay "send input to horiz split, stay"))
+
+  (defun user/eshell-clear ()
+    (interactive)
+    (eshell/clear-scrollback)
+    (eshell-send-input nil nil t))
+
   :general
-  ("C-c s n" 'user/run-new-eshell)
+  ("C-c s n" 'user/run-new-eshell
+   "C-c s c" 'user/eshell-clear)
   :gfhook
   #'(lambda ()
       (setenv "TERM" "xterm-256color")
@@ -900,7 +968,7 @@
         "[remap eshell-pcomplete]" 'company-indent-or-complete-common
         "TAB" 'company-indent-or-complete-common
         "C-s" 'counsel-esh-history
-        "<C-return>" (lambda () (interactive) (eshell/clear-scrollback) (eshell-send-input nil nil t))))
+        "<C-return>" 'user/eshell-actions-hydra/body))
   ('eshell-before-prompt-hook (lambda ()
                                 (setq xterm-color-preserve-properties t)))
   :custom-face
