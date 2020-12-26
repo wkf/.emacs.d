@@ -1121,27 +1121,6 @@
     nil nil 'center)
   (global-flycheck-mode)
 
-  ;; https://github.com/flycheck/flycheck/pull/1796
-  (el-patch-feature flycheck)
-
-  (el-patch-defun flycheck-global-teardown (&optional ignore-local)
-    "Teardown Flycheck in all buffers.
-
-Completely clear the whole Flycheck state in all buffers, stop
-all running checks, remove all temporary files, and empty all
-variables of Flycheck.
-
-Also remove global hooks.  (If optional argument IGNORE-LOCAL is
-non-nil, then only do this and skip per-buffer teardown.)"
-    (unless ignore-local
-      (dolist (buffer (buffer-list))
-        (el-patch-wrap 2
-          (when (buffer-live-p buffer)
-            (with-current-buffer buffer
-              (when flycheck-mode
-                (flycheck-teardown 'ignore-global)))))))
-    (remove-hook 'buffer-list-update-hook #'flycheck-handle-buffer-switch))
-
   :custom-face
   (flycheck-error-list-info ((t (:inherit success)))))
 

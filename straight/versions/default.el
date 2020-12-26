@@ -56,7 +56,7 @@
  ("extmap" . "2a6373d4fad1a5ac95272cabb6f5e4af89233d67")
  ("f.el" . "1814209e2ff43cf2e6d38c4cd476218915f550fb")
  ("flx" . "647cb2f92f9936c62e277d7a74ad54a80502d255")
- ("flycheck" . "79c9245ee0bd1722d41c865fef69aa2b1ac08fde")
+ ("flycheck" . "1722a154f392ed95519e138c938bef59724b3297")
  ("flycheck-credo" . "e88f11ead53805c361ec7706e44c3dfee1daa19f")
  ("flycheck-tip" . "9b0072d92e6b4a52834bf5a34120a0f5e1c8c2fd")
  ("forge" . "e14a49d8f2ede96d0da4f0a327449d0826a72e7a")
