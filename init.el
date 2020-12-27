@@ -806,13 +806,15 @@
   :preface
   (setq aw-dispatch-alist
         ;; TODO: add key for last buffer? maybe w?
-        '((?d aw-delete-window "Delete Window")
-          (?x aw-swap-window "Swap Windows")
-          (?m aw-move-window "Move Window")
-          (?y aw-copy-window "Copy Window")
-          (?v aw-split-window-horz "Split Window Vertically")
-          (?h aw-split-window-vert "Split Window Horizontally")
-          (?1 delete-other-windows "Delete Other Windows")
+        '((?d aw-delete-window "delete window")
+          (?x aw-swap-window "swap windows")
+          (?m aw-move-window "move window")
+          (?y aw-copy-window "copy window")
+          (?v user/aw-split-window-horz-go "split window vertically, go")
+          (?h user/aw-split-window-vert-go "split window horizontally, go")
+          (?V aw-split-window-horz "split window vertically")
+          (?H aw-split-window-vert "split window horizontally")
+          (?1 delete-other-windows "delete other windows")
           (?? aw-show-dispatch-help)))
   :init
   (setq aw-keys '(?a ?o ?e ?u ?i ?t ?n ?s)
@@ -820,6 +822,12 @@
         aw-dispatch-when-more-than 1
         aw-leading-char-style 'path)
   :config
+
+  (defun user/aw-split-window-horz-go (window)
+    (select-window (aw-split-window-horz window)))
+
+  (defun user/aw-split-window-vert-go (window)
+    (select-window (aw-split-window-vert window)))
 
   (defun user/aw-select ()
     ;;  without redisplaying, the ace-window overlay is off by the height of the minibuffer
@@ -847,7 +855,7 @@
       (find-file (with-ivy-window (projectile-expand-root name)))))
 
   (defun user/counsel-projectile-action-go (window name)
-    (set-frame-selected-window nil window)
+    (select-window window)
     (user/counsel-projectile-action name))
 
   (defun user/counsel-projectile-action-stay (window name)
@@ -1007,7 +1015,7 @@
       (if stay
           (with-selected-window window
             (user/eshell-run-command name root command))
-        (set-frame-selected-window nil window)
+        (select-window window)
         (user/eshell-run-command name root command))))
 
   (defun user/eshell-run-command-vert-go ()
