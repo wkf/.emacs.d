@@ -2,7 +2,7 @@
 
 ** Tasks
 
-- [X] push to github repo
+- [ ] push to github repo
 - [ ] cleanup config
 - [X] either use custom file or get rid of it
 - [X] clean up magit ui
@@ -110,79 +110,55 @@
 - [ ] learn org mode bindings
 - [ ] put org-capture (and magit commit) buffers into insert mode to start
 - [ ] make eval-defun flash in elisp-mode
+- [X] C-return action with ace window select
+- [X] add actions for v and h splitting
+- [X] open in other window (move cursor)
+- [X] open in other window (don't move cursor)
+- [X] remap C-return back to ivy-dispatching read
+- [ ] fix avy dispatch bindings
 
+** Bindings
 
-** Code
+C-l last-buffer
 
- #+begin_src restclient
+C-t ace-window ("teleport"? "to"?)
+
+C-s eshell-toggle
+
+SPC avy-goto-char-2
+RET avy-goto-line
+
+C-/ counsel-projectile-rg
+
+C-SPC counsel-projectile
+
+* Code
+
+A restclient example so I don't forget.
+
+#+begin_src restclient
 GET https://gnu.org/software/emacs
 Accept: application/json
 Content-Type: application/json
- #+end_src
+#+end_src
 
- #+begin_src emacs-lisp :tangle yes
+An attempt at locking down how new windows open, didn't work that well.
+
+#+begin_src emacs-lisp :tangle yes
 (setq display-buffer-alist '((".*" (display-buffer-reuse-window display-buffer-same-window)))
       display-buffer-reuse-frames t
       even-window-sizes nil)
- #+end_src
+#+end_src
 
- #+begin_src emacs-lisp :tangle yes
+Make certain commands run in a term instead of eshell.
+
+#+begin_src emacs-lisp :tangle yes
 (add-to-list 'eshell-visual-commands "npm")
 (add-to-list 'eshell-visual-subcommands '("npm" "test"))
- #+end_src
+#+end_src
 
- #+begin_src emacs-lisp :tangle yes
+Open README.org for emacs.d project.
+
+#+begin_src emacs-lisp :tangle yes
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")
- #+end_src
-
-
- ace-window
-
-     C-t
-         a w? select (enable always select mode temporarily?)
-         v vsplit
-         h hsplit
-         y copy
-         d delete
-         m move
-         x swap
-         1 only window
-         ? help
-
-* ivy
-
-    - [X] C-return action with ace window select
-    - [X] add actions for v and h splitting
-    - [X] open in other window (move cursor)
-    - [X] open in other window (don't move cursor)
-    - [X] remap C-return back to ivy-dispatching read
-
-   rather than having a bunch of different ace-window commands, use open other window when there's only one window,
-   and then use t/T when there's more than one window
-
-       if 1 window, split window sensibly
-       if 2+ windows, use ace-window
-
-* eshell
-
-    C-return run command with ace window select
-
-** treemacs
-
-     C-return open file with ace window select
-
-
- bindings
-
- C-l last-buffer
-
- C-t ace-window ("teleport")
-
- C-s eshell-toggle
-
- SPC avy-goto-char-2
- RET avy-goto-line
-
- C-/ counsel-projectile-rg
-
- C-SPC counsel-projectile
+#+end_src
