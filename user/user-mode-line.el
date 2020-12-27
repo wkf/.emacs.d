@@ -208,7 +208,7 @@
 (defun user/get-evil-state-highlight-face ()
   "Set the highlight face depending on the evil state."
   (if (bound-and-true-p evil-local-mode)
-      (if (and (featurep 'lispyvile)
+      (if (and (featurep 'lispyville)
                (lispyville--lispy-keybindings-active-p))
           'user/mode-line-special-state
         (let* ((state (user/get-evil-state))
