@@ -725,7 +725,7 @@
   :config
   (evil-collection-init 'helpful)
   :general
-  (:states 'normal
+  (:states '(normal visual)
    "K" 'helpful-at-point)
   ("C-h f" 'helpful-callable
    "C-h v" 'helpful-variable
