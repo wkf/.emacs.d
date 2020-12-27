@@ -1757,6 +1757,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (savehist-mode 1)
 (global-auto-revert-mode 1)
+(minibuffer-depth-indicate-mode 1)
 
 (general-add-hook 'before-save-hook 'delete-trailing-whitespace)
 (general-add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
