@@ -441,8 +441,6 @@
   (:states '(normal visual)
    "SPC" 'evil-avy-goto-char-2
    "RET" 'evil-avy-goto-line
-   "gS" 'evil-avy-goto-char-2-above
-   "gs" 'evil-avy-goto-char-2-below
    "gB" 'evil-avy-goto-symbol-1-above
    "gW" 'evil-avy-goto-symbol-1-below)
   :custom-face
