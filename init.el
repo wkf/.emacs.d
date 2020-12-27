@@ -679,6 +679,7 @@
   ('ivy-minibuffer-map
    "<C-return>" 'ivy-dispatching-done
    "C-c RET" 'ivy-immediate-done
+   "C-c o" 'ivy-occur
    "C-s" 'ivy-avy
    "C-w" 'ivy-backward-kill-word
    "C-u" 'ivy-scroll-up-command
