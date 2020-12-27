@@ -850,6 +850,11 @@
 (use-package counsel-projectile
   :after ivy projectile ace-window
   :demand t
+  :init
+  (setq counsel-projectile-org-capture-templates
+        '(("t" "[${name}] Task" checkitem
+           (file+headline "${root}/README.org" "Tasks")
+           "- [ ] %?")))
   :config
   (counsel-projectile-mode)
 
