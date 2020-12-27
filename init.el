@@ -469,6 +469,13 @@
     unimpaired
     process-menu))
 
+(use-package dired
+  :straight nil
+  :after evil-collection
+  :config
+  (evil-collection-init 'dired)
+  :general
+  ("C-c d d" 'dired))
 (use-package evil-collection
   :after evil
   :config
