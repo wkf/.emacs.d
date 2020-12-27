@@ -623,6 +623,8 @@
   :general
   ("C-c g s" 'magit-status
    "C-c g b" 'magit-blame-addition)
+  :ghook
+  ('git-commit-mode-hook 'evil-insert-state)
   :gfhook
   #'turn-off-evil-snipe-override-mode
   :custom-face
