@@ -655,9 +655,14 @@
   :general
   ("C-c g t" 'ivy-magit-todos))
 
-(use-package hydra)
-
 (use-package ivy-hydra)
+(use-package hydra
+  :custom-face
+  (hydra-face-red ((t (:foreground ,(plist-get user-ui/colors :red)))))
+  (hydra-face-teal ((t (:foreground ,(plist-get user-ui/colors :cyan)))))
+  (hydra-face-pink ((t (:foreground ,(plist-get user-ui/colors :pink)))))
+  (hydra-face-blue ((t (:foreground ,(plist-get user-ui/colors :blue)))))
+  (hydra-face-amaranth ((t (:foreground ,(plist-get user-ui/colors :magenta))))))
 
 (use-package flx)
 
