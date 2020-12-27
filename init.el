@@ -1241,8 +1241,14 @@
     clojurec-mode-hook
     clojurescript-mode-hook))
 
+(defun user/prettify-lisp-symbols ()
+  "Prettify Lisp symbols."
+  (push '("lambda" . "λ") prettify-symbols-alist)
+  (prettify-symbols-mode))
+
 (general-add-hook user/lisp-mode-hooks #'eldoc-mode)
 (general-add-hook user/lisp-mode-hooks #'flycheck-mode)
+(general-add-hook user/lisp-mode-hooks #'user/prettify-lisp-symbols)
 (general-add-hook 'emacs-lisp-mode-hook (lambda () (setq-local lisp-indent-function #'user/lisp-indent-function)))
 
 (use-package clojure-mode
