@@ -77,6 +77,10 @@
  cursor-in-non-selected-windows nil)
 
 (setq
+ kill-buffer-query-functions nil
+ highlight-nonselected-windows nil
+ enable-recursive-minibuffers t
+ minibuffer-message-timeout 1
  mode-line-format nil
  package-enable-at-startup nil
  package--init-file-ensured t
@@ -95,6 +99,7 @@
  delete-old-versions t
  backup-by-copying t
  vc-make-backup-files t
+ vc-follow-symlinks t
  global-auto-revert-non-file-buffers t
  auto-revert-verbose nil
  longlines-show-hard-newlines t
