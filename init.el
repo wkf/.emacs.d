@@ -753,7 +753,9 @@
 
 (use-package counsel
   :init
-  (setq counsel-find-file-ignore-regexp nil)
+  (setq counsel-find-file-ignore-regexp nil
+        counsel-rg-base-command
+        (split-string "rg --sort path -M 240 --no-heading --line-number --color never %s"))
   :config
   (counsel-mode))
 
