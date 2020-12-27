@@ -35,7 +35,6 @@ site-lisp/package/
 /emms/
 /.smex-items
 /image-dired/
-/eshell
 /.cask/
 /.sx/
 /org-clock-save.el
@@ -67,3 +66,5 @@ site-lisp/package/
 /.lsp-session-*
 /smex-items
 flycheck_*.el
+/eshell/history
+/eshell/lastdir

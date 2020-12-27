@@ -1,0 +1,3 @@
+alias p  $*
+alias l ls -alh
+alias λ $*
