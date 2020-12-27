@@ -1199,6 +1199,10 @@
   :general
   ("C-c O" 'olivetti-mode))
 
+(use-package origami
+  :config
+  (global-origami-mode))
+
 (use-package markdown-mode
   :mode
   (("README\\.md\\'" . gfm-mode)
