@@ -279,7 +279,8 @@
   :init
   (setq org-edit-src-content-indentation 0
         org-src-preserve-indentation t
-        org-hide-leading-stars t)
+        org-hide-leading-stars t
+        org-startup-indented t)
   :config
   (setq initial-major-mode 'org-mode
         initial-scratch-message nil)
@@ -361,14 +362,29 @@
   :gfhook
   #'smartparens-mode
   #'user/prettify-org-symbols
+  :general
+  ('org-mode-map
+   "C-9" 'org-up-element
+   "C-0" 'org-down-element)
   :custom-face
   (org-block ((t (:inherit default :foreground unspecified))))
   (org-todo ((t (:inherit default :background unspecified))))
   (org-done ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray2)))))
   (org-checkbox-todo-bullet ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray5)))))
-  (org-checkbox-some-text ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :orange))))))
+  (org-checkbox-some-text ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :orange)))))
+  (org-level-1 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :blue)))))
+  (org-level-2 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :red)))))
+  (org-level-3 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :magenta)))))
+  (org-level-4 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :yellow)))))
+  (org-level-5 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :orange)))))
+  (org-level-6 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :green)))))
+  (org-level-7 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :cyan)))))
+  (org-level-8 ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :pink))))))
 
 (use-package org-bullets
+  :init
+  (setq org-bullets-bullet-list
+        '("●" "◐" "◑" "◒" "◓" "○"))
   :ghook
   'org-mode-hook)
 
