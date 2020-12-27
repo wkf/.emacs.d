@@ -1195,7 +1195,9 @@
   :general
   ("C-c B" 'user/beacon-blink))
 
-(use-package olivetti)
+(use-package olivetti
+  :general
+  ("C-c O" 'olivetti-mode))
 
 (use-package markdown-mode
   :mode
