@@ -550,6 +550,12 @@
   :after (org evil)
   :config
   (evil-org-set-key-theme '(navigation insert textobjects todo))
+
+  (general-def
+    'normal
+    'org-mode-map
+    "go" (evil-org-define-eol-command org-insert-heading)
+    "gO" (evil-org-define-eol-command org-insert-subheading))
   :ghook
   'org-mode-hook)
 
