@@ -133,11 +133,23 @@
 (eval-when-compile
   (require 'use-package))
 
+(use-package general)
+
+(use-package emacs
+  :general
+  ("C-l" (defun user/flip-to-last-buffer ()
+           (interactive)
+           (switch-to-buffer (other-buffer (current-buffer) t) nil 'force-same-window))
+   "C-c b p" 'previous-buffer
+   "C-c b n" 'next-buffer
+   "C-c b d" (defun user/kill-current-buffer  ()
+               (interactive)
+               (kill-buffer))))
+
 (use-package gcmh
   :config
   (gcmh-mode 1))
 
-(use-package general)
 (use-package el-patch)
 
 (use-package f)
