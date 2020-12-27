@@ -1283,54 +1283,51 @@
         lispy-insert-space-after-wrap nil)
   :config
   (defhydra user/lispy-g-hydra (:color blue :hint nil :idle .3 :columns 3)
-    ("j" lispy-knight-down "knight down")
-    ("k" lispy-knight-up "knight up")
+    ("j" 'lispy-knight-down "knight down")
+    ("k" 'lispy-knight-up "knight up")
     ("g" lispy-beginning-of-defun "beginning of def")
     ("d" lispy-goto "goto")
     ("D" lispy-goto-local "goto local")
     ("J" lispy-outline-next "next outline")
     ("K" lispy-outline-prev "prev outline")
     ("L" lispy-outline-goto-child "child outline")
-    ("X" lispy-eval-and-insert "eval and insert")
+    ("e" lispy-eval-and-insert "eval and insert")
     ("E" lispy-eval-other-window "eval other window")
     ("Q" lispy-convolute-left "eval other window")
     ("x" hydra-lispy-x/body "x mode")
-    ("o" lispy-other-mode "o mode")
-    ("+" lispy-widen "widen")
-    ("-" lispy-narrow "narrow")
-    ("(" lispy-wrap-round "wrap parens")
-    ("[" lispy-wrap-brackets "wrap brackets")
-    ("{" lispy-wrap-braces "wrap braces"))
+    ("o" lispy-other-mode "o mode"))
 
-  (general-add-advice '(lispy-forward
-                        lispy-backward)
-                      :after (lambda (arg) (evil-insert-state)))
+  (defun user/lispy-view ()
+    "Recenter current sexp."
+    (interactive)
+    (lispy-from-left (recenter)))
+
   :ghook
   user/lisp-mode-hooks
   :general
   ('lispy-mode-map
    :definer 'lispy
-   "f" '(lispy-ace-paren
+   "t" '(lispy-ace-paren
          :override '(cond ((bound-and-true-p view-mode)
                            (View-quit))))
-   "t" 'lispy-ace-char
+   "f" 'lispy-ace-char
    "c" 'lispy-ace-symbol-replace
    "P" 'lispy-clone
    "C" 'lispy-kill
    "%" 'lispy-different
-   "^" 'lispy-splice-sexp-killing-backward
-   "$" 'lispy-splice-sexp-killing-forward
    "p" 'lispy-paste
    "y" 'lispy-new-copy
-   "z" 'lispy-view
+   "z" 'user/lispy-view
    "J" 'lispy-join
-   "K" 'lispy-describe
+   "K" 'helpful-at-point
+   "H" 'lispy-backward
+   "L" 'lispy-forward
    ">" 'lispy-slurp-or-barf-right
    "<" 'lispy-slurp-or-barf-left
    "/" 'lispy-occur
    "w" 'lispy-flow
-   "L" 'lispy-forward
-   "H" 'lispy-backward
+   "+" 'lispy-widen
+   "-" 'lispy-narrow
    "g" 'user/lispy-g-hydra/body
    "S" 'lispy-move-up
    "Q" 'lispy-convolute
@@ -1341,17 +1338,14 @@
 
   ('lispy-mode-map
    "TAB" 'lispy-tab
-   "C-9" 'lispy-backward
-   "C-0" 'lispy-forward
-   "[" 'lispy-brackets
+   "<C-return>" 'lispy-out-forward-newline
    "]" 'lispy-close-square
-   "{" 'lispy-braces
    "}" 'lispy-close-curly))
 
 (use-package lispyville
   :after lispy
   :init
-  (setq lispyville-motions-put-into-special t
+  (setq lispyville-motions-put-into-special nil
         lispyville-commands-put-into-special nil)
   :config
   (lispyville-set-key-theme
@@ -1368,26 +1362,21 @@
   (defun user/lispy-insert-at-end-of-list ()
     "Forward list and enter insert state."
     (interactive)
-    (if (not (lispyville--at-left-p))
-        (call-interactively 'lispyville-insert-at-end-of-list)
-      (forward-char)
-      (call-interactively 'lispyville-insert-at-end-of-list)
-      (backward-char)
-      (if (not (lispyville--at-right-p))
-          (forward-char)
-        (forward-char)
-        (insert " "))))
+    (when (lispyville--at-left-p)
+      (forward-char))
+    (call-interactively 'lispyville-insert-at-end-of-list)
+    (unless (save-excursion (backward-char) (lispyville--at-left-p))
+      (insert " ")))
 
   (defun user/lispy-insert-at-beginning-of-list ()
     "Backward list and enter insert state."
     (interactive)
-    (if (not (lispyville--at-left-p))
-        (call-interactively 'lispyville-insert-at-beginning-of-list)
-      (forward-char)
-      (call-interactively 'lispyville-insert-at-beginning-of-list)
-      (when (lispyville--at-left-p)
-        (insert " ")
-        (backward-char))))
+    (when (lispyville--at-left-p)
+      (forward-char))
+    (call-interactively 'lispyville-insert-at-beginning-of-list)
+    (unless (lispyville--at-right-p)
+      (insert " ")
+      (backward-char)))
 
   (defun user/lispy-space ()
     "Like lispy space, but move the cursor back once."
@@ -1398,11 +1387,6 @@
       (backward-char)
       (when (lispyville--at-left-p)
         (forward-char))))
-
-  (defun user/lispy-change ()
-    (interactive)
-    (call-interactively 'lispy-kill)
-    (evil-insert-state))
 
   (defun user/lispy-open-below ()
     (interactive)
@@ -1424,6 +1408,13 @@
         (call-interactively 'eval-sexp-fu-eval-sexp-inner-sexp)
       (call-interactively 'eval-sexp-fu-cider-eval-sexp-inner-sexp)))
 
+  (defun user/eval-defun-dwim ()
+    (interactive)
+    (cond ((eq major-mode 'emacs-lisp-mode)
+           (call-interactively 'eval-defun))
+          ((eq major-mode 'clojure-mode)
+           (call-interactively 'cider-eval-defun-at-point))))
+
   (defun user/lispy-delete-char-or-splice ()
     (interactive)
     (call-interactively 'lispyville-delete-char-or-splice)
@@ -1432,17 +1423,54 @@
         (forward-char))
       (evil-normal-state)))
 
-  (general-add-advice
-   'lispyville-forward-atom-end
-   :before (lambda (_) (forward-char)))
+  (defun user/lispy-delete-char-or-splice-backwards ()
+    (interactive)
+    (call-interactively 'lispyville-delete-char-or-splice-backwards)
+    (unless (evil-normal-state-p)
+      (unless (or (bolp) (eolp))
+        (forward-char))
+      (evil-normal-state)))
 
   (general-add-advice
-   'lispyville-forward-atom-end
-   :after (lambda (_) (backward-char)))
+   '(lispyville-forward-atom-end lispyville-backward-atom-end)
+   :around (lambda (f arg)
+             (unless (evil-operator-state-p)
+               (forward-char))
+             (funcall f arg)
+             (unless (evil-operator-state-p)
+               (backward-char))))
+
+  (defun user/lispy-parens-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-round)
+      (call-interactively 'lispy-parens)))
+
+  (defun user/lispy-brackets-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-brackets)
+      (call-interactively 'lispy-brackets)))
+
+  (defun user/lispy-braces-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-braces)
+      (call-interactively 'lispy-braces)))
+
+  (general-add-advice
+   '(lispyville-backward-up-list lispyville-up-list)
+   :after (lambda (_) (unless (evil-insert-state-p) (evil-insert-state))))
 
   :ghook
   'lispy-mode-hook
   :general
+  ('lispy-mode-map
+   "C-9" 'lispyville-backward-up-list
+   "C-0" 'lispyville-up-list
+   "(" 'user/lispy-parens-wrap
+   "[" 'user/lispy-brackets-wrap
+   "{" 'user/lispy-braces-wrap)
   ('lispy-mode-map
    :definer 'lispy
    "SPC" 'user/lispy-space
@@ -1451,27 +1479,28 @@
    "O" 'user/lispy-open-above
    "A" 'user/lispy-insert-at-end-of-list
    "I" 'user/lispy-insert-at-beginning-of-list
-   "X" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim)
-  ('normal
+   "e" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
+   "E" 'user/eval-defun-dwim)
+  ('(normal visual)
    'lispyville-mode-map
-   "gC" 'user/lispy-change
-   "gD" 'lispy-kill
-   "gS" 'lispy-split
-   "gQ" 'lispy-convolute-sexp
-   "gI" 'user/lispy-insert-at-beginning-of-list
-   "gA" 'user/lispy-insert-at-end-of-list
-   "go" 'lispyville-open-below-list
-   "gO" 'lispyville-open-above-list
    "gr" 'lispy-raise-sexp
    "g<" 'lispyville-drag-forward
    "g>" 'lispyville-drag-backward
    "g(" 'lispyville-wrap-round
    "g[" 'lispyville-wrap-brackets
    "g{" 'lispyville-wrap-braces
+   "ze" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
+   "zE" 'user/eval-defun-dwim)
+  ('normal
+   'lispyville-mode-map
+   "gS" 'lispy-split
+   "gQ" 'lispy-convolute-sexp
+   "gI" 'user/lispy-insert-at-beginning-of-list
+   "gA" 'user/lispy-insert-at-end-of-list
+   "go" 'lispyville-open-below-list
+   "gO" 'lispyville-open-above-list
    "x" 'user/lispy-delete-char-or-splice
-   "X" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
-   "(" 'lispyville-backward-up-list
-   ")" 'lispyville-up-list))
+   "X" 'user/lispy-delete-char-or-splice-backwards))
 
 (use-package eval-sexp-fu
   :after lispy
