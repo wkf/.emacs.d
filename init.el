@@ -278,7 +278,8 @@
   :after smartparens-config
   :init
   (setq org-edit-src-content-indentation 0
-        org-src-preserve-indentation t)
+        org-src-preserve-indentation t
+        org-hide-leading-stars t)
   :config
   (setq initial-major-mode 'org-mode
         initial-scratch-message nil)
@@ -286,13 +287,37 @@
   (defface org-checkbox-todo-text
     '((t (:inherit org-todo)))
     "Face for the text part of an unchecked org-mode checkbox.")
+
   (defface org-checkbox-done-text
     '((t (:inherit org-done)))
     "Face for the text part of a checked org-mode checkbox.")
+
+  (defface org-checkbox-some-text
+    '((t (:inherit org-done)))
+    "Face for the text part of a checked org-mode checkbox.")
+
+  (defface org-checkbox-todo-bullet
+    '((t (:inherit org-done)))
+    "Face for the text part of a checked org-mode checkbox.")
+
   (font-lock-add-keywords
    'org-mode
-   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend)
-     ("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
+   `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:[ -X]\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+      0
+      'org-checkbox-todo-bullet
+      prepend)
+     ("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+      1
+      'org-checkbox-todo-text
+      prepend)
+     ("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:-\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+      1
+      'org-checkbox-some-text
+      prepend)
+     ("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+      1
+      'org-checkbox-done-text
+      prepend))
    'append)
 
   (defun user/org-confirm-babel-evaluate (lang body)
@@ -312,11 +337,34 @@
 
   (org-babel-do-load-languages 'org-babel-load-languages '((shell . t)))
 
+  (defun user/prettify-org-symbols ()
+    "Prettify org symbols."
+    (push '("[ ]" . "□") prettify-symbols-alist)
+    (push '("[X]" . "■" ) prettify-symbols-alist)
+    (push '("[-]" . "◩" ) prettify-symbols-alist)
+    (push '("#+BEGIN_SRC" . "◤" ) prettify-symbols-alist)
+    (push '("#+END_SRC" . "◣" ) prettify-symbols-alist)
+    (push '("#+BEGIN_EXAMPLE" . "◤" ) prettify-symbols-alist)
+    (push '("#+END_EXAMPLE" . "◣" ) prettify-symbols-alist)
+    (push '("#+BEGIN_QUOTE" . "◤" ) prettify-symbols-alist)
+    (push '("#+END_QUOTE" . "◣" ) prettify-symbols-alist)
+    (push '("#+begin_quote" . "◤" ) prettify-symbols-alist)
+    (push '("#+end_quote" . "◣" ) prettify-symbols-alist)
+    (push '("#+begin_example" . "◤" ) prettify-symbols-alist)
+    (push '("#+end_example" . "◣" ) prettify-symbols-alist)
+    (push '("#+begin_src" . "◤" ) prettify-symbols-alist)
+    (push '("#+end_src" . "◣" ) prettify-symbols-alist)
+    (prettify-symbols-mode))
+
   :gfhook
   #'smartparens-mode
+  #'user/prettify-org-symbols
   :custom-face
+  (org-block ((t (:inherit default :foreground unspecified))))
   (org-todo ((t (:inherit default :background unspecified))))
-  (org-done ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray2))))))
+  (org-done ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray2)))))
+  (org-checkbox-todo-bullet ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :gray5)))))
+  (org-checkbox-some-text ((t (:inherit default :background unspecified :foreground ,(plist-get user-ui/colors :orange))))))
 
 (use-package org-bullets
   :ghook
