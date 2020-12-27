@@ -1307,11 +1307,7 @@
 
 (use-package clojure-mode
   :init
-  (setq clojure-indent-style :always-indent)
-  :general
-  ('normal
-   'clojure-mode-map
-   "X" 'eval-sexp-fu-cider-eval-sexp-inner-sexp))
+  (setq clojure-indent-style :always-indent))
 
 (use-package ob-clojure
   :straight nil
