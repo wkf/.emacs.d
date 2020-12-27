@@ -661,8 +661,12 @@
 
 (use-package flx)
 
+(use-package smex
+  :config
+  (smex-initialize))
+
 (use-package ivy
-  :after (flx evil-collection)
+  :after smex flx evil-collection
   :init
   (setq ivy-use-virtual-buffers t
         ;; FIXME: I think this gets masked by ivy-prescient?
