@@ -655,7 +655,6 @@
   :general
   ("C-c g t" 'ivy-magit-todos))
 
-(use-package ivy-hydra)
 (use-package hydra
   :custom-face
   (hydra-face-red ((t (:foreground ,(plist-get user-ui/colors :red)))))
@@ -691,6 +690,9 @@
    "C-d" 'ivy-scroll-down-command))
 
 (use-package ivy-avy)
+(use-package ivy-hydra
+  :init
+  (setq ivy-read-action-function #'ivy-hydra-read-action))
 
 (use-package mini-frame
   ;; FIXME: mini-frame popping up unexpectedly
