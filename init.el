@@ -476,6 +476,14 @@
   (evil-collection-init 'dired)
   :general
   ("C-c d d" 'dired))
+
+(use-package ibuffer
+  :after evil-collection
+  :config
+  (evil-collection-init 'ibuffer)
+  :general
+  ("C-c b b" 'ibuffer))
+
 (use-package evil-collection
   :after evil
   :config
