@@ -1328,7 +1328,8 @@
 (use-package lispy
   :after hydra
   :init
-  (setq lispy-colon-p nil
+  (setq lispy-avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
+        lispy-colon-p nil
         lispy-close-quotes-at-end-p t
         lispy-insert-space-after-wrap nil)
   :config
@@ -1382,9 +1383,9 @@
    "S" 'lispy-move-up
    "Q" 'lispy-convolute
    "x" 'lispy-splice
-   "T"   '(lispy-teleport
-           :override '(cond ((looking-at lispy-outline)
-                             (end-of-line)))))
+   "T" '(lispy-teleport
+         :override '(cond ((looking-at lispy-outline)
+                           (end-of-line)))))
 
   ('lispy-mode-map
    "TAB" 'lispy-tab
