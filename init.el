@@ -619,8 +619,8 @@
                  nil
                '(display-buffer-same-window)))))
   :general
-  ("C-c m s" 'magit-status
-   "C-c m b" 'magit-blame-addition)
+  ("C-c g s" 'magit-status
+   "C-c g b" 'magit-blame-addition)
   :gfhook
   #'turn-off-evil-snipe-override-mode
   :custom-face
@@ -653,7 +653,7 @@
   :config
   (magit-todos-mode)
   :general
-  ("C-c m t" 'ivy-magit-todos))
+  ("C-c g t" 'ivy-magit-todos))
 
 (use-package hydra)
 
