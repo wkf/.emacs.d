@@ -1556,7 +1556,7 @@
 (use-package eval-sexp-fu
   :after lispy
   :custom-face
-  (eval-sexp-fu-flash ((t (:inherit success :inverse-video t))))
+  (eval-sexp-fu-flash ((t (:inherit isearch))))
   (eval-sexp-fu-flash-error ((t (:inherit error :inverse-video t)))))
 
 (use-package cider
