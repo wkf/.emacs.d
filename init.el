@@ -454,13 +454,35 @@
   ;;  installed along with evil
   :straight nil
   :init
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
+  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
+        avy-dispatch-alist '((?x . avy-action-kill-move)
+                             (?X . avy-action-kill-stay)
+                             (?T . avy-action-teleport)
+                             (?v . avy-action-mark)
+                             (?P . avy-action-copy)
+                             (?y . avy-action-yank)
+                             (?Y . avy-action-yank-line)
+                             (?K . user/avy-action-helpful-at-point)
+                             (?D . avy-action-zap-to-char)))
+  :config
+  (defun user/avy-action-helpful-at-point (pt)
+    (save-excursion
+      (goto-char pt)
+      (helpful-at-point)))
+
+  (general-add-advice
+   'avy-action-mark
+   :after (lambda (_)
+            (backward-char)
+            (unless (evil-visual-state-p)
+              (evil-visual-state))))
   :general
   (:states '(normal visual)
    "SPC" 'evil-avy-goto-char-2
    "RET" 'evil-avy-goto-line
    "gB" 'evil-avy-goto-symbol-1-above
-   "gW" 'evil-avy-goto-symbol-1-below)
+   "gW" 'evil-avy-goto-symbol-1-below
+   "gT" 'avy-org-refile-as-child)
   :custom-face
   (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
   (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
