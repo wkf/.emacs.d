@@ -356,6 +356,8 @@
     (push '("#+end_src" . "◣" ) prettify-symbols-alist)
     (prettify-symbols-mode))
 
+  :ghook
+  ('org-capture-mode-hook 'evil-insert-state)
   :gfhook
   #'smartparens-mode
   #'user/prettify-org-symbols
