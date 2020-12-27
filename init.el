@@ -945,7 +945,8 @@
   :general
   ('projectile-mode-map
    "C-SPC" 'counsel-projectile
-   "C-/" 'counsel-projectile-rg))
+   "C-/" 'counsel-projectile-rg
+   "C-c o c" 'counsel-projectile-org-capture))
 
 (use-package company
   :after evil-collection
