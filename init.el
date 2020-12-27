@@ -1535,8 +1535,8 @@
   ('(normal visual)
    'lispyville-mode-map
    "gr" 'lispy-raise-sexp
-   "g<" 'lispyville-drag-forward
-   "g>" 'lispyville-drag-backward
+   "gs" 'lispyville-drag-forward
+   "gS" 'lispyville-drag-backward
    "g(" 'lispyville-wrap-round
    "g[" 'lispyville-wrap-brackets
    "g{" 'lispyville-wrap-braces
