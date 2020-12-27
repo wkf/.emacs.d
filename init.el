@@ -1057,8 +1057,7 @@
     (eshell-send-input nil nil t))
 
   :general
-  ("C-c s n" 'user/run-new-eshell
-   "C-c s c" 'user/eshell-clear)
+  ("C-c s n" 'user/run-new-eshell)
   :gfhook
   #'(lambda ()
       (setenv "TERM" "xterm-256color")
@@ -1068,7 +1067,8 @@
       (general-def 'eshell-mode-map
         "[remap eshell-pcomplete]" 'company-indent-or-complete-common
         "TAB" 'company-indent-or-complete-common
-        "C-s" 'counsel-esh-history
+        "C-c s h" 'counsel-esh-history
+        "C-c s c" 'user/eshell-clear
         "<C-return>" 'user/eshell-actions-hydra/body))
   ('eshell-before-prompt-hook (lambda ()
                                 (setq xterm-color-preserve-properties t)))
@@ -1091,7 +1091,7 @@
   (eshell-toggle-use-projectile-root t)
   (eshell-toggle-run-command nil)
   :general
-  ("C-c s t" 'eshell-toggle))
+  ("C-s" 'eshell-toggle))
 
 (use-package company-fish
   :straight (company-fish :type git :host github :repo "CeleritasCelery/company-fish")
