@@ -500,13 +500,11 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                   (ch-ol (make-overlay beg (1+ beg) (window-buffer wnd)))
                   (ps-ol (make-overlay prettify-symbols-start prettify-symbols-end (window-buffer wnd))))
               (overlay-put ch-ol 'display ch)
-              (overlay-put ch-ol 'category 'avy)
+              (overlay-put ch-ol 'window wnd)
               (overlay-put ch-ol 'priority -50)
               (push ch-ol avy--overlays-lead)
               (overlay-put ps-ol 'window wnd)
-              (overlay-put ps-ol 'category 'avy)
               (overlay-put ps-ol 'invisible t)
-              (overlay-put ps-ol 'priority -51)
               (push ps-ol avy--overlays-lead)))
           (when (setq other-ol (cl-find-if
                                 (lambda (o) (overlay-get o 'goto-address))
@@ -515,9 +513,10 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
              0 (length old-str)
              `(face ,(overlay-get other-ol 'face)) old-str))
           (overlay-put ol 'window wnd)
-          (overlay-put ol 'category 'avy)
+          (unless (eq avy-command 'avy-goto-line)
+            (overlay-put ol 'category 'avy))
           ;; FIXME: doesn't take into account wrap-prefix
-          (if os-line-prefix
+          (if (and os-line-prefix (eq avy-command 'avy-goto-line))
               ;; The following attempts to make avy-goto-line work well with org-indent-mode.
               ;; org-indent-mode uses line-prefix and wrap-prefix to add virtual spaces to a
               ;; buffer, which makes avy's overlays look "jagged". To work around this, we use
