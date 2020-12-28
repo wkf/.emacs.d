@@ -185,6 +185,34 @@
   (set-face-attribute 'font-lock-comment-face nil
                       :slant 'italic))
 
+(use-package prism
+  :straight (prism :type git :host github :repo "alphapapa/prism.el")
+  :config
+
+  (prism-set-colors
+    :num 16
+    ;; :shuffle t
+
+    :lightens
+    '(0)
+    ;; (-map (lambda (i) (* i 1.10)) (number-sequence 0 15))
+
+    :desaturations
+    '(0)
+    ;; (-map (lambda (i) (* i 1.10)) (number-sequence 0 15))
+
+    :comments-fn
+    (lambda (color)
+      (prism-blend color (face-attribute 'font-lock-comment-face :foreground) 0.10))
+
+    :strings-fn
+    (lambda (color)
+      (prism-blend color (plist-get user-ui/colors :green) 0.10))
+
+    :colors (-map (lambda (n)
+                    (plist-get user-ui/colors n))
+                  '(:magenta :blue :cyan :yellow :red :orange))))
+
 (use-package rainbow-delimiters
   :ghook
   'prog-mode-hook)
