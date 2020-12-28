@@ -115,7 +115,9 @@
 - [X] open in other window (move cursor)
 - [X] open in other window (don't move cursor)
 - [X] remap C-return back to ivy-dispatching read
-- [ ] fix avy dispatch bindings
+- [X] fix avy dispatch bindings
+- [X] make avy play nice with org-indent-mode
+- [X] make avy play nice with prettify-symbols-mode
 
 ** Bindings
 

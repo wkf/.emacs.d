@@ -454,17 +454,104 @@
   ;;  installed along with evil
   :straight nil
   :init
-  (setq avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
-        avy-dispatch-alist '((?x . avy-action-kill-move)
-                             (?X . avy-action-kill-stay)
-                             (?T . avy-action-teleport)
-                             (?v . avy-action-mark)
-                             (?P . avy-action-copy)
-                             (?y . avy-action-yank)
-                             (?Y . avy-action-yank-line)
-                             (?K . user/avy-action-helpful-at-point)
-                             (?D . avy-action-zap-to-char)))
+  (setq
+   avy-style 'at-full
+   avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
+   avy-background nil
+   avy-dispatch-alist '((?x . avy-action-kill-move)
+                        (?X . avy-action-kill-stay)
+                        (?T . avy-action-teleport)
+                        (?v . avy-action-mark)
+                        (?P . avy-action-copy)
+                        (?y . avy-action-yank)
+                        (?Y . avy-action-yank-line)
+                        (?K . user/avy-action-helpful-at-point)
+                        (?D . avy-action-zap-to-char)))
   :config
+
+  (defun avy--overlay (str beg end wnd &optional compose-fn)
+    "Create an overlay with STR from BEG to END in WND.
+COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
+    (let ((eob (with-selected-window wnd (point-max))))
+      (when (<= beg eob)
+        (let* ((beg (+ beg avy--overlay-offset))
+               (ol (make-overlay beg (or end (1+ beg)) (window-buffer wnd)))
+               (old-str (if (eq beg eob) "" (avy--old-str beg wnd)))
+               (os-line-prefix (get-text-property 0 'line-prefix old-str))
+               (os-wrap-prefix (get-text-property 0 'wrap-prefix old-str))
+               (prettify-symbols-start (get-text-property 0 'prettify-symbols-start old-str))
+               (prettify-symbols-end (get-text-property 0 'prettify-symbols-end old-str))
+               other-ol)
+          (when os-line-prefix
+            (add-text-properties 0 1 `(line-prefix ,os-line-prefix) str))
+          (when os-wrap-prefix
+            (add-text-properties 0 1 `(wrap-prefix ,os-wrap-prefix) str))
+          ;; The following expression makes avy-goto-line work with prettified symbols.
+          ;; without it, the avy overlay would temporarily break the composed symbol, which
+          ;; would result in the display jumping around. To prevent this, we look for the
+          ;; prettify-symbols-start and prettify-symbols-end properties, and then create an
+          ;; invisible overlay to hide the broken composition. We then create another overlay
+          ;; to display the pretty glyph. This way, the buffer looks the same during candidate
+          ;; selection. No bouncing.
+          (when prettify-symbols-start
+            (let ((ch (string
+                       (aref (nth 2 (with-selected-window wnd
+                                      (find-composition beg nil nil t))) 0)))
+                  (ch-ol (make-overlay beg (1+ beg) (window-buffer wnd)))
+                  (ps-ol (make-overlay prettify-symbols-start prettify-symbols-end (window-buffer wnd))))
+              (overlay-put ch-ol 'display ch)
+              (overlay-put ch-ol 'category 'avy)
+              (overlay-put ch-ol 'priority -50)
+              (push ch-ol avy--overlays-lead)
+              (overlay-put ps-ol 'window wnd)
+              (overlay-put ps-ol 'category 'avy)
+              (overlay-put ps-ol 'invisible t)
+              (overlay-put ps-ol 'priority -51)
+              (push ps-ol avy--overlays-lead)))
+          (when (setq other-ol (cl-find-if
+                                (lambda (o) (overlay-get o 'goto-address))
+                                (overlays-at beg)))
+            (add-text-properties
+             0 (length old-str)
+             `(face ,(overlay-get other-ol 'face)) old-str))
+          (overlay-put ol 'window wnd)
+          (overlay-put ol 'category 'avy)
+          ;; FIXME: doesn't take into account wrap-prefix
+          (if os-line-prefix
+              ;; The following attempts to make avy-goto-line work well with org-indent-mode.
+              ;; org-indent-mode uses line-prefix and wrap-prefix to add virtual spaces to a
+              ;; buffer, which makes avy's overlays look "jagged". To work around this, we use
+              ;; line-prefix to show avy's overlays. Since these overlays could be wider than
+              ;; the line-prefix, we also show the remainder as a normal overlay, on top of the
+              ;; text in the buffer.
+              (let ((s-len (length str))
+                    (p-len (length os-line-prefix)))
+                (if (<= s-len p-len)
+                    (overlay-put ol 'line-prefix (concat str (substring os-line-prefix s-len p-len)))
+                  (overlay-put ol 'line-prefix (substring str 0 p-len))
+                  ;; FIXME: doesn't take into account visual line mode
+                  (let* ((os (car (split-string
+                                   (with-selected-window wnd
+                                     (buffer-substring beg end))
+                                   "\n")))
+                         (ns (funcall
+                              (or compose-fn #'concat)
+                              (substring str p-len s-len)
+                              old-str)))
+                    (unless (or (= (length os) 0) (= p-len 0))
+                      (overlay-put ol 'after-string (substring os (- p-len))))
+                    (overlay-put ol (if (eq beg eob)
+                                        'after-string
+                                      'display)
+                                 ns))))
+            (overlay-put ol (if (eq beg eob)
+                                'after-string
+                              'display)
+                         (funcall
+                          (or compose-fn #'concat)
+                          str old-str)))
+          (push ol avy--overlays-lead)))))
+
   (defun user/avy-action-helpful-at-point (pt)
     (save-excursion
       (goto-char pt)
@@ -484,11 +571,11 @@
    "gW" 'evil-avy-goto-symbol-1-below
    "gT" 'avy-org-refile-as-child)
   :custom-face
-  (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
-  (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
-  (avy-lead-face-1 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
-  (avy-lead-face-2 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified))))
-  (avy-background-face ((t (:inherit isearch :weight bold :foreground unspecified)))))
+  (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
+  (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
+  (avy-lead-face-1 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
+  (avy-lead-face-2 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
+  (avy-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3) :underline nil)))))
 
 (use-package daemons
   :after evil-collection
