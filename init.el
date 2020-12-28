@@ -1430,8 +1430,8 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
         lispy-insert-space-after-wrap nil)
   :config
   (defhydra user/lispy-g-hydra (:color blue :hint nil :idle .3 :columns 3)
-    ("j" 'lispy-knight-down "knight down")
-    ("k" 'lispy-knight-up "knight up")
+    ("j" lispy-knight-down "knight down")
+    ("k" lispy-knight-up "knight up")
     ("g" lispy-beginning-of-defun "beginning of def")
     ("d" lispy-goto "goto")
     ("D" lispy-goto-local "goto local")
