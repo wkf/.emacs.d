@@ -493,8 +493,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                (old-str (if (eq beg eob) "" (avy--old-str beg wnd)))
                (os-line-prefix (get-text-property 0 'line-prefix old-str))
                (os-wrap-prefix (get-text-property 0 'wrap-prefix old-str))
-               (prettify-symbols-start (get-text-property 0 'prettify-symbols-start old-str))
-               (prettify-symbols-end (get-text-property 0 'prettify-symbols-end old-str))
+               (prettify-symbols-start (get-text-property beg 'prettify-symbols-start (window-buffer wnd)))
                other-ol)
           (when os-line-prefix
             (add-text-properties 0 1 `(line-prefix ,os-line-prefix) str))
@@ -508,11 +507,13 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
           ;; to display the pretty glyph. This way, the buffer looks the same during candidate
           ;; selection. No bouncing.
           (when prettify-symbols-start
-            (let ((ch (string
-                       (aref (nth 2 (with-selected-window wnd
-                                      (find-composition beg nil nil t))) 0)))
-                  (ch-ol (make-overlay beg (1+ beg) (window-buffer wnd)))
-                  (ps-ol (make-overlay prettify-symbols-start prettify-symbols-end (window-buffer wnd))))
+            (let* ((comp (with-selected-window wnd
+                           (find-composition beg end nil t)))
+                   (fr (nth 0 comp))
+                   (to (nth 1 comp))
+                   (ch (string (aref (nth 2 comp) 0)))
+                   (ch-ol (make-overlay fr (1+ fr) (window-buffer wnd)))
+                   (ps-ol (make-overlay fr to (window-buffer wnd))))
               (overlay-put ch-ol 'display ch)
               (overlay-put ch-ol 'window wnd)
               (overlay-put ch-ol 'priority -50)
@@ -527,8 +528,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
              0 (length old-str)
              `(face ,(overlay-get other-ol 'face)) old-str))
           (overlay-put ol 'window wnd)
-          (unless (eq avy-command 'avy-goto-line)
-            (overlay-put ol 'category 'avy))
+          (overlay-put ol 'category 'avy)
           ;; FIXME: doesn't take into account wrap-prefix
           (if (and os-line-prefix (eq avy-command 'avy-goto-line))
               ;; The following attempts to make avy-goto-line work well with org-indent-mode.
