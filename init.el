@@ -10,13 +10,6 @@
 
 ;;;
 
-(when (>= emacs-major-version 25)
-  (eval-after-load 'bytecomp
-    '(add-to-list 'byte-compile-not-obsolete-funcs
-                  'preceding-sexp)))
-
-;;;
-
 (defvar bootstrap-version)
 
 (eval-when-compile
@@ -42,10 +35,13 @@
 
 (straight-use-package 'use-package)
 
+(eval-when-compile
+  (require 'use-package))
+
 ;;
 
 (defvar user/backup-directory
-  (expand-file-name (concat user-emacs-directory "backups")))
+  (expand-file-name "backups" user-emacs-directory))
 
 (defvar user/custom-file
   (expand-file-name "custom.el" user-emacs-directory))
@@ -54,7 +50,7 @@
   (expand-file-name "private.el" user-emacs-directory))
 
 (defvar user/savehist-file
-  (expand-file-name (concat user-emacs-directory ".cache/savehist")))
+  (expand-file-name ".cache/savehist" user-emacs-directory))
 
 (eval-when-compile
   (defvar ns-use-proxy-icon)
@@ -130,8 +126,12 @@
 
 ;;
 
-(eval-when-compile
-  (require 'use-package))
+(when (>= emacs-major-version 25)
+  (eval-after-load 'bytecomp
+    '(add-to-list 'byte-compile-not-obsolete-funcs
+                  'preceding-sexp)))
+
+;;;
 
 (use-package general)
 
