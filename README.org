@@ -108,8 +108,8 @@
 - [ ] practice lispy mode bindings
 - [X] move magit bindings to g
 - [ ] learn org mode bindings
-- [ ] put org-capture (and magit commit) buffers into insert mode to start
-- [ ] make eval-defun flash in elisp-mode
+- [X] put org-capture (and magit commit) buffers into insert mode to start
+- [X] make eval-defun flash in elisp-mode
 - [X] C-return action with ace window select
 - [X] add actions for v and h splitting
 - [X] open in other window (move cursor)
