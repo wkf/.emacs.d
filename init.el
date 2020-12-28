@@ -1000,6 +1000,76 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
         aw-leading-char-style 'path)
   :config
 
+  ;; NOTE: redef function
+  (defun aw--lead-overlay (path leaf)
+    "Create an overlay using PATH at LEAF.
+LEAF is (PT . WND)."
+    ;; Properly adds overlay in visible region of most windows except for any one
+    ;; receiving output while this function is executing, since that moves point,
+    ;; potentially shifting the added overlay outside the window's visible region.
+    (let ((wnd (cdr leaf))
+          ;; Prevent temporary movement of point from scrolling any window.
+          (scroll-margin 0))
+      (with-selected-window wnd
+        (when (= 0 (buffer-size))
+          (push (current-buffer) aw-empty-buffers-list)
+          (let ((inhibit-read-only t))
+            (insert " ")))
+        ;; If point is not visible due to horizontal scrolling of the
+        ;; window, this next expression temporarily scrolls the window
+        ;; right until point is visible, so that the leading-char can be
+        ;; seen when it is inserted.  When ace-window's action finishes,
+        ;; the horizontal scroll is restored by (aw--done).
+        (while (and (not (aw--point-visible-p))
+                    (not (zerop (window-hscroll)))
+                    (progn (push (cons (selected-window) (window-hscroll)) aw--windows-hscroll) t)
+                    (not (zerop (scroll-right)))))
+        (let* ((ws (window-start))
+               (prev nil)
+               (vertical-pos (if (eq aw-char-position 'left) -1 0))
+               (horizontal-pos (if (zerop (window-hscroll)) 0 (1+ (window-hscroll))))
+               (old-pt (point))
+               (pt
+                (progn
+                  ;; If leading-char is to be displayed at the top-left, move
+                  ;; to the first visible line in the window, otherwise, move
+                  ;; to the last visible line.
+                  (move-to-window-line vertical-pos)
+                  (move-to-column horizontal-pos)
+                  ;; Find a nearby point that is not at the end-of-line but
+                  ;; is visible so have space for the overlay.
+                  (setq prev (1- (point)))
+                  (while (and (>= prev ws) (/= prev (point)) (eolp))
+                    (setq prev (point))
+                    (unless (bobp)
+                      (line-move -1 t)
+                      (move-to-column horizontal-pos)))
+                  (recenter vertical-pos)
+                  (point)))
+               (ol (make-overlay pt (1+ pt) (window-buffer wnd))))
+          (if (= (aw--face-rel-height) 1)
+              (goto-char old-pt)
+            (when (/= pt old-pt)
+              (goto-char (+ pt 1))
+              (push (cons wnd old-pt) aw--windows-points)))
+          ;; Make ace-window play nice with org-indent-mode. Check for a line prefix,
+          ;; and if one exists, put the ace-window path string there, to avoid having
+          ;; the text in the buffer bounce around.
+          (let* ((s (propertize
+                     (aw--overlay-str wnd pt path)
+                     'face (if (window-minibuffer-p)
+                               'aw-minibuffer-leading-char-face
+                             'aw-leading-char-face)))
+                 (s-len (length s))
+                 (p (get-text-property pt 'line-prefix (current-buffer)))
+                 (p-len (length p)))
+            (if (<= s-len p-len)
+                (overlay-put ol 'line-prefix (concat s (substring p s-len)))
+              (overlay-put ol 'display s)))
+          (overlay-put ol 'window wnd)
+          (push ol avy--overlays-lead)))))
+
+
   (defun user/aw-split-window-horz-go (window)
     (select-window (aw-split-window-horz window)))
 
