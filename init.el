@@ -185,6 +185,20 @@
   (set-face-attribute 'font-lock-comment-face nil
                       :slant 'italic))
 
+(use-package rainbow-delimiters
+  :ghook
+  'prog-mode-hook)
+
+(use-package highlight-function-calls
+  :ghook
+  'prog-mode-hook
+  :custom-face
+  (highlight-function-calls-face ((t (:underline nil :bold t)))))
+
+(use-package highlight-quoted
+  :ghook
+  'prog-mode-hook)
+
 (use-package highlight-numbers
   :ghook
   'prog-mode-hook)
@@ -1402,10 +1416,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (use-package flycheck-clojure
   :after flycheck)
-
-(use-package rainbow-delimiters
-  :ghook
-  user/lisp-mode-hooks)
 
 (use-package aggressive-indent
   :ghook
