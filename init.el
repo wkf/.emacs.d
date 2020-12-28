@@ -511,6 +511,7 @@
                         (?D . avy-action-zap-to-char)))
   :config
 
+  ;; NOTE: redef function
   (defun avy--overlay (str beg end wnd &optional compose-fn)
     "Create an overlay with STR from BEG to END in WND.
 COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
