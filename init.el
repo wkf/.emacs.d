@@ -998,7 +998,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (setq counsel-projectile-org-capture-templates
         '(("t" "[${name}] Task" checkitem
            (file+headline "${root}/README.org" "Tasks")
-           "- [ ] %?")))
+           "- [ ] %?\n")))
   :config
   (counsel-projectile-mode)
 
