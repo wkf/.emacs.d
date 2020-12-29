@@ -144,7 +144,8 @@
    "C-c b n" 'next-buffer
    "C-c b d" (defun user/kill-current-buffer  ()
                (interactive)
-               (kill-buffer))))
+               (kill-buffer))
+   "C-c C" 'calc))
 
 (use-package gcmh
   :config
@@ -628,6 +629,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (defvar user/evil-collection-packages
   '(man
+    calc
     proced
     custom
     comint
