@@ -184,7 +184,17 @@
   (set-face-attribute 'region nil
                       :background (plist-get user-ui/colors :gray5))
   (set-face-attribute 'font-lock-comment-face nil
-                      :slant 'italic))
+                      :slant 'italic)
+  (set-face-attribute 'font-lock-comment-face nil
+                      :slant 'italic)
+  (set-face-attribute 'lazy-highlight nil
+                      :weight 'bold)
+  (set-face-attribute 'isearch nil
+                      :weight 'bold)
+  (set-face-attribute 'isearch-fail nil
+                      :weight 'bold)
+  (set-face-attribute 'match nil
+                      :weight 'bold))
 
 (use-package prism
   :straight (prism :type git :host github :repo "alphapapa/prism.el")
