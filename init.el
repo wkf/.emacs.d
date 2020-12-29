@@ -241,8 +241,8 @@
   (highlight-function-calls-face ((t (:underline nil :bold t)))))
 
 (use-package highlight-quoted
-  :ghook
-  'prog-mode-hook)
+  :custom-face
+  (highlight-quoted-symbol  ((t (:inherit font-lock-constant-face)))))
 
 (use-package highlight-numbers
   :ghook
