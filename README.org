@@ -123,6 +123,8 @@
 - [ ] fork ace-window and avy to make updates?
 - [X] add bindings for a calculator
 - [ ] practice with emacs calc!
+- [ ] refactor into some sort of "layer" system??
+- [X] set lower gc threshold
 
 ** Bindings
 

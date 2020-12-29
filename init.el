@@ -119,6 +119,7 @@
  eldoc-idle-delay 0.5
  split-height-threshold 160
  split-width-threshold 160
+ gc-cons-threshold (* 10 1024 1024)
  auth-sources '("~/.authinfo"))
 
 (load user/custom-file)
