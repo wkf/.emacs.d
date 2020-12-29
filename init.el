@@ -546,7 +546,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                (old-str (if (eq beg eob) "" (avy--old-str beg wnd)))
                (os-line-prefix (get-text-property 0 'line-prefix old-str))
                (os-wrap-prefix (get-text-property 0 'wrap-prefix old-str))
-               (prettify-symbols-start (get-text-property beg 'prettify-symbols-start (window-buffer wnd)))
+               (comp (with-selected-window wnd (find-composition beg end nil t)))
                other-ol)
           (when os-line-prefix
             (add-text-properties 0 1 `(line-prefix ,os-line-prefix) str))
@@ -559,14 +559,12 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
           ;; invisible overlay to hide the broken composition. We then create another overlay
           ;; to display the pretty glyph. This way, the buffer looks the same during candidate
           ;; selection. No bouncing.
-          (when prettify-symbols-start
-            (let* ((comp (with-selected-window wnd
-                           (find-composition beg end nil t)))
-                   (fr (nth 0 comp))
-                   (to (nth 1 comp))
+          (when (and comp (get-text-property (nth 0 comp) 'prettify-symbols-start (window-buffer wnd)))
+            (let* ((comp-from (nth 0 comp))
+                   (comp-to (nth 1 comp))
                    (ch (string (aref (nth 2 comp) 0)))
-                   (ch-ol (make-overlay fr (1+ fr) (window-buffer wnd)))
-                   (ps-ol (make-overlay fr to (window-buffer wnd))))
+                   (ch-ol (make-overlay comp-from (1+ comp-from) (window-buffer wnd)))
+                   (ps-ol (make-overlay comp-from comp-to (window-buffer wnd))))
               (overlay-put ch-ol 'display ch)
               (overlay-put ch-ol 'window wnd)
               (overlay-put ch-ol 'priority -50)
