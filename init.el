@@ -1233,7 +1233,7 @@ LEAF is (PT . WND)."
   :init
   (setq counsel-projectile-org-capture-templates
         '(("t" "[${name}] Task" checkitem
-           (file+headline "${root}/README.org" "Tasks")
+           (file+headline "${root}/NOTES.org" "Tasks")
            "- [ ] %?\n")))
   :config
   (counsel-projectile-mode)
