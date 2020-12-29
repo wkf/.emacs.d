@@ -384,7 +384,7 @@
    'append)
 
   (defun user/org-confirm-babel-evaluate (lang body)
-    (not (member lang '("clojure" "sh" "restclient"))))
+    (not (member lang '("clojure" "sh" "restclient" "emacs-lisp"))))
 
   (setq org-confirm-babel-evaluate 'user/org-confirm-babel-evaluate)
 
