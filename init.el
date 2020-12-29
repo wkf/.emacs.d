@@ -201,20 +201,25 @@
   :config
 
   (prism-set-colors
-    :num 16
+    :num 12
     ;; :shuffle t
 
     :lightens
-    '(0)
-    ;; (-map (lambda (i) (* i 1.10)) (number-sequence 0 15))
+    ;; '(5)
+    ;; '(0 15 30)
+    ;; '(0 30 60 90)
+    ;; '(0 0 0 30 30 30 60 60 60 90 90 90)
+    (-map (lambda (i) (* i 5)) (number-sequence 0 15))
 
     :desaturations
-    '(0)
-    ;; (-map (lambda (i) (* i 1.10)) (number-sequence 0 15))
+    ;; '(0 15 30)
+    ;; '(0 30 60 90)
+    ;; '(0 0 0 30 30 30 60 60 60 90 90 90)
+    (-map (lambda (i) (* i 5)) (number-sequence 0 15))
 
     :comments-fn
     (lambda (color)
-      (prism-blend color (face-attribute 'font-lock-comment-face :foreground) 0.10))
+      (prism-blend color (face-attribute 'font-lock-comment-face :foreground) 0.05))
 
     :strings-fn
     (lambda (color)
@@ -222,7 +227,8 @@
 
     :colors (-map (lambda (n)
                     (plist-get user-ui/colors n))
-                  '(:magenta :blue :cyan :yellow :red :orange))))
+                  ;; '(:magenta :blue :cyan :yellow :red :orange)
+                  '(:magenta :blue :cyan))))
 
 (use-package rainbow-delimiters
   :ghook
