@@ -582,6 +582,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
              `(face ,(overlay-get other-ol 'face)) old-str))
           (overlay-put ol 'window wnd)
           (overlay-put ol 'category 'avy)
+          (overlay-put ol 'priority 2)
           ;; FIXME: doesn't take into account wrap-prefix
           (if (and os-line-prefix (eq avy-command 'avy-goto-line))
               ;; The following attempts to make avy-goto-line work well with org-indent-mode.
@@ -605,7 +606,9 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                               (substring str p-len s-len)
                               old-str)))
                     (unless (or (= (length os) 0) (= p-len 0))
-                      (overlay-put ol 'after-string (substring os (- p-len))))
+                      (overlay-put ol 'after-string (if avy-background
+                                                        (propertize (substring os (- p-len)) 'face 'avy-background-face)
+                                                      (substring os (- p-len)))))
                     (overlay-put ol (if (eq beg eob)
                                         'after-string
                                       'display)
@@ -617,6 +620,23 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                           (or compose-fn #'concat)
                           str old-str)))
           (push ol avy--overlays-lead)))))
+
+  ;; NOTE: redef function
+  (defun avy--make-backgrounds (wnd-list)
+    "Create a dim background overlay for each window on WND-LIST."
+    (when avy-background
+      (setq avy--overlays-back
+            (mapcar (lambda (w)
+                      (let ((ol (make-overlay
+                                 (window-start w)
+                                 (window-end w)
+                                 (window-buffer w))))
+                        (overlay-put ol 'face 'avy-background-face)
+                        ;; Give the overlay a high priority so it sits on top of other ones.
+                        (overlay-put ol 'priority 1)
+                        (overlay-put ol 'window w)
+                        ol))
+                    wnd-list))))
 
   (defun user/avy-action-helpful-at-point (pt)
     (save-excursion
@@ -637,10 +657,10 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "gW" 'evil-avy-goto-symbol-1-below
    "gT" 'avy-org-refile-as-child)
   :custom-face
-  (avy-lead-face ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
-  (avy-lead-face-0 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
-  (avy-lead-face-1 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
-  (avy-lead-face-2 ((t (:inherit isearch :weight bold :foreground unspecified :background unspecified :italic nil))))
+  (avy-lead-face ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
+  (avy-lead-face-0 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
+  (avy-lead-face-1 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
+  (avy-lead-face-2 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3) :underline nil)))))
 
 (use-package daemons
@@ -876,7 +896,9 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :init
   (setq ivy-use-virtual-buffers t
         ;; FIXME: I think this gets masked by ivy-prescient?
-        ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+        ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                (counsel-projectile-rg . ivy--regex-plus)
+                                (t . ivy--regex-fuzzy)))
   :config
   (ivy-mode 1)
   (evil-collection-init 'ivy)
@@ -886,7 +908,11 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "<C-return>" 'ivy-dispatching-done
    "C-c RET" 'ivy-immediate-done
    "C-c o" 'ivy-occur
-   "C-s" 'ivy-avy
+   "C-s" (lambda ()
+           (interactive)
+           (face-remap-add-relative
+            'avy-background-face `(:foreground ,(plist-get user-ui/colors :gray5)))
+           (call-interactively 'ivy-avy))
    "C-w" 'ivy-backward-kill-word
    "C-u" 'ivy-scroll-up-command
    "C-d" 'ivy-scroll-down-command))
@@ -942,16 +968,87 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    :after
    (lambda (_)
      (goto-char (match-beginning 0))))
+
   (general-add-advice
    '(ivy-next-line ivy-previous-line)
    :after (lambda (_)
             (add-to-history 'regexp-search-ring (ivy--regex ivy-text))
             (setq isearch-forward t)))
+
+  (general-add-advice
+   'swiper--make-overlay
+   :around (defun user/around-swiper--make-overlay (f beg end face wnd priority)
+             (funcall f beg end face wnd (and priority (+ priority 0)))))
+
+  ;; NOTE: redef function
+  (defun swiper--avy-candidate ()
+    (let ((candidates (swiper--avy-candidates))
+          (avy-all-windows nil))
+      (unwind-protect
+          (prog2
+              (avy--make-backgrounds
+               (append (avy-window-list)
+                       (list (ivy-state-window ivy-last))))
+              (if (eq avy-style 'de-bruijn)
+                  (avy-read-de-bruijn candidates avy-keys)
+                (avy-read (avy-tree candidates avy-keys)
+                          ;; overlay-at-full doesn't move the text in the buffer
+                          #'avy--overlay-at-full
+                          #'avy--remove-leading-chars))
+            (avy-push-mark))
+        (avy--done))))
+
+  ;; NOTE: redef function
+  (defun swiper--avy-candidates ()
+    (let* (
+           ;; We'll have overlapping overlays, so we sort all the
+           ;; overlays in the visible region by their start, and then
+           ;; throw out non-Swiper overlays or overlapping Swiper
+           ;; overlays.
+           (visible-overlays (cl-sort (with-ivy-window
+                                        (overlays-in (window-start)
+                                                     (window-end)))
+                                      #'< :key #'overlay-start))
+           (min-overlay-start 0)
+           (overlays-for-avy
+            (cl-remove-if-not
+             (lambda (ov)
+               (when (and (>= (overlay-start ov)
+                              min-overlay-start)
+                          (memq (overlay-get ov 'face)
+                                (append swiper-faces swiper-background-faces)))
+                 (setq min-overlay-start (overlay-start ov))))
+             visible-overlays))
+           (offset (if (eq (ivy-state-caller ivy-last) 'swiper) 1 0)))
+      (nconc
+       (mapcar (lambda (ov)
+                 ;; Apply the avy-lead-face to any repurposed overlays, otherwise they'd
+                 ;; still have a normal swiper-face or swiper-background-faces.
+                 (overlay-put ov 'face 'avy-lead-face)
+                 (cons (overlay-start ov)
+                       (overlay-get ov 'window)))
+               overlays-for-avy)
+       (save-excursion
+         (save-restriction
+           (narrow-to-region (window-start) (window-end))
+           (goto-char (point-min))
+           (forward-line)
+           (let ((win (selected-window))
+                 cands)
+             (while (not (eobp))
+               (push (cons (+ (point) offset) win)
+                     cands)
+               (forward-line))
+             cands))))))
+
   :general
   ('swiper-map
    "C-s" 'swiper-avy)
   (:states '(normal visual)
-   "/" (lambda () (interactive) (setq isearch-forward t) (swiper))))
+   "/" (lambda () (interactive) (setq isearch-forward t) (swiper)))
+  :custom-face
+  (swiper-line-face ((t (:background ,(plist-get user-ui/colors :gray3)
+                         :distant-foreground ,(plist-get user-ui/colors :gray5))))))
 
 (use-package counsel
   :init
@@ -1551,7 +1648,11 @@ LEAF is (PT . WND)."
   (setq lispy-avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
         lispy-colon-p nil
         lispy-close-quotes-at-end-p t
-        lispy-insert-space-after-wrap nil)
+        lispy-insert-space-after-wrap nil
+        lispy-visit-method 'projectile
+        lispy-avy-style-char 'at-full
+        lispy-avy-style-paren 'at-full
+        lispy-avy-style-symbol 'at-full)
   :config
   (defhydra user/lispy-g-hydra (:color blue :hint nil :idle .3 :columns 3)
     ("j" lispy-knight-down "knight down")
