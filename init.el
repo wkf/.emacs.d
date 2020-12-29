@@ -2001,7 +2001,11 @@ LEAF is (PT . WND)."
   :init
   (setq js2-strict-trailing-comma-warning nil)
   :config
-  (evil-collection-init 'js2-mode))
+  (evil-collection-init 'js2-mode)
+  :custom-face
+  (js2-error ((t (:inherit font-lock-warning-face))))
+  (js2-function-param ((t (:inherit font-lock-variable-name-face))))
+  (js2-external-variable ((t (:inherit font-lock-constant-face)))))
 
 (use-package rjsx-mode
   :after (flycheck evil-collection)
