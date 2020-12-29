@@ -1566,7 +1566,7 @@ LEAF is (PT . WND)."
 
 (use-package beacon
   :init
-  (setq beacon-size 80
+  (setq beacon-size 7
         beacon-color (plist-get user-ui/colors :blue)
         beacon-blink-delay 0.1
         beacon-blink-duration 0.5
@@ -1575,12 +1575,16 @@ LEAF is (PT . WND)."
   :config
   (defun user/beacon-blink ()
     (interactive)
-    (let ((size beacon-size))
-      (setq beacon-size (- (window-body-width) (current-column)))
-      (beacon-blink)
-      (setq beacon-size size)))
+    (let ((beacon-size (- (window-body-width) (current-column))))
+      (beacon-blink)))
+
+  (general-add-advice
+   'beacon-blink
+   :around (lambda (f &rest args)
+             (let ((beacon-color (face-background 'cursor)))
+               (apply f args))))
   ;; FIXME: beacon start sticking, possibly after avy command?
-  ;; (beacon-mode 1)
+  (beacon-mode 1)
   :general
   ("C-c B" 'user/beacon-blink))
 
