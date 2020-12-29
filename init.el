@@ -1191,6 +1191,21 @@ LEAF is (PT . WND)."
           (overlay-put ol 'window wnd)
           (push ol avy--overlays-lead)))))
 
+  ;; NOTE: redef function
+  (defun aw--make-backgrounds (wnd-list)
+    "Create a dim background overlay for each window on WND-LIST."
+    (when aw-background
+      (setq aw-overlays-back
+            (mapcar (lambda (w)
+                      (let ((ol (make-overlay
+                                 (window-start w)
+                                 (window-end w)
+                                 (window-buffer w))))
+                        (overlay-put ol 'face 'aw-background-face)
+                        ;; Give the overlay a high priority so it sits on top of other ones.
+                        (overlay-put ol 'priority 100)
+                        ol))
+                    wnd-list))))
 
   (defun user/aw-split-window-horz-go (window)
     (select-window (aw-split-window-horz window)))
