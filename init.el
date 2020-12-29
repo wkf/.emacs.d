@@ -339,7 +339,10 @@
   (setq org-edit-src-content-indentation 0
         org-src-preserve-indentation t
         org-hide-leading-stars t
-        org-startup-indented t)
+        org-startup-indented t
+        org-capture-templates '(("T" "Global Task" checkitem
+                                 (file+headline "~/.emacs.d/README.org" "Tasks")
+                                 "- [ ] %?\n")))
   :config
   (setq initial-major-mode 'org-mode
         initial-scratch-message nil)
@@ -416,12 +419,17 @@
     (push '("#+end_src" . "◣" ) prettify-symbols-alist)
     (prettify-symbols-mode))
 
+  (defun user/org-capture-global-task ()
+    (interactive)
+    (org-capture nil "T"))
+
   :ghook
   ('org-capture-mode-hook 'evil-insert-state)
   :gfhook
   #'smartparens-mode
   #'user/prettify-org-symbols
   :general
+  ("C-c o t" 'user/org-capture-global-task)
   ('org-mode-map
    "C-9" 'org-up-element
    "C-0" 'org-down-element)
