@@ -1879,7 +1879,7 @@ LEAF is (PT . WND)."
    "zE" 'user/eval-defun-dwim)
   ('normal
    'lispyville-mode-map
-   "gS" 'lispy-split
+   "gb" 'lispy-split
    "gQ" 'lispy-convolute-sexp
    "gI" 'user/lispy-insert-at-beginning-of-list
    "gA" 'user/lispy-insert-at-end-of-list
