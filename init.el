@@ -521,19 +521,18 @@
   ;;  installed along with evil
   :straight nil
   :init
-  (setq
-   avy-style 'at-full
-   avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
-   avy-background nil
-   avy-dispatch-alist '((?x . avy-action-kill-move)
-                        (?X . avy-action-kill-stay)
-                        (?T . avy-action-teleport)
-                        (?v . avy-action-mark)
-                        (?P . avy-action-copy)
-                        (?y . avy-action-yank)
-                        (?Y . avy-action-yank-line)
-                        (?K . user/avy-action-helpful-at-point)
-                        (?D . avy-action-zap-to-char)))
+  (setq avy-style 'at-full
+        avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
+        avy-background t
+        avy-dispatch-alist '((?x . avy-action-kill-move)
+                             (?X . avy-action-kill-stay)
+                             (?T . avy-action-teleport)
+                             (?v . avy-action-mark)
+                             (?P . avy-action-copy)
+                             (?y . avy-action-yank)
+                             (?Y . avy-action-yank-line)
+                             (?K . user/avy-action-helpful-at-point)
+                             (?D . avy-action-zap-to-char)))
   :config
 
   ;; NOTE: redef function
