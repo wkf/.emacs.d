@@ -1638,6 +1638,7 @@ LEAF is (PT . WND)."
 
 (general-add-hook user/lisp-mode-hooks #'eldoc-mode)
 (general-add-hook user/lisp-mode-hooks #'flycheck-mode)
+(general-add-hook user/lisp-mode-hooks #'highlight-quoted-mode)
 (general-add-hook user/lisp-mode-hooks #'user/prettify-lisp-symbols)
 (general-add-hook 'emacs-lisp-mode-hook (lambda () (setq-local lisp-indent-function #'user/lisp-indent-function)))
 
