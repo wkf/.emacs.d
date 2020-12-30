@@ -435,7 +435,8 @@
   ("C-c o t" 'user/org-capture-global-task)
   ('org-mode-map
    "C-9" 'org-up-element
-   "C-0" 'org-down-element)
+   "C-0" 'org-down-element
+   "C-c o I" 'org-indent-mode)
   :custom-face
   (org-block ((t (:inherit default :foreground unspecified))))
   (org-todo ((t (:inherit default :background unspecified))))
