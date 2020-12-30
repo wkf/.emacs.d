@@ -125,6 +125,7 @@
 - [ ] practice with emacs calc!
 - [ ] refactor into some sort of "layer" system??
 - [X] set lower gc threshold
+- [ ] learn more about dired
 
 ** Bindings
 
