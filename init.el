@@ -1917,6 +1917,27 @@ LEAF is (PT . WND)."
         (call-interactively 'lispy-wrap-braces)
       (call-interactively 'lispy-braces)))
 
+  (defun user/current-line-empty-p ()
+    (string-match-p "\\`\\s-*$" (thing-at-point 'line)))
+
+  (defun user/kill-empty-line ()
+    (when (user/current-line-empty-p)
+      (delete-region (line-beginning-position) (1+ (line-end-position)))))
+
+  (defun user/lispy-kill-and-back ()
+    (interactive)
+    (call-interactively 'lispy-kill)
+    (call-interactively 'lispy-tab)
+    (user/kill-empty-line)
+    (user/kill-empty-line)
+    (unless (or (lispyville--at-left-p) (lispyville--at-left-p))
+      (call-interactively 'lispy-backward)))
+
+  (defun user/lispy-kill-and-insert ()
+    (interactive)
+    (call-interactively 'lispy-kill)
+    (evil-insert-state))
+
   (general-add-advice
    '(lispyville-backward-up-list lispyville-up-list)
    :after (lambda (_) (unless (evil-insert-state-p) (evil-insert-state))))
@@ -1929,7 +1950,8 @@ LEAF is (PT . WND)."
    "C-0" 'lispyville-up-list
    "(" 'user/lispy-parens-wrap
    "[" 'user/lispy-brackets-wrap
-   "{" 'user/lispy-braces-wrap)
+   "{" 'user/lispy-braces-wrap
+   "D" 'user/lispy-kill-and-back)
   ('lispy-mode-map
    :definer 'lispy
    "SPC" 'user/lispy-space
@@ -1942,6 +1964,8 @@ LEAF is (PT . WND)."
    "E" 'user/eval-defun-dwim)
   ('(normal visual)
    'lispyville-mode-map
+   "gC" 'user/lispy-kill-and-insert
+   "gD" 'user/lispy-kill-and-back
    "gr" 'lispy-raise-sexp
    "gs" 'lispyville-drag-forward
    "gS" 'lispyville-drag-backward
