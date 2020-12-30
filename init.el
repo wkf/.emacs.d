@@ -86,9 +86,9 @@
  undo-tree-auto-save-history nil
  savehist-file user/savehist-file
  custom-file user/custom-file
- backup-directory-alist `(("." . , user/backup-directory))
+ backup-directory-alist `(("." . ,user/backup-directory))
  auto-save-file-name-transforms `((".*" ,user/backup-directory t))
- undo-tree-history-directory-alist `(("." . , user/backup-directory))
+ undo-tree-history-directory-alist `(("." . ,user/backup-directory))
  version-control t
  kept-new-versions 10
  kept-old-versions 0
