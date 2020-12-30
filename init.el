@@ -473,6 +473,11 @@
    "C-c n i" 'org-roam-insert
    "C-c n I" 'org-roam-insert-immediate))
 
+(use-package org-transclusion
+  :straight (org-transclusion :type git :host github :repo "nobiot/org-transclusion" :branch "main")
+  :general
+  ("C-c o T" 'org-transclusion-mode))
+
 (use-package evil
   :after base16-theme
   :init
