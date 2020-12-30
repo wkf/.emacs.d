@@ -693,8 +693,12 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 (use-package dired
   :straight nil
   :after evil-collection
+  :init
+  (setq dired-listing-switches "-alh")
   :config
   (evil-collection-init 'dired)
+
+  (put 'dired-find-alternate-file 'disabled nil)
 
   (defun user/dired-do-kill-lines ()
     (interactive)
@@ -702,7 +706,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
     (call-interactively 'dired-do-kill-lines))
 
   :gfhook
-  #'dired-omit-mode
   #'dired-hide-details-mode
   :general
   (:states '(normal visual)
@@ -721,8 +724,8 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (use-package dired-filter
   :init
-  (setq dired-filter-stack
-        '((omit) (git-ignored)))
+  (setq dired-filter-verbose nil
+        dired-filter-stack '((omit) (git-ignored)))
   :ghook
   'dired-mode-hook)
 
@@ -737,17 +740,39 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (dired-subtree-depth-5-face ((t (:background unspecified))))
   (dired-subtree-depth-6-face ((t (:background unspecified)))))
 
-(use-package dired-rainbow
-  :config
-  (dired-rainbow-define-chmod executable default "-.*x.*")
-  (dired-rainbow-define vc default ("\\.git" "\\.gitignore" "\\.gitattributes" "\\.gitmodules"))
-  :custom-face
-  (dired-rainbow-vc-face ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
-  (dired-rainbow-executable-face ((t (:bold t)))))
-
 (use-package dired-collapse
   :ghook
   'dired-mode-hook)
+
+(use-package diredfl
+  :config
+  (diredfl-global-mode)
+  :custom-face
+  (diredfl-autofile-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
+  (diredfl-compressed-file-name ((t (:inherit default))))
+  (diredfl-compressed-file-suffix ((t (:inherit default))))
+  (diredfl-date-time ((t (:inherit default))))
+  (diredfl-deletion ((t (:inherit default :foreground ,(plist-get user-ui/colors :red)))))
+  (diredfl-deletion-file-name ((t (:inherit default))))
+  (diredfl-dir-heading ((t (:inherit default :foreground ,(plist-get user-ui/colors :magenta) :bold t))))
+  (diredfl-dir-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :blue)))))
+  (diredfl-dir-priv ((t (:inherit default))))
+  (diredfl-exec-priv ((t (:inherit default))))
+  (diredfl-executable-tag ((t (:inherit default :foreground ,(plist-get user-ui/colors :red)))))
+  (diredfl-file-name ((t (:inherit default))))
+  (diredfl-file-suffix ((t (:inherit default :bold t))))
+  (diredfl-flag-mark ((t (:inherit default :foreground ,(plist-get user-ui/colors :yellow)))))
+  (diredfl-flag-mark-line ((t (:foreground unspecified :background unspecified))))
+  (diredfl-ignored-file-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
+  (diredfl-link-priv ((t (:inherit default))))
+  (diredfl-no-priv ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
+  (diredfl-number ((t (:inherit default :foreground ,(plist-get user-ui/colors :orange)))))
+  (diredfl-other-priv ((t (:inherit default))))
+  (diredfl-rare-priv ((t (:inherit default))))
+  (diredfl-read-priv ((t (:inherit default))))
+  (diredfl-symlink ((t (:inherit default :foreground ,(plist-get user-ui/colors :cyan)))))
+  (diredfl-tagged-autofile-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
+  (diredfl-write-priv ((t (:inherit default)))))
 
 (use-package shackle)
 (use-package fringe-helper)
