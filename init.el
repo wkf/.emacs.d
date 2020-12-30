@@ -714,9 +714,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 (use-package dired-filter
   :init
   (setq dired-filter-stack
-        '((omit) (git-ignored))
-        dired-filter-header-line-format
-        '((:eval (format " Active filters: %s" (dired-filter--describe-filters)))))
+        '((omit) (git-ignored)))
   :ghook
   'dired-mode-hook)
 
