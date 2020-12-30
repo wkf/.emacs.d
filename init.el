@@ -789,7 +789,27 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :config
   (evil-collection-init 'ibuffer)
   :general
+  (:states 'normal
+   "_" 'ibuffer)
   ("C-c b b" 'ibuffer))
+
+(use-package ibuffer-projectile
+  :after ibuffer
+  :init
+  (setq ibuffer-formats
+        '((mark modified read-only locked " "
+                (name 18 18 :left :elide)
+                " "
+                (size 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                project-relative-file)))
+  :ghook
+  ('ibuffer-hook  (lambda ()
+                    (ibuffer-projectile-set-filter-groups)
+                    (unless (eq ibuffer-sorting-mode 'alphabetic)
+                      (ibuffer-do-sort-by-alphabetic)))))
 
 (use-package evil-collection
   :after evil
