@@ -973,7 +973,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :after smex flx evil-collection
   :init
   (setq ivy-use-virtual-buffers t
-        ;; FIXME: I think this gets masked by ivy-prescient?
         ivy-re-builders-alist '((swiper . ivy--regex-plus)
                                 (counsel-projectile-rg . ivy--regex-plus)
                                 (t . ivy--regex-fuzzy)))
@@ -1383,13 +1382,6 @@ LEAF is (PT . WND)."
   (company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
   (company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
 
-(use-package prescient)
-
-(use-package ivy-prescient
-  :after ivy
-  :config
-  (ivy-prescient-mode 1))
-
 (use-package dumb-jump
   :ghook
   ('xref-backend-function #'dumb-jump-xref-activate))
@@ -1703,7 +1695,6 @@ LEAF is (PT . WND)."
   (flycheck-error-list-info ((t (:inherit success)))))
 
 (use-package flycheck-tip)
-
 
 ;;;  lisp
 
