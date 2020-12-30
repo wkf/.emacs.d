@@ -1960,11 +1960,10 @@ LEAF is (PT . WND)."
   (defun user/lispy-kill-and-back ()
     (interactive)
     (call-interactively 'lispy-kill)
-    (call-interactively 'lispy-tab)
     (user/kill-empty-line)
     (user/kill-empty-line)
-    (unless (or (lispyville--at-left-p) (lispyville--at-left-p))
-      (call-interactively 'lispy-backward)))
+    (call-interactively 'lispy-backward)
+    (call-interactively 'lispy-tab))
 
   (defun user/lispy-kill-and-insert ()
     (interactive)
@@ -1984,14 +1983,14 @@ LEAF is (PT . WND)."
    "(" 'user/lispy-parens-wrap
    "[" 'user/lispy-brackets-wrap
    "{" 'user/lispy-braces-wrap
-   "D" 'user/lispy-kill-and-back)
+   "SPC" 'user/lispy-space)
   ('lispy-mode-map
    :definer 'lispy
-   "SPC" 'user/lispy-space
    "v" 'lispyville-toggle-mark-type
    "o" 'user/lispy-open-below
    "O" 'user/lispy-open-above
    "A" 'user/lispy-insert-at-end-of-list
+   "D" 'user/lispy-kill-and-back
    "I" 'user/lispy-insert-at-beginning-of-list
    "e" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
    "E" 'user/eval-defun-dwim)
