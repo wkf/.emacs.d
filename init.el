@@ -687,8 +687,102 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :after evil-collection
   :config
   (evil-collection-init 'dired)
+
+  (defun user/dired-do-kill-lines ()
+    (interactive)
+    (setq current-prefix-arg '(4))
+    (call-interactively 'dired-do-kill-lines))
+
+  :gfhook
+  #'dired-omit-mode
+  #'dired-hide-details-mode
   :general
-  ("C-c d d" 'dired))
+  (:states '(normal visual)
+   "-" 'dired-jump)
+  ("C-c d d" 'dired)
+  ('normal
+   'dired-mode-map
+   "gK" 'user/dired-do-kill-lines)
+  :custom-face
+  (dired-mark ((t (:foreground ,(plist-get user-ui/colors :yellow) :bold t))))
+  (dired-marked ((t (:foreground unspecified :bold t))))
+  (dired-header ((t (:foreground ,(plist-get user-ui/colors :magenta) :bold t)))))
+
+(use-package dired-x
+  :straight nil)
+
+(use-package dired-filter
+  :init
+  (setq dired-filter-stack
+        '((omit) (git-ignored))
+        dired-filter-header-line-format
+        '((:eval (format " Active filters: %s" (dired-filter--describe-filters)))))
+  :ghook
+  'dired-mode-hook)
+
+(use-package dired-narrow)
+
+(use-package dired-subtree
+  :custom-face
+  (dired-subtree-depth-1-face ((t (:background unspecified))))
+  (dired-subtree-depth-2-face ((t (:background unspecified))))
+  (dired-subtree-depth-3-face ((t (:background unspecified))))
+  (dired-subtree-depth-4-face ((t (:background unspecified))))
+  (dired-subtree-depth-5-face ((t (:background unspecified))))
+  (dired-subtree-depth-6-face ((t (:background unspecified)))))
+
+(use-package dired-rainbow
+  :config
+  (dired-rainbow-define-chmod executable default "-.*x.*")
+  (dired-rainbow-define vc default ("\\.git" "\\.gitignore" "\\.gitattributes" "\\.gitmodules"))
+  :custom-face
+  (dired-rainbow-vc-face ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
+  (dired-rainbow-executable-face ((t (:bold t)))))
+
+(use-package dired-collapse
+  :ghook
+  'dired-mode-hook)
+
+(use-package shackle)
+(use-package fringe-helper)
+
+(use-package diff-hl
+  :init
+  (setq diff-hl-side 'right
+        diff-hl-fringe-bmp-function 'diff-hl-fringe-bmp-from-type)
+  :config
+  ;; NOTE: redef function
+  (defun diff-hl-define-bitmaps ()
+    (-map
+     (lambda (type)
+       (define-fringe-bitmap type
+         [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
+         nil nil 'center))
+     '(exclamation-mark
+       question-mark
+       diff-hl-bmp-i
+       diff-hl-bmp-top
+       diff-hl-bmp-middle
+       diff-hl-bmp-bottom
+       diff-hl-bmp-single
+       diff-hl-bmp-insert
+       diff-hl-bmp-delete
+       diff-hl-bmp-empty)))
+
+  (diff-hl-define-bitmaps)
+  (diff-hl-flydiff-mode)
+
+  :ghook
+  'text-mode-hook
+  'prog-mode-hook
+  'conf-mode-hook
+  ('dired-mode-hook 'diff-hl-dired-mode)
+  ('magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  ('magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  :custom-face
+  (diff-hl-change ((t (:inherit diff-changed :foreground unspecified))))
+  (diff-hl-dired-ignored ((t (:foreground ,(plist-get user-ui/colors :black)))))
+  (diff-hl-dired-unknknown ((t (:foreground ,(plist-get user-ui/colors :black))))))
 
 (use-package ibuffer
   :after evil-collection
@@ -771,8 +865,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (prodigy-red-face ((t (:inherit error))))
   (prodigy-yellow-face ((t (:inherit warning)))))
 
-(use-package shackle)
-
 (use-package gitconfig-mode
   :mode
   ("/\\.gitmodules$"
@@ -785,39 +877,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   ("/git/ignore$"
    "/\\.gitignore$"
    "/\\.git/info/exclude$"))
-
-(use-package git-gutter
-  :after shackle
-  :commands git-gutter-mode
-  :init
-  (setq git-gutter:window-width -1)
-  :config
-  (push
-   '("^\\*git-gutter.+\\*$" :align below :size 15 :noselect t :regexp t) shackle-rules)
-  (general-add-advice 'evil-force-normal-state :after 'git-gutter)
-  :ghook
-  'text-mode-hook
-  'prog-mode-hook
-  'conf-mode-hook
-  ('focus-in-hook #'git-gutter:update-all-windows))
-
-(use-package fringe-helper)
-
-(use-package git-gutter-fringe
-  :after (git-gutter fringe-helper)
-  :config
-  (setq git-gutter-fr:side 'right-fringe)
-  (define-fringe-bitmap 'git-gutter-fr:added
-    [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
-    nil nil 'center)
-  (define-fringe-bitmap 'git-gutter-fr:modified
-    [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
-    nil nil 'center)
-  (define-fringe-bitmap 'git-gutter-fr:deleted
-    [3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3]
-    nil nil 'center)
-  :custom-face
-  (git-gutter-fr:modified ((t (:foreground ,(plist-get user-ui/colors :yellow))))))
 
 (use-package magit
   :after evil-snipe
