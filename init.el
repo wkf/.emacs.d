@@ -702,7 +702,13 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :straight nil
   :after evil-collection
   :init
-  (setq dired-listing-switches "-alh")
+  (setq dired-listing-switches "-alh --group-directories-first"
+        insert-directory-program (executable-find "gls")
+        dired-auto-revert-buffer t
+        dired-dwim-target t
+        dired-hide-details-hide-symlink-targets nil
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'top)
   :config
   (evil-collection-init 'dired)
 
@@ -713,6 +719,14 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
     (setq current-prefix-arg '(4))
     (call-interactively 'dired-do-kill-lines))
 
+  (defun user/dired-quit-all ()
+    "Kill all `dired-mode' buffers."
+    (interactive)
+    (dolist (buf (buffer-list (current-buffer)))
+      (with-current-buffer buf
+        (when (eq major-mode 'dired-mode)
+          (kill-buffer buf)))))
+
   :gfhook
   #'dired-hide-details-mode
   :general
@@ -721,6 +735,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   ("C-c d d" 'dired)
   ('normal
    'dired-mode-map
+   "q" 'user/dired-quit-all
    "gK" 'user/dired-do-kill-lines)
   :custom-face
   (dired-mark ((t (:foreground ,(plist-get user-ui/colors :yellow) :bold t))))
@@ -728,7 +743,27 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (dired-header ((t (:foreground ,(plist-get user-ui/colors :magenta) :bold t)))))
 
 (use-package dired-x
-  :straight nil)
+  :straight nil
+  :config
+  (setq dired-omit-verbose nil
+        dired-omit-files
+        (concat dired-omit-files
+                "\\|^.DS_Store\\'"
+                "\\|^.project\\(?:ile\\)?\\'"
+                "\\|^.\\(svn\\|git\\)\\'"
+                "\\|^.ccls-cache\\'"
+                "\\|\\(?:\\.js\\)?\\.meta\\'"
+                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'")
+        dired-clean-confirm-killing-deleted-buffers nil))
+
+(use-package dired-git-info
+  :init
+  (setq dgi-commit-message-format "%h %s"
+        dgi-auto-hide-details-p nil)
+  :general
+  ('dired-mode-map
+   :states 'normal
+   ")" 'dired-git-info-mode))
 
 (use-package dired-filter
   :init
@@ -759,13 +794,13 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (diredfl-autofile-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
   (diredfl-compressed-file-name ((t (:inherit default))))
   (diredfl-compressed-file-suffix ((t (:inherit default))))
-  (diredfl-date-time ((t (:inherit default))))
+  (diredfl-date-time ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
   (diredfl-deletion ((t (:inherit default :foreground ,(plist-get user-ui/colors :red)))))
   (diredfl-deletion-file-name ((t (:inherit default))))
   (diredfl-dir-heading ((t (:inherit default :foreground ,(plist-get user-ui/colors :magenta) :bold t))))
   (diredfl-dir-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :blue)))))
-  (diredfl-dir-priv ((t (:inherit default))))
-  (diredfl-exec-priv ((t (:inherit default))))
+  (diredfl-dir-priv ((t (:inherit default :foreground ,(plist-get user-ui/colors :blue)))))
+  (diredfl-exec-priv ((t (:inherit default :foreground ,(plist-get user-ui/colors :red)))))
   (diredfl-executable-tag ((t (:inherit default :foreground ,(plist-get user-ui/colors :red)))))
   (diredfl-file-name ((t (:inherit default))))
   (diredfl-file-suffix ((t (:inherit default :bold t))))
@@ -777,10 +812,10 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (diredfl-number ((t (:inherit default :foreground ,(plist-get user-ui/colors :orange)))))
   (diredfl-other-priv ((t (:inherit default))))
   (diredfl-rare-priv ((t (:inherit default))))
-  (diredfl-read-priv ((t (:inherit default))))
+  (diredfl-read-priv ((t (:inherit default :foreground ,(plist-get user-ui/colors :green)))))
   (diredfl-symlink ((t (:inherit default :foreground ,(plist-get user-ui/colors :cyan)))))
   (diredfl-tagged-autofile-name ((t (:inherit default :foreground ,(plist-get user-ui/colors :gray5)))))
-  (diredfl-write-priv ((t (:inherit default)))))
+  (diredfl-write-priv ((t (:inherit default :foreground ,(plist-get user-ui/colors :yellow))))))
 
 (use-package shackle)
 (use-package fringe-helper)
