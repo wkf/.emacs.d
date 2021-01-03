@@ -2000,6 +2000,36 @@ for the first action, etc) of the action to set as default."
     (interactive)
     (lispy-from-left (recenter)))
 
+  (defun user/lispy-flow-backward (arg)
+    (interactive "p")
+    (lispy-flow (- arg)))
+
+  (general-add-advice
+   'lispy-flow
+   :override
+   (defun user/lispy-flow (arg)
+     "Move inside list ARG times.
+Don't enter strings or comments.
+Return nil if can't move."
+     (interactive "p")
+     (lispy--remember)
+     (let ((pt (point))
+           r)
+       (cond
+        ((and (lispy-bolp)
+              (looking-at (lispy-comment-char)))
+         (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
+        ((lispy-left-p)
+         (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
+        ((lispy-right-p)
+         (backward-char)
+         (when (setq r (lispy--re-search-in-code lispy-right 'forward (- arg)))
+           (forward-char))))
+       (or r
+           (progn
+             (goto-char pt)
+             nil)))))
+
   :ghook
   user/lisp-mode-hooks
   :general
@@ -2024,6 +2054,8 @@ for the first action, etc) of the action to set as default."
    "<" 'lispy-slurp-or-barf-left
    "/" 'lispy-occur
    "w" 'lispy-flow
+   "b" 'user/lispy-flow-backward
+   "U" 'lispy-back
    "+" 'lispy-widen
    "-" 'lispy-narrow
    "g" 'user/lispy-g-hydra/body
