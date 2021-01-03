@@ -197,6 +197,8 @@
   (set-face-attribute 'match nil
                       :weight 'bold))
 
+(use-package all-the-icons)
+
 (use-package prism
   :straight (prism :type git :host github :repo "alphapapa/prism.el")
   :config
