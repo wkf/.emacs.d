@@ -1029,6 +1029,10 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :general
   ("C-c g t" 'ivy-magit-todos))
 
+(use-package browse-at-remote
+  :general
+  ("C-c g b" 'browse-at-remote))
+
 (use-package hydra
   :custom-face
   (hydra-face-red ((t (:foreground ,(plist-get user-ui/colors :red)))))
