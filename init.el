@@ -1051,12 +1051,30 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :after amx flx evil-collection
   :init
   (setq ivy-use-virtual-buffers t
+        ivy-virtual-abbreviate 'full
+        ivy-height 17
+        ivy-wrap t
+        ivy-fixed-height-minibuffer t
+        ivy-read-action-format-function #'ivy-read-action-format-columns
         ivy-re-builders-alist '((swiper . ivy--regex-plus)
                                 (counsel-projectile-rg . ivy--regex-plus)
                                 (t . ivy--regex-fuzzy)))
   :config
   (ivy-mode 1)
   (evil-collection-init 'ivy)
+
+  ;; HACK: redef function
+  (defun ivy-switch-buffer (&optional initial-input)
+    "Switch to another buffer."
+    (interactive)
+    (ivy-read "Switch to buffer: " #'internal-complete-buffer
+              :keymap ivy-switch-buffer-map
+              :preselect (buffer-name (other-buffer (current-buffer)))
+              :initial-input initial-input
+              :action #'ivy--switch-buffer-action
+              :matcher #'ivy--switch-buffer-matcher
+              :caller 'ivy-switch-buffer))
+
   :general
   ("C-c /" 'ivy-resume)
   ('ivy-minibuffer-map
@@ -1069,13 +1087,67 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
             'avy-background-face `(:foreground ,(plist-get user-ui/colors :gray5)))
            (call-interactively 'ivy-avy))
    "C-w" 'ivy-backward-kill-word
-   "C-u" 'ivy-scroll-up-command
-   "C-d" 'ivy-scroll-down-command))
+   "C-u" 'ivy-scroll-down-command
+   "C-d" 'ivy-scroll-up-command))
 
 (use-package ivy-avy)
+
 (use-package ivy-hydra
   :init
   (setq ivy-read-action-function #'ivy-hydra-read-action))
+
+(use-package all-the-icons-ivy-rich
+  :init
+  (setq all-the-icons-ivy-rich-color-icon t))
+
+(use-package ivy-rich
+  :after counsel-projectile all-the-icons-ivy-rich
+  :init
+  (setq ivy-rich-path-style 'abbrev
+        ivy-rich-parse-remote-buffer nil)
+  :config
+  ;; highlight the whole candidate line
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+
+  (all-the-icons-ivy-rich-mode 1)
+
+  ;; HACK: redef function
+  (defun counsel-projectile-transformer (str)
+    "Fontifies modified, file-visiting buffers as well as non-visited files."
+    (if (member str counsel-projectile--buffers)
+        (counsel-projectile-switch-to-buffer-transformer str)
+      (concat
+       (all-the-icons-ivy-rich-file-icon str)
+       "\t"
+       (counsel-projectile-find-file-transformer str)
+       "\t"
+       (ivy-rich-counsel-find-file-truename str))))
+
+  (plist-put
+   ivy-rich-display-transformers-list
+   'counsel-projectile-switch-project
+   '(:columns
+     ((all-the-icons-ivy-rich-file-icon)
+      (ivy-rich-counsel-projectile-switch-project-project-name (:width 0.2 :face success))
+      (ivy-rich-candidate))
+     :delimiter "\t"))
+
+  (plist-put
+   ivy-rich-display-transformers-list
+   'ivy-switch-buffer
+   '(:columns
+     ((all-the-icons-ivy-rich-buffer-icon)
+      (ivy-rich-candidate (:width 0.25))
+      (ivy-rich-switch-buffer-size (:width 7))
+      (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+      (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+      (ivy-rich-switch-buffer-project (:width 15 :face success))
+      (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+     :predicate
+     (lambda (cand) (get-buffer cand))
+     :delimiter "\t"))
+
+  (ivy-rich-mode 1))
 
 (use-package mini-frame
   ;; FIXME: mini-frame popping up unexpectedly
@@ -1117,6 +1189,8 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "C-h C" 'helpful-command))
 
 (use-package swiper
+  :init
+  (setq swiper-action-recenter t)
   :config
   (general-add-advice
    'swiper--action
@@ -1211,7 +1285,32 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
         counsel-rg-base-command
         (split-string "rg --sort path -M 240 --no-heading --line-number --color never %s"))
   :config
-  (counsel-mode))
+  (counsel-mode)
+
+  ;; HACK: redef function
+  (defun counsel-switch-buffer (&optional initial-input)
+    "Switch to another buffer.
+Display a preview of the selected ivy completion candidate buffer
+in the current window."
+    (interactive)
+    (let ((ivy-update-fns-alist
+           '((ivy-switch-buffer . counsel--switch-buffer-update-fn)))
+          (ivy-unwind-fns-alist
+           '((ivy-switch-buffer . counsel--switch-buffer-unwind))))
+      (ivy-switch-buffer initial-input)))
+
+  (defun user/evil-complete-from-ivy-read-file (string predicate flag)
+    (when (eq flag t)
+      (let ((ivy-inhibit-action t))
+        (list (counsel-find-file string)))))
+
+  (defun user/evil-complete-from-ivy-read-buffer (string predicate flag)
+    (when (eq flag t)
+      (let ((ivy-inhibit-action t))
+        (list (counsel-switch-buffer string)))))
+
+  (evil-ex-define-argument-type file :collection user/evil-complete-from-ivy-read-file)
+  (evil-ex-define-argument-type buffer :collection user/evil-complete-from-ivy-read-buffer))
 
 (use-package perspective
   :init
@@ -1245,12 +1344,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "C-c p" 'projectile-command-map)
   :config
   (projectile-mode))
-
-(use-package persp-projectile
-  :after projectile
-  :general
-  ('projectile-mode-map
-   "C-c p p" 'projectile-persp-switch-project))
 
 (use-package rg)
 
@@ -1386,12 +1479,65 @@ LEAF is (PT . WND)."
   :after ivy projectile ace-window
   :demand t
   :init
-  (setq counsel-projectile-org-capture-templates
+  (setq counsel-projectile-remove-current-project t
+        counsel-projectile-org-capture-templates
         '(("t" "[${name}] Task" checkitem
            (file+headline "${root}/NOTES.org" "Tasks")
            "- [ ] %?\n")))
   :config
   (counsel-projectile-mode)
+
+  ;; HACK: redef function
+  (defun counsel-projectile-switch-project (&optional default-action)
+    "Switch project.
+
+Optional argument DEFAULT-ACTION is the key, function, name, or
+index in the list `counsel-projectile-switch-project-action' (1
+for the first action, etc) of the action to set as default."
+    (interactive)
+    (ivy-read (projectile-prepend-project-name "Switch to project: ")
+              (if counsel-projectile-remove-current-project
+                  (projectile-relevant-known-projects)
+                projectile-known-projects)
+              ;; don't preselect the current project if we've removed the current project
+              :preselect (and (not counsel-projectile-remove-current-project)
+                              (projectile-project-p)
+                              (abbreviate-file-name (projectile-project-root)))
+              :action (or (and default-action
+                               (listp counsel-projectile-switch-project-action)
+                               (integerp (car counsel-projectile-switch-project-action))
+                               (cons (counsel-projectile--action-index
+                                      default-action
+                                      counsel-projectile-switch-project-action)
+                                     (cdr counsel-projectile-switch-project-action)))
+                          counsel-projectile-switch-project-action)
+              :require-match t
+              :sort counsel-projectile-sort-projects
+              :caller 'counsel-projectile-switch-project))
+
+  (defun user/counsel-projectile-switch-to-persp (project)
+    "Switch to perspective for PROJECT. Create a perspective and return t if none exists."
+    (let* ((name (or projectile-project-name
+                     (funcall projectile-project-name-function project)))
+           (persp (gethash name (perspectives-hash))))
+      (cond ((and persp (not (equal persp (persp-curr)))) (persp-switch name) nil)
+            ((not persp) (persp-switch name) t)
+            (t nil))))
+
+  (defun user/counsel-projectile-switch-project-action-persp (project)
+    (when (user/counsel-projectile-switch-to-persp project)
+      (counsel-projectile-switch-project-action project)))
+
+  (-each (cdr counsel-projectile-switch-project-action)
+    (lambda (action)
+      (general-add-advice
+       (nth 1 action)
+       :before #'user/counsel-projectile-switch-to-persp)))
+
+  (--> counsel-projectile-switch-project-action
+       (-snoc it '("P" user/counsel-projectile-switch-project-action-persp "switch to project persp"))
+       (-replace-at 0 (1- (length it)) it)
+       (setq counsel-projectile-switch-project-action it))
 
   (defun user/counsel-projectile-action (name)
     (if (member name counsel-projectile--buffers)
@@ -1437,6 +1583,7 @@ LEAF is (PT . WND)."
   ('projectile-mode-map
    "C-SPC" 'counsel-projectile
    "C-/" 'counsel-projectile-rg
+   "C-c p p" 'counsel-projectile-switch-project
    "C-c o c" 'counsel-projectile-org-capture))
 
 (use-package company
