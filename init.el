@@ -1179,7 +1179,19 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :after evil-collection
   :config
   (evil-collection-init 'helpful)
+
+  (defun user/helpful-quit-all ()
+    "Kill all `dired-mode' buffers."
+    (interactive)
+    (dolist (buf (buffer-list (current-buffer)))
+      (with-current-buffer buf
+        (when (eq major-mode 'helpful-mode)
+          (kill-buffer buf)))))
+
   :general
+  ('normal
+   'helpful-mode-map
+   "Q" 'user/helpful-quit-all)
   (:states '(normal visual)
    "K" 'helpful-at-point)
   ("C-h f" 'helpful-callable
