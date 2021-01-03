@@ -1542,9 +1542,15 @@ for the first action, etc) of the action to set as default."
 
   (-each (cdr counsel-projectile-switch-project-action)
     (lambda (action)
-      (general-add-advice
-       (nth 1 action)
-       :before #'user/counsel-projectile-switch-to-persp)))
+      (let ((name (nth 1 action)))
+        (unless (memq name
+                      '(counsel-projectile-switch-project-action-save-all-buffers
+                        counsel-projectile-switch-project-action-kill-buffers
+                        counsel-projectile-switch-project-action-remove-known-project
+                        counsel-projectile-switch-project-action-org-capture))
+          (general-add-advice
+           name
+           :before #'user/counsel-projectile-switch-to-persp)))))
 
   (--> counsel-projectile-switch-project-action
        (-snoc it '("P" user/counsel-projectile-switch-project-action-persp "switch to project persp"))
