@@ -199,6 +199,12 @@
 
 (use-package all-the-icons)
 
+(use-package all-the-icons-dired
+  :ghook
+  'dired-mode-hook
+  :custom-face
+  (all-the-icons-dired-dir-face ((t (:foreground ,(plist-get user-ui/colors :blue))))))
+
 (use-package prism
   :straight (prism :type git :host github :repo "alphapapa/prism.el")
   :config
