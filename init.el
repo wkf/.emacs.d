@@ -973,8 +973,12 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "/\\.git/info/exclude$"))
 
 (use-package magit
+  :demand t
   :after evil-snipe
-  :commands magit-status
+  :init
+  (setq magit-repository-directories
+        '(("~/Projects/" . 2)
+          ("~/.emacs.d". 1)))
   :config
   (setq
    magit-completing-read-function 'ivy-completing-read
@@ -1333,9 +1337,11 @@ in the current window."
 
 (use-package projectile
   :demand t
+  :after magit
   :init
   (setq projectile-completion-system 'ivy
         projectile-enable-caching nil
+        projectile-track-known-projects-automatically nil
         projectile-file-exists-local-cache-expire 30
         projectile-globally-ignored-directories
         '(".idea"
@@ -1351,11 +1357,16 @@ in the current window."
           ".svn"
           ".stack-work"
           "node_modules"))
+  :config
+  (projectile-mode)
+
+  (setq projectile-known-projects '())
+  (-each (-map #'file-name-as-directory (magit-list-repos))
+    #'projectile-add-known-project)
+
   :general
   ('projectile-mode-map
-   "C-c p" 'projectile-command-map)
-  :config
-  (projectile-mode))
+   "C-c p" 'projectile-command-map))
 
 (use-package rg)
 
