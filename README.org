@@ -77,7 +77,7 @@
 - [X] persistent scratch?
 - [X] find a useful project directory tree (or maybe just dired?)
 - [ ] swap eglot in for lsp-mode
-- [ ] setup vb4c bindings?
+- [X] setup vb4c bindings?
 - [ ] fix org header insert
 - [X] get rid of vim leader key
 - [X] find a place for rename buffer/file
@@ -126,6 +126,17 @@
 - [ ] refactor into some sort of "layer" system??
 - [X] set lower gc threshold
 - [ ] learn more about dired
+- [ ] try no-littering
+- [ ] organize these tasks
+- [ ] try org-marginalia
+- [ ] learn how to make ascii diagrams for modelling, etc
+- [ ] try ranger.el?
+- [ ] add an avy paren function for all modes?
+- [ ] setup mermaid (and ob) for diagmrams?
+- [ ] try noom?
+- [ ] install scel?
+- [X] try all-the-icons
+- [ ] add a way to restart without loading persps
 
 ** Bindings
 
