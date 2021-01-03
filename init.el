@@ -2267,10 +2267,13 @@ Return nil if can't move."
   (setq cider-repl-pop-to-buffer-on-connect nil)
   :config
   (flycheck-clojure-setup)
-  (evil-collection-init 'cider))
+  (evil-collection-init 'cider)
+  :general
+  ("C-c c c" 'cider-jack-in
+   "C-c c q" 'cider-quit))
 
 (use-package cider-eval-sexp-fu
-  :after (cider lispy))
+  :after cider lispy)
 
 ;;;  python
 
