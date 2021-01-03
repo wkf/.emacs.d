@@ -552,7 +552,7 @@
                              (?D . avy-action-zap-to-char)))
   :config
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun avy--overlay (str beg end wnd &optional compose-fn)
     "Create an overlay with STR from BEG to END in WND.
 COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
@@ -636,7 +636,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
                           str old-str)))
           (push ol avy--overlays-lead)))))
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun avy--make-backgrounds (wnd-list)
     "Create a dim background overlay for each window on WND-LIST."
     (when avy-background
@@ -790,7 +790,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (setq diff-hl-side 'right
         diff-hl-fringe-bmp-function 'diff-hl-fringe-bmp-from-type)
   :config
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun diff-hl-define-bitmaps ()
     (-map
      (lambda (type)
@@ -1096,7 +1096,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    :around (defun user/around-swiper--make-overlay (f beg end face wnd priority)
              (funcall f beg end face wnd (and priority (+ priority 0)))))
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun swiper--avy-candidate ()
     (let ((candidates (swiper--avy-candidates))
           (avy-all-windows nil))
@@ -1114,7 +1114,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
             (avy-push-mark))
         (avy--done))))
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun swiper--avy-candidates ()
     (let* (
            ;; We'll have overlapping overlays, so we sort all the
@@ -1238,7 +1238,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
         aw-leading-char-style 'path)
   :config
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun aw--lead-overlay (path leaf)
     "Create an overlay using PATH at LEAF.
 LEAF is (PT . WND)."
@@ -1307,7 +1307,7 @@ LEAF is (PT . WND)."
           (overlay-put ol 'window wnd)
           (push ol avy--overlays-lead)))))
 
-  ;; NOTE: redef function
+  ;; HACK: redef function
   (defun aw--make-backgrounds (wnd-list)
     "Create a dim background overlay for each window on WND-LIST."
     (when aw-background
