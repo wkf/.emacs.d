@@ -1043,12 +1043,12 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (use-package flx)
 
-(use-package smex
+(use-package amx
   :config
-  (smex-initialize))
+  (amx-mode))
 
 (use-package ivy
-  :after smex flx evil-collection
+  :after amx flx evil-collection
   :init
   (setq ivy-use-virtual-buffers t
         ivy-re-builders-alist '((swiper . ivy--regex-plus)
