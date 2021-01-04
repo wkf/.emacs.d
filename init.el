@@ -1882,6 +1882,20 @@ for the first action, etc) of the action to set as default."
   :general
   ("C-c O" 'olivetti-mode))
 
+(use-package visual-fill-column
+  :init
+  (defvar user/visual-line-mode nil)
+  :general
+  ("C-c V" (defun user/visual-line-mode ()
+             (interactive)
+             (if user/visual-line-mode
+                 (progn (visual-line-mode -1)
+                        (visual-fill-column-mode -1)
+                        (setq user/visual-line-mode nil))
+               (visual-line-mode 1)
+               (visual-fill-column-mode 1)
+               (setq user/visual-line-mode t)))))
+
 (use-package origami
   :config
   (global-origami-mode))
