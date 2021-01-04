@@ -197,6 +197,17 @@
   (set-face-attribute 'match nil
                       :weight 'bold))
 
+(use-package display-line-numbers
+  :ghook
+  'prog-mode-hook
+  'text-mode-hook
+  :custom-face
+  (line-number ((t (:inherit font-lock-comment-face))))
+  (line-number-current-line ((t (:inherit font-lock-comment-face
+                                 :background ,(plist-get user-ui/colors :gray0)
+                                 :inverse-video nil
+                                 :underline nil)))))
+
 (use-package all-the-icons)
 
 (use-package all-the-icons-dired
@@ -286,15 +297,6 @@
         user-mode-line/unknown-state-color (plist-get user-ui/colors :red))
   :config
   (setq-default mode-line-format (user-mode-line)))
-
-(use-package linum
-  :init
-  (setq linum-format " %3d ")
-  :ghook
-  'prog-mode-hook
-  'text-mode-hook
-  :custom-face
-  (linum ((t (:inherit font-lock-comment-face :underline nil)))))
 
 (use-package hl-line
   :config
