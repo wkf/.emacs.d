@@ -139,6 +139,8 @@
 - [ ] add a way to restart without loading persps
 - [ ] get rid of persistent scratch?
 - [ ] do a better job cleaning up perspectives
+- [ ] change ivy actions to be more... evil
+- [ ] add C-return open in avy binds to dired
 
 ** Bindings
 
