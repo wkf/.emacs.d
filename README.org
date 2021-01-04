@@ -137,6 +137,8 @@
 - [ ] install scel?
 - [X] try all-the-icons
 - [ ] add a way to restart without loading persps
+- [ ] get rid of persistent scratch?
+- [ ] do a better job cleaning up perspectives
 
 ** Bindings
 
