@@ -1529,10 +1529,17 @@ for the first action, etc) of the action to set as default."
               :sort counsel-projectile-sort-projects
               :caller 'counsel-projectile-switch-project))
 
+  (defun user/projectile-project-name (project)
+    (or projectile-project-name (funcall projectile-project-name-function project)))
+
+  (defun user/counsel-projectile-kill-persp (project)
+    (let* ((name (user/projectile-project-name project))
+           (persp (gethash name (perspectives-hash))))
+      (and persp (persp-kill name))))
+
   (defun user/counsel-projectile-switch-to-persp (project)
     "Switch to perspective for PROJECT. Create a perspective and return t if none exists."
-    (let* ((name (or projectile-project-name
-                     (funcall projectile-project-name-function project)))
+    (let* ((name (user/projectile-project-name project))
            (persp (gethash name (perspectives-hash))))
       (cond ((and persp (not (equal persp (persp-curr)))) (persp-switch name) nil)
             ((not persp) (persp-switch name) t)
@@ -1553,6 +1560,11 @@ for the first action, etc) of the action to set as default."
           (general-add-advice
            name
            :before #'user/counsel-projectile-switch-to-persp)))))
+
+  (-each '(counsel-projectile-switch-project-action-kill-buffers
+           counsel-projectile-switch-project-action-remove-known-project)
+    (lambda (name)
+      (general-add-advice name :after #'user/counsel-projectile-kill-persp)))
 
   (--> counsel-projectile-switch-project-action
        (-snoc it '("P" user/counsel-projectile-switch-project-action-persp "switch to project persp"))
