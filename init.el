@@ -1118,12 +1118,16 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
        "\t"
        (ivy-rich-counsel-find-file-truename str))))
 
+  (defun user/ivy-rich-counsel-projectile-switch-project-project-buffer-count (candidate)
+    (number-to-string (length (projectile-project-buffers (expand-file-name candidate)))))
+
   (plist-put
    ivy-rich-display-transformers-list
    'counsel-projectile-switch-project
    '(:columns
      ((all-the-icons-ivy-rich-file-icon)
       (ivy-rich-counsel-projectile-switch-project-project-name (:width 0.2 :face success))
+      (user/ivy-rich-counsel-projectile-switch-project-project-buffer-count (:width 3 :face warning))
       (ivy-rich-candidate))
      :delimiter "\t"))
 
