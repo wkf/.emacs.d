@@ -141,6 +141,7 @@
 - [ ] do a better job cleaning up perspectives
 - [ ] change ivy actions to be more... evil
 - [ ] add C-return open in avy binds to dired
+- [ ] fix avy-goto-line in visual line mode (olivetti)
 
 ** Bindings
 
