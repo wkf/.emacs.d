@@ -1986,7 +1986,6 @@ for the first action, etc) of the action to set as default."
   user/lisp-mode-hooks)
 
 (use-package lispy
-  :after hydra
   :init
   (setq lispy-avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
         lispy-colon-p nil
@@ -1995,99 +1994,7 @@ for the first action, etc) of the action to set as default."
         lispy-visit-method 'projectile
         lispy-avy-style-char 'at-full
         lispy-avy-style-paren 'at-full
-        lispy-avy-style-symbol 'at-full)
-  :config
-  (defhydra user/lispy-g-hydra (:color blue :hint nil :idle .3 :columns 3)
-    ("j" lispy-knight-down "knight down")
-    ("k" lispy-knight-up "knight up")
-    ("g" lispy-beginning-of-defun "beginning of def")
-    ("d" lispy-goto "goto")
-    ("D" lispy-goto-local "goto local")
-    ("J" lispy-outline-next "next outline")
-    ("K" lispy-outline-prev "prev outline")
-    ("L" lispy-outline-goto-child "child outline")
-    ("e" lispy-eval-and-insert "eval and insert")
-    ("E" lispy-eval-other-window "eval other window")
-    ("Q" lispy-convolute-left "eval other window")
-    ("x" hydra-lispy-x/body "x mode")
-    ("o" lispy-other-mode "o mode"))
-
-  (defun user/lispy-view ()
-    "Recenter current sexp."
-    (interactive)
-    (lispy-from-left (recenter)))
-
-  (defun user/lispy-flow-backward (arg)
-    (interactive "p")
-    (lispy-flow (- arg)))
-
-  (general-add-advice
-   'lispy-flow
-   :override
-   (defun user/lispy-flow (arg)
-     "Move inside list ARG times.
-Don't enter strings or comments.
-Return nil if can't move."
-     (interactive "p")
-     (lispy--remember)
-     (let ((pt (point))
-           r)
-       (cond
-        ((and (lispy-bolp)
-              (looking-at (lispy-comment-char)))
-         (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
-        ((lispy-left-p)
-         (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
-        ((lispy-right-p)
-         (backward-char)
-         (when (setq r (lispy--re-search-in-code lispy-right 'forward (- arg)))
-           (forward-char))))
-       (or r
-           (progn
-             (goto-char pt)
-             nil)))))
-
-  :ghook
-  user/lisp-mode-hooks
-  :general
-  ('lispy-mode-map
-   :definer 'lispy
-   "t" '(lispy-ace-paren
-         :override '(cond ((bound-and-true-p view-mode)
-                           (View-quit))))
-   "f" 'lispy-ace-char
-   "c" 'lispy-ace-symbol-replace
-   "P" 'lispy-clone
-   "C" 'lispy-kill
-   "%" 'lispy-different
-   "p" 'lispy-paste
-   "y" 'lispy-new-copy
-   "z" 'user/lispy-view
-   "J" 'lispy-join
-   "K" 'helpful-at-point
-   "H" 'lispy-backward
-   "L" 'lispy-forward
-   ">" 'lispy-slurp-or-barf-right
-   "<" 'lispy-slurp-or-barf-left
-   "/" 'lispy-occur
-   "w" 'lispy-flow
-   "b" 'user/lispy-flow-backward
-   "U" 'lispy-back
-   "+" 'lispy-widen
-   "-" 'lispy-narrow
-   "g" 'user/lispy-g-hydra/body
-   "S" 'lispy-move-up
-   "Q" 'lispy-convolute
-   "x" 'lispy-splice
-   "T" '(lispy-teleport
-         :override '(cond ((looking-at lispy-outline)
-                           (end-of-line)))))
-
-  ('lispy-mode-map
-   "TAB" 'lispy-tab
-   "<C-return>" 'lispy-out-forward-newline
-   "]" 'lispy-close-square
-   "}" 'lispy-close-curly))
+        lispy-avy-style-symbol 'at-full))
 
 (use-package lispyville
   :after lispy
@@ -2103,8 +2010,76 @@ Return nil if can't move."
      text-objects
      commentary
      (atom-movement t)
-     slurp/barf-cp
-     mark-toggle))
+     slurp/barf-cp))
+
+  (general-add-advice
+   '(lispyville-forward-atom-end lispyville-backward-atom-end)
+   :around (lambda (f arg)
+             (unless (or (evil-operator-state-p) (evil-visual-state-p))
+               (forward-char))
+             (funcall f arg)
+             (unless (evil-operator-state-p)
+               (backward-char))))
+
+  (general-add-advice
+   '(lispyville-backward-up-list lispyville-up-list)
+   :before (lambda (_) (evil-set-jump)))
+
+  (general-add-advice
+   'lispy-ace-symbol
+   :around (defun user/around-lispy-ace-symbol (f arg)
+             (let ((pt (point)))
+               (condition-case nil
+                   (progn
+                     (lispy-left 0)
+                     (funcall f arg)
+                     (if (lispyville--at-left-p)
+                         (goto-char pt)
+                       (lispyville-backward-sexp)
+                       (call-interactively 'lispyville-escape)))
+                 (error (goto-char pt))))))
+
+  (defun user/lispy-flow (arg)
+    (interactive "p")
+    (lispy--remember)
+    (let ((pt (point))
+          r)
+      (cond
+       ((and (lispy-bolp)
+             (looking-at (lispy-comment-char)))
+        (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
+       ((lispy-left-p)
+        (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
+       ((lispy-right-p)
+        (backward-char)
+        (when (setq r (lispy--re-search-in-code lispy-right 'forward (- arg)))
+          (forward-char))))
+      (or r
+          (progn
+            (goto-char pt)
+            nil))))
+
+  (defun user/lispy-flow-backward (arg)
+    (interactive "p")
+    (user/lispy-flow (- arg)))
+
+  (defun user/lispy-parens-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-round)
+      (call-interactively 'lispy-parens)))
+
+  (defun user/lispy-brackets-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-brackets)
+      (call-interactively 'lispy-brackets)))
+
+  (defun user/lispy-braces-wrap ()
+    (interactive)
+    (if (lispyville--at-left-p)
+        (call-interactively 'lispy-wrap-braces)
+      (call-interactively 'lispy-braces)))
 
   (defun user/lispy-insert-at-end-of-list ()
     "Forward list and enter insert state."
@@ -2135,21 +2110,7 @@ Return nil if can't move."
       (when (lispyville--at-left-p)
         (forward-char))))
 
-  (defun user/lispy-open-below ()
-    (interactive)
-    (if (not (lispyville--at-left-p))
-        (call-interactively 'lispy-out-forward-newline)
-      (forward-char)
-      (call-interactively 'lispy-out-forward-newline)))
-
-  (defun user/lispy-open-above ()
-    (interactive)
-    (if (not (lispyville--at-left-p))
-        (call-interactively 'lispyville-open-above-list)
-      (forward-char)
-      (call-interactively 'lispyville-open-above-list)))
-
-  (defun user/eval-sexp-fu-eval-sexp-inner-sexp-dwim ()
+  (defun user/eval-sexp-dwim ()
     (interactive)
     (if (eq major-mode 'emacs-lisp-mode)
         (call-interactively 'eval-sexp-fu-eval-sexp-inner-sexp)
@@ -2162,115 +2123,46 @@ Return nil if can't move."
           ((eq major-mode 'clojure-mode)
            (call-interactively 'cider-eval-defun-at-point))))
 
-  (defun user/lispy-delete-char-or-splice ()
-    (interactive)
-    (call-interactively 'lispyville-delete-char-or-splice)
-    (unless (evil-normal-state-p)
-      (unless (or (bolp) (eolp))
-        (forward-char))
-      (evil-normal-state)))
-
-  (defun user/lispy-delete-char-or-splice-backwards ()
-    (interactive)
-    (call-interactively 'lispyville-delete-char-or-splice-backwards)
-    (unless (evil-normal-state-p)
-      (unless (or (bolp) (eolp))
-        (forward-char))
-      (evil-normal-state)))
-
-  (general-add-advice
-   '(lispyville-forward-atom-end lispyville-backward-atom-end)
-   :around (lambda (f arg)
-             (unless (evil-operator-state-p)
-               (forward-char))
-             (funcall f arg)
-             (unless (evil-operator-state-p)
-               (backward-char))))
-
-  (defun user/lispy-parens-wrap ()
-    (interactive)
-    (if (lispyville--at-left-p)
-        (call-interactively 'lispy-wrap-round)
-      (call-interactively 'lispy-parens)))
-
-  (defun user/lispy-brackets-wrap ()
-    (interactive)
-    (if (lispyville--at-left-p)
-        (call-interactively 'lispy-wrap-brackets)
-      (call-interactively 'lispy-brackets)))
-
-  (defun user/lispy-braces-wrap ()
-    (interactive)
-    (if (lispyville--at-left-p)
-        (call-interactively 'lispy-wrap-braces)
-      (call-interactively 'lispy-braces)))
-
-  (defun user/current-line-empty-p ()
-    (string-match-p "\\`\\s-*$" (thing-at-point 'line)))
-
-  (defun user/kill-empty-line ()
-    (when (user/current-line-empty-p)
-      (delete-region (line-beginning-position) (1+ (line-end-position)))))
-
-  (defun user/lispy-kill-and-back ()
-    (interactive)
-    (call-interactively 'lispy-kill)
-    (user/kill-empty-line)
-    (user/kill-empty-line)
-    (call-interactively 'lispy-backward)
-    (call-interactively 'lispy-tab))
-
-  (defun user/lispy-kill-and-insert ()
-    (interactive)
-    (call-interactively 'lispy-kill)
-    (evil-insert-state))
-
-  (general-add-advice
-   '(lispyville-backward-up-list lispyville-up-list)
-   :after (lambda (_) (unless (evil-insert-state-p) (evil-insert-state))))
-
   :ghook
-  'lispy-mode-hook
+  user/lisp-mode-hooks
   :general
-  ('lispy-mode-map
-   "C-9" 'lispyville-backward-up-list
-   "C-0" 'lispyville-up-list
+  ('lispyville-mode-map
+   "<C-return>" 'lispy-out-forward-newline
+   "SPC" 'user/lispy-space
+   "\"" 'lispy-quotes
+   ";" 'lispy-comment
    "(" 'user/lispy-parens-wrap
    "[" 'user/lispy-brackets-wrap
    "{" 'user/lispy-braces-wrap
-   "SPC" 'user/lispy-space)
-  ('lispy-mode-map
-   :definer 'lispy
-   "v" 'lispyville-toggle-mark-type
-   "o" 'user/lispy-open-below
-   "O" 'user/lispy-open-above
-   "A" 'user/lispy-insert-at-end-of-list
-   "D" 'user/lispy-kill-and-back
-   "I" 'user/lispy-insert-at-beginning-of-list
-   "e" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
-   "E" 'user/eval-defun-dwim)
+   "]" 'lispy-close-square
+   "}" 'lispy-close-curly
+   ")" 'lispy-right-nostring)
   ('(normal visual)
    'lispyville-mode-map
-   "gC" 'user/lispy-kill-and-insert
-   "gD" 'user/lispy-kill-and-back
    "gr" 'lispy-raise-sexp
    "gs" 'lispyville-drag-forward
    "gS" 'lispyville-drag-backward
-   "g(" 'lispyville-wrap-round
-   "g[" 'lispyville-wrap-brackets
-   "g{" 'lispyville-wrap-braces
-   "ze" 'user/eval-sexp-fu-eval-sexp-inner-sexp-dwim
-   "zE" 'user/eval-defun-dwim)
+   "(" 'lispyville-backward-up-list
+   ")" 'lispyville-up-list
+   ;; FIXME: these are confusing, but I don't know what would be most useful
+   "g)" 'user/lispy-flow
+   "g(" 'user/lispy-flow-backward
+   "zx" 'user/eval-sexp-dwim
+   "zf" 'user/eval-defun-dwim)
   ('normal
    'lispyville-mode-map
+   "SPC SPC" 'lispy-ace-char
+   "SPC l" 'lispy-ace-paren
+   "SPC o" 'lispy-ace-symbol
+   "g/" 'lispy-occur
    "gb" 'lispy-split
-   "gQ" 'lispy-convolute-sexp
+   "g+" 'lispy-widen
+   "g-" 'lispy-narrow
+   "gq" 'lispy-convolute-sexp
    "gI" 'user/lispy-insert-at-beginning-of-list
    "gA" 'user/lispy-insert-at-end-of-list
    "go" 'lispyville-open-below-list
-   "gO" 'lispyville-open-above-list
-   "x" 'user/lispy-delete-char-or-splice
-   "X" 'user/lispy-delete-char-or-splice-backwards))
+   "gO" 'lispyville-open-above-list))
 
 (use-package eval-sexp-fu
   :after lispy
