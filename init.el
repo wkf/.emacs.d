@@ -2178,11 +2178,16 @@ for the first action, etc) of the action to set as default."
   (flycheck-clojure-setup)
   (evil-collection-init 'cider)
   :general
+  ('(normal visual)
+   '(cider-mode-map cider-repl-mode-map)
+   "C-t" nil)              ; interferes with my ace-window binding
   ("C-c c c" 'cider-jack-in
    "C-c c q" 'cider-quit))
 
 (use-package cider-eval-sexp-fu
   :after cider lispy)
+
+(use-package free-keys)
 
 ;;;  python
 
