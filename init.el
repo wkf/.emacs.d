@@ -935,7 +935,8 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (use-package evil-multiedit
   :init
-  (setq evil-multiedit-follow-matches t)
+  (setq evil-multiedit-follow-matches t
+        evil-multiedit-use-symbols t)
   :config
   (evil-ex-define-cmd "ie[dit]" 'evil-multiedit-ex-match)
   :general
