@@ -494,6 +494,12 @@
   :general
   ("C-c o T" 'org-transclusion-mode))
 
+(use-package poporg
+  :init
+  (setq poporg-comment-skip-regexp " ")
+  :general
+  ("C-c o p" 'poporg-dwim))
+
 (use-package evil
   :after base16-theme
   :init
