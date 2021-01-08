@@ -172,6 +172,9 @@
   :load-path "user"
   :after base16-theme
   :init
+  (setq mac-auto-operator-composition-characters
+        ;; remove open paren/brace/bracket from the default list, it messes with rainbow parens
+        "!\"#$%&')*+,-./:;<=>?@\\]^_`|}~")
   (mac-auto-operator-composition-mode)
   :config
   (let ((frame (selected-frame)))
@@ -256,7 +259,7 @@
 
 (use-package highlight-function-calls
   :ghook
-  'prog-mode-hook
+  'emacs-lisp-mode-hook
   :custom-face
   (highlight-function-calls-face ((t (:underline nil :bold t)))))
 
