@@ -142,6 +142,13 @@
 - [ ] change ivy actions to be more... evil
 - [ ] add C-return open in avy binds to dired
 - [ ] fix avy-goto-line in visual line mode (olivetti)
+- [ ] remove extra space when lispy-teleporting
+- [ ] use find-deps/pomegranate to reload deps in clj repl
+- [ ] make R select whole symbol
+- [ ] improve perf of counsel-projectile
+- [ ] create odd-lisp-mode, based on lispy/lispyville
+- [ ] refresh dired automatically after deleting something
+- [ ] Have C-9 and C-0 insert at beg and end of list?
 
 ** Bindings
 
@@ -157,6 +164,38 @@ RET avy-goto-line
 C-/ counsel-projectile-rg
 
 C-SPC counsel-projectile
+
+** Lisp
+
+stop using lispy special mode?
+
+ace-char
+ace-char-replace?
+ace-symbol
+ace-symbol-replace?
+ace-paren (ace-list might be a better way to think about it)
+ace-paren-replace?
+
+occur
+
+widen
+narrow
+
+convolute
+
+splice
+
+tab (format)
+
+wrap-round/square/curly
+
+teleport
+
+eval
+
+moving up/down/forward/back through lists
+
+
 
 * Code
 
