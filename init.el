@@ -2380,6 +2380,9 @@ for the first action, etc) of the action to set as default."
 (use-package sublimity)
 (use-package yascroll)
 
+(use-package tridactyl-mode
+  :straight (tridactyl :type git :host github :repo "Fuco1/tridactyl-mode"))
+
 (use-package yasnippet
   :after (company company-restclient)
   :config
