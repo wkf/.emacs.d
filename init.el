@@ -678,12 +678,21 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
             (backward-char)
             (unless (evil-visual-state-p)
               (evil-visual-state))))
+
   :general
   (:states '(normal visual)
-   "SPC" 'evil-avy-goto-char-2
-   "RET" 'evil-avy-goto-line
-   "gB" 'evil-avy-goto-symbol-1-above
-   "gW" 'evil-avy-goto-symbol-1-below
+   "RET SPC" 'evil-avy-goto-char-2
+   "RET RET" 'evil-avy-goto-line
+   "RET w" 'evil-avy-goto-word-1
+   "RET o" 'evil-avy-goto-symbol-1
+   "SPC k" 'evil-avy-goto-line-above
+   "SPC j" 'evil-avy-goto-line-below
+   "SPC b" 'evil-avy-goto-word-1-above
+   "SPC w" 'evil-avy-goto-word-1-below
+   "SPC S" 'evil-avy-goto-char-2-above
+   "SPC s" 'evil-avy-goto-char-2-below
+   "SPC B" 'evil-avy-goto-symbol-1-above
+   "SPC W" 'evil-avy-goto-symbol-1-below)
   :custom-face
   (avy-lead-face ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-lead-face-0 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
