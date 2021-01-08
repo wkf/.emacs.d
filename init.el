@@ -1520,7 +1520,7 @@ LEAF is (PT . WND)."
   :after ivy projectile ace-window
   :demand t
   :init
-  (setq counsel-projectile-remove-current-project t
+  (setq counsel-projectile-remove-current-project nil
         counsel-projectile-org-capture-templates
         '(("t" "[${name}] Task" checkitem
            (file+headline "${root}/NOTES.org" "Tasks")
