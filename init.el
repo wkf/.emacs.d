@@ -450,6 +450,9 @@
    "C-9" 'org-up-element
    "C-0" 'org-down-element
    "C-c o I" 'org-indent-mode)
+  ('normal
+   'org-mode-map
+   "SPC T" 'avy-org-refile-as-child)
   :custom-face
   (org-block ((t (:inherit default :foreground unspecified))))
   (org-todo ((t (:inherit default :background unspecified))))
@@ -675,7 +678,6 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "RET" 'evil-avy-goto-line
    "gB" 'evil-avy-goto-symbol-1-above
    "gW" 'evil-avy-goto-symbol-1-below
-   "gT" 'avy-org-refile-as-child)
   :custom-face
   (avy-lead-face ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-lead-face-0 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
