@@ -352,7 +352,7 @@
   (setq org-edit-src-content-indentation 0
         org-src-preserve-indentation t
         org-hide-leading-stars t
-        org-startup-indented t
+        org-startup-indented nil
         org-capture-templates '(("T" "Global Task" checkitem
                                  (file+headline "~/.emacs.d/README.org" "Tasks")
                                  "- [ ] %?\n")))
