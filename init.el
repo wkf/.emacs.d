@@ -2155,6 +2155,18 @@ for the first action, etc) of the action to set as default."
     (interactive "p")
     (user/lispy-forward-open (- arg)))
 
+  (defun user/lispy-right (arg)
+    (interactive "p")
+    (lispy--remember)
+    (let ((pt-o (save-excursion
+                  (lispy--re-search-in-code lispy-left 'forward arg)
+                  (point)))
+          (pt-c (save-excursion
+                  (lispy--re-search-in-code lispy-right 'forward arg)
+                  (point))))
+      (when (< pt-o pt-c)
+        (goto-char pt-o))))
+
   (defun user/lispy-teleport-sexp (arg)
     "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
     (interactive "p")
@@ -2224,15 +2236,19 @@ for the first action, etc) of the action to set as default."
                        ((and (goto-char (1- beg))
                              (lispy-left-p)
                              (goto-char end)
-                             (looking-at " "))
-                        (delete-char 1))
+                             (looking-at "[ \n]"))
+                        (delete-char (save-excursion
+                                       (skip-chars-forward " \n"))))
                        ((and (goto-char end)
                              (looking-at lispy-right)
                              (goto-char (1- beg))
                              (looking-at " "))
-                        (delete-char 1)
-                        (setq beg (1- beg)
-                              end (1- end)))))
+                        (let ((n (save-excursion
+                                   (1- (skip-chars-backward " \n")))))
+                          (goto-char beg)
+                          (delete-char n)
+                          (setq beg (+ beg n)
+                                end (+ end n))))))
                (lispy--teleport beg end endp regionp))))))
 
   (lispyville-set-key-theme
@@ -2267,6 +2283,49 @@ for the first action, etc) of the action to set as default."
    'lispy-out-forward-newline
    :after (lambda (_) (unless (evil-insert-state-p) (evil-insert-state))))
 
+  (general-add-advice
+   'avy-action-kill-stay
+   :around (defun user/around-avy-action-kill-stay (f pt)
+             (if (not (memq major-mode '(emacs-lisp-mode clojure-mode)))
+                 (f pt)
+               (save-excursion
+                 (goto-char pt)
+                 (avy-forward-item)
+                 (kill-region pt (point))
+                 (cond ((lispy-looking-back lispy-left)
+                        (just-one-space 0))
+                       ((save-excursion (forward-char) (lispy-right-p))
+                        (just-one-space 0))
+                       ((looking-at "\n")
+                        (just-one-space 0)
+                        (delete-char 1))
+                       (t
+                        (just-one-space))))
+               (message "Killed: %s" (current-kill 0))
+               (select-window
+                (cdr
+                 (ring-ref avy-ring 0)))
+               t)))
+
+  (general-add-advice
+   'avy-action-teleport
+   :around (defun user/around-avy-action-teleport (f pt)
+             (if (not (memq major-mode '(emacs-lisp-mode clojure-mode)))
+                 (f pt)
+               (avy-action-kill-stay pt)
+               (select-window
+                (cdr
+                 (ring-ref avy-ring 0)))
+               (save-excursion
+                 (cond ((lispy-looking-back lispy-left)
+                        (yank)
+                        (unless (save-excursion (forward-char) (lispy-right-p))
+                          (insert " ")))
+                       (t
+                        (insert " ")
+                        (yank))))
+               t)))
+
   (-each '(lispy-ace-char
            lispy-ace-paren
            user/lispy-ace-symbol
@@ -2277,6 +2336,8 @@ for the first action, etc) of the action to set as default."
            user/pprint-eval-defun-dwim
            lispy-down
            lispy-up
+           lispy-left
+           user/lispy-right
            user/lispy-forward-open
            user/lispy-backward-open)
     #'evil-declare-not-repeat)
@@ -2305,15 +2366,16 @@ for the first action, etc) of the action to set as default."
    'lispyville-mode-map
    "(" 'lispyville-backward-up-list
    ")" 'lispyville-up-list
+   "L" 'user/lispy-forward-open
+   "H" 'user/lispy-backward-open
    "gC" 'lispyville-comment-and-clone-dwim
    "gj" 'lispy-down
    "gk" 'lispy-up
-   "gl" 'user/lispy-forward-open
-   "gh" 'user/lispy-backward-open
+   "gh" 'lispy-left
+   "gl" 'user/lispy-right
    "zu" 'lispy-raise-sexp
-   "zd" 'lispy-raise-some
-   "zj" 'lispy-join
-   "zs" 'lispy-split
+   "zk" 'lispy-splice-sexp-killing-backward
+   "zj" 'lispy-splice-sexp-killing-forward
    "zq" 'lispy-convolute-sexp
    "zy" 'lispy-clone
    "zp" 'user/lispy-teleport-sexp
@@ -2331,6 +2393,8 @@ for the first action, etc) of the action to set as default."
    "g/" 'lispy-occur
    "g+" 'lispy-widen
    "g-" 'lispy-narrow
+   "zJ" 'lispy-join
+   "zS" 'lispy-split
    "zE" 'user/eval-defun-dwim
    "zX" 'user/pprint-eval-defun-dwim))
 
