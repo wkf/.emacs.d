@@ -1358,7 +1358,7 @@ in the current window."
   :after magit
   :init
   (setq projectile-completion-system 'ivy
-        projectile-enable-caching nil
+        projectile-enable-caching t
         projectile-track-known-projects-automatically nil
         projectile-file-exists-local-cache-expire 30
         projectile-globally-ignored-directories
