@@ -2359,7 +2359,9 @@ for the first action, etc) of the action to set as default."
   (define-eval-sexp-fu-eval-sexp eval-sexp-fu-cider-pprint-eval-sexp-to-comment
     cider-pprint-eval-last-sexp-to-comment))
 
-(use-package free-keys)
+(use-package free-keys
+  :config
+  (evil-collection-init 'free-keys))
 
 ;;;  python
 
