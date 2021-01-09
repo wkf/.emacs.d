@@ -138,21 +138,21 @@
 - [X] try all-the-icons
 - [ ] add a way to restart without loading persps
 - [ ] get rid of persistent scratch?
-- [ ] do a better job cleaning up perspectives
+- [X] do a better job cleaning up perspectives
 - [ ] change ivy actions to be more... evil
-- [ ] add C-return open in avy binds to dired
+- [X] add C-return open in avy binds to dired
 - [ ] fix avy-goto-line in visual line mode (olivetti)
-- [ ] remove extra space when lispy-teleporting
 - [ ] use find-deps/pomegranate to reload deps in clj repl
-- [ ] make R select whole symbol
-- [ ] improve perf of counsel-projectile
-- [ ] create odd-lisp-mode, based on lispy/lispyville
+- [X] make R select whole symbol
+- [X] improve perf of counsel-projectile
+- [X] create odd-lisp-mode, based on lispy/lispyville
 - [ ] refresh dired automatically after deleting something
-- [ ] Have C-9 and C-0 insert at beg and end of list?
+- [X] Have C-9 and C-0 insert at beg and end of list?
 - [ ] remove narrow/widen binds?
 - [ ] fix WORD motions skipping strings with parens
-- [ ] make ctrl-enter switch into insert mode
-- [ ] clean up extra space when teleporting
+- [X] make ctrl-enter switch into insert mode
+- [X] clean up extra space when teleporting
+- [X] fix spacing for avy-action-teleport
 
 ** Bindings
 
