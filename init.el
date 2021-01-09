@@ -709,6 +709,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 (defvar user/evil-collection-packages
   '(man
     calc
+    xref
     proced
     custom
     comint
