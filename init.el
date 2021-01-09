@@ -2341,7 +2341,8 @@ for the first action, etc) of the action to set as default."
 (use-package cider
   :after (flycheck evil-collection)
   :init
-  (setq cider-repl-pop-to-buffer-on-connect nil)
+  (setq cider-repl-pop-to-buffer-on-connect nil
+        cider-comment-postfix "\n")
   :config
   (flycheck-clojure-setup)
   (evil-collection-init 'cider)
@@ -2353,7 +2354,10 @@ for the first action, etc) of the action to set as default."
    "C-c c q" 'cider-quit))
 
 (use-package cider-eval-sexp-fu
-  :after cider lispy)
+  :after cider lispy
+  :config
+  (define-eval-sexp-fu-eval-sexp eval-sexp-fu-cider-pprint-eval-sexp-to-comment
+    cider-pprint-eval-last-sexp-to-comment))
 
 (use-package free-keys)
 
