@@ -149,6 +149,10 @@
 - [ ] create odd-lisp-mode, based on lispy/lispyville
 - [ ] refresh dired automatically after deleting something
 - [ ] Have C-9 and C-0 insert at beg and end of list?
+- [ ] remove narrow/widen binds?
+- [ ] fix WORD motions skipping strings with parens
+- [ ] make ctrl-enter switch into insert mode
+- [ ] clean up extra space when teleporting
 
 ** Bindings
 
@@ -196,6 +200,19 @@ eval
 moving up/down/forward/back through lists
 
 
+| verb        | prefix |
+|-------------+--------|
+| clone       | zy     |
+| teleport    | zp     |
+| eval        | ze     |
+| pprint-eval | zE     |
+| raise       | zu     |
+| drag-right  | zs     |
+| drag-left   | zS     |
+| widen       | zw     |
+| narrow      | zn     |
+| convolute   | zq     |
+
 
 * Code
 
@@ -226,4 +243,10 @@ Open README.org for emacs.d project.
 
 #+begin_src emacs-lisp :tangle yes
 (user/projectile-switch-to-project-file user-emacs-directory "README.org")
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(defun user/combine-undos ()
+  (unless (car buffer-undo-list)
+    (setq buffer-undo-list (cdr buffer-undo-list))))
 #+end_src
