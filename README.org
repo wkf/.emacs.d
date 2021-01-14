@@ -153,6 +153,8 @@
 - [X] make ctrl-enter switch into insert mode
 - [X] clean up extra space when teleporting
 - [X] fix spacing for avy-action-teleport
+- [ ] add flashes to commands like raise and swap?
+- [ ] really truly setup purpose, start with clojure project
 
 ** Bindings
 
@@ -213,6 +215,17 @@ moving up/down/forward/back through lists
 | narrow      | zn     |
 | convolute   | zq     |
 
+** Lispy Redux
+
+   bind C-t in insert to teleport prefix? allow teleporting in "things"
+
+   make teleport a "non-local" motion, bound to space, similar to around and inside:
+
+   SPC o [chars] -> goto symbol
+   d SPC l [chars] -> delete list
+   ze SPC a [chars] -> eval atom
+   y SPC RET [chars] -> yank line
+   zp SPC x [chars] -> "pull" sexp
 
 * Code
 
