@@ -979,6 +979,25 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   :after evil-collection
   :config
   (evil-collection-init 'prodigy)
+
+  (prodigy-define-service
+    :name "SoM Client"
+    :command "npm"
+    :args '("run" "start:dev")
+    :cwd "/Users/will/Projects/SOMv2"
+    :stop-signal 'sigkill
+    :kill-process-buffer-on-stop t)
+
+  (prodigy-define-service
+    :name "SoM Server"
+    :command "npm"
+    :args '("run" "build:dev")
+    :cwd "/Users/will/Projects/SOMv2"
+    :stop-signal 'sigkill
+    :kill-process-buffer-on-stop t)
+
+  :gfhook
+  #'turn-off-evil-snipe-mode
   :general
   ("C-c S" 'prodigy)
   :custom-face
