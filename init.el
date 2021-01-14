@@ -1088,7 +1088,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
 (use-package browse-at-remote
   :general
-  ("C-c g b" 'browse-at-remote))
+  ("C-c g o" 'browse-at-remote))
 
 (use-package hydra
   :custom-face
