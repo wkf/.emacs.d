@@ -2722,9 +2722,7 @@ When the sexp is top level, insert an additional newline."
 (use-package smartparens-config
   :straight nil)
 
-;; FIXME: for some reason this makes identifiers in js green now
 (use-package tide
-  :disabled t
   :after evil-collection
   :init
   (setq tide-filter-out-warning-completions t)
@@ -2732,7 +2730,7 @@ When the sexp is top level, insert an additional newline."
   (evil-collection-init 'tide)
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
   :ghook
-  (user/js-mode-hooks (lambda ()
+  (user/js-mode-hooks (defun user/setup-tide-mode ()
                         (tide-setup)
                         (tide-format-before-save)
                         (tide-hl-identifier-mode 1))))
