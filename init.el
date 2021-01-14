@@ -681,6 +681,10 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
       (goto-char pt)
       (helpful-at-point)))
 
+  (defun user/avy-goto-paren ()
+    (interactive)
+    (avy-with avy-goto-char (avy-jump "[([{]")))
+
   (general-add-advice
    'avy-action-mark
    :after (lambda (_)
@@ -692,6 +696,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (:states '(normal visual)
    "RET SPC" 'evil-avy-goto-char-2
    "RET RET" 'evil-avy-goto-line
+   "RET l" 'user/avy-goto-paren
    "RET w" 'evil-avy-goto-word-1
    "RET o" 'evil-avy-goto-symbol-1
    "SPC k" 'evil-avy-goto-line-above
