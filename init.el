@@ -1998,17 +1998,6 @@ for the first action, etc) of the action to set as default."
     clojurec-mode-hook
     clojurescript-mode-hook))
 
-(defun user/prettify-lisp-symbols ()
-  "Prettify Lisp symbols."
-  (push '("lambda" . "λ") prettify-symbols-alist)
-  (prettify-symbols-mode))
-
-(general-add-hook user/lisp-mode-hooks #'eldoc-mode)
-(general-add-hook user/lisp-mode-hooks #'flycheck-mode)
-(general-add-hook user/lisp-mode-hooks #'highlight-quoted-mode)
-(general-add-hook user/lisp-mode-hooks #'user/prettify-lisp-symbols)
-(general-add-hook 'emacs-lisp-mode-hook (lambda () (setq-local lisp-indent-function #'user/lisp-indent-function)))
-
 (use-package clojure-mode
   :init
   (setq clojure-indent-style :always-indent))
@@ -2596,9 +2585,16 @@ When the sexp is top level, insert an additional newline."
   (define-eval-sexp-fu-eval-sexp eval-sexp-fu-cider-pprint-eval-sexp-to-comment
     cider-pprint-eval-last-sexp-to-comment))
 
-(use-package free-keys
-  :config
-  (evil-collection-init 'free-keys))
+(defun user/prettify-lisp-symbols ()
+  "Prettify Lisp symbols."
+  (push '("lambda" . "λ") prettify-symbols-alist)
+  (prettify-symbols-mode))
+
+(general-add-hook user/lisp-mode-hooks #'eldoc-mode)
+(general-add-hook user/lisp-mode-hooks #'flycheck-mode)
+(general-add-hook user/lisp-mode-hooks #'highlight-quoted-mode)
+(general-add-hook user/lisp-mode-hooks #'user/prettify-lisp-symbols)
+(general-add-hook 'emacs-lisp-mode-hook (lambda () (setq-local lisp-indent-function #'user/lisp-indent-function)))
 
 ;;;  python
 
@@ -2814,6 +2810,10 @@ When the sexp is top level, insert an additional newline."
   ('yas-keymap
    "TAB" '(yas-next-field :predicate (not company-my-keymap))
    "S-<tab>" '(yas-prev-field :predicate (not company-my-keymap))))
+
+(use-package free-keys
+  :config
+  (evil-collection-init 'free-keys))
 
 (use-package yasnippet-snippets
   :after yasnippet)
