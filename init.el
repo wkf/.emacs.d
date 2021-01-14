@@ -1843,6 +1843,7 @@ for the first action, etc) of the action to set as default."
   ("C-c s n" 'user/run-new-eshell)
   :gfhook
   #'(lambda ()
+      (setq-local company-idle-delay 0)
       (setenv "TERM" "xterm-256color")
       (general-def 'insert 'eshell-mode-map
         "C-n" 'eshell-next-matching-input-from-input
