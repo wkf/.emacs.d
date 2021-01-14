@@ -2037,7 +2037,7 @@ for the first action, etc) of the action to set as default."
         lispy-avy-style-symbol 'at-full))
 
 (use-package lispyville
-  :after lispy
+  :after lispy cider
   :init
   (setq lispyville-motions-put-into-special nil
         lispyville-commands-put-into-special nil)
@@ -2067,12 +2067,6 @@ for the first action, etc) of the action to set as default."
                               (forward-char -1)
                               (lispy--in-string-or-comment-p))))
                      lispy-avy-style-symbol))))))
-
-  (defun user/lispy-teleport-sexp (arg)
-    (interactive "p")
-    (unless (lispyville--at-left-p)
-      (lispy-left 0))
-    (lispy-teleport arg))
 
   (defun user/lispy-parens-wrap ()
     (interactive)
@@ -2168,6 +2162,13 @@ for the first action, etc) of the action to set as default."
            (call-interactively 'eval-defun))
           ((eq major-mode 'clojure-mode)
            (call-interactively 'cider-pprint-eval-defun-at-point))))
+
+  (defun user/eval-buffer-dwim ()
+    (interactive)
+    (cond ((eq major-mode 'emacs-lisp-mode)
+           (call-interactively 'eval-buffer))
+          ((eq major-mode 'clojure-mode)
+           (call-interactively 'cider-eval-buffer))))
 
   (defun user/lispy-escape ()
     (interactive)
@@ -2364,6 +2365,125 @@ for the first action, etc) of the action to set as default."
                         (yank))))
                t)))
 
+  (general-add-advice
+   '(eval-region cider-eval-region)
+   :around (defun user/flash-eval-region (f beg end &rest args)
+             (if eval-sexp-fu-flash-mode
+                 (cl-multiple-value-bind (bounds hi unhi eflash) (eval-sexp-fu-flash (cons beg end))
+                   (if bounds
+                       (esf-flash-doit (lambda (&rest _args) (apply f beg end args)) hi unhi eflash)
+                     (apply f beg end args)))
+               (apply f beg end args))))
+
+  (evil-define-operator user/evil-eval (beg end _type)
+    "Evaluates region, exactly how depends on mode."
+    :move-point nil
+    (interactive "<R>")
+    (cond ((eq major-mode 'emacs-lisp-mode)
+           (eval-region beg end))
+          ((eq major-mode 'clojure-mode)
+           (cider-eval-region beg end))))
+
+  (evil-define-operator user/evil-repl (beg end _type)
+    "Evaluates region, exactly how depends on mode."
+    :move-point nil
+    (interactive "<R>")
+    (cond ((eq major-mode 'clojure-mode)
+           (cider-insert-region-in-repl beg end))))
+
+  (evil-define-operator user/evil-raise (beg end _type)
+    (interactive "<R>")
+    (lispy--mark (cons beg end))
+    (lispy-raise 1)
+    (deactivate-mark))
+
+  (evil-define-operator user/evil-clone (beg end _type)
+    (interactive "<R>")
+    (lispy--mark (cons beg end))
+    (lispy-clone 1)
+    (deactivate-mark))
+
+  (evil-define-operator user/evil-teleport (beg end _type)
+    (interactive "<R>")
+    (lispy--mark (cons beg end))
+    (user/lispy-teleport-sexp 1)
+    (deactivate-mark))
+
+  (defun user/lispy-repl-sexp ()
+    (interactive)
+    (let ((bounds (lispy--bounds-dwim)))
+      (cider-insert-region-in-repl (car bounds) (cdr bounds))))
+
+  (defun user/lispy-clone-sexp (arg)
+    "Clone sexp ARG times.
+When the sexp is top level, insert an additional newline."
+    (interactive "p")
+    (let* ((bnd (lispy--bounds-dwim))
+           (str (lispy--string-dwim bnd))
+           (pt (point)))
+      (cond ((region-active-p)
+             (lispy-dotimes arg
+               (cl-labels
+                   ((doit ()
+                          (let (deactivate-mark)
+                            (save-excursion
+                              (newline)
+                              (insert str)
+                              (lispy--indent-for-tab)))))
+                 (if (= (point) (region-end))
+                     (doit)
+                   (exchange-point-and-mark)
+                   (doit)
+                   (exchange-point-and-mark)))))
+            ((lispy-left-p)
+             (goto-char (car bnd))
+             (cond ((and (bolp) (looking-at "("))
+                    (lispy-dotimes arg
+                      (insert str)
+                      (newline)
+                      (newline))
+                    (goto-char pt))
+                   ((and (bolp)
+                         (save-excursion
+                           (goto-char (cdr bnd))
+                           (looking-at "\n;; =>")))
+                    (lispy-dotimes arg
+                      (insert str)
+                      (newline-and-indent)
+                      (lispy-move-down 1)))
+                   (t
+                    (lispy-dotimes arg
+                      (insert str)
+                      (newline-and-indent))
+                    (goto-char pt))))
+            ((lispy-right-p)
+             (if (save-excursion
+                   (backward-list)
+                   (and (bolp) (looking-at "(")))
+                 (lispy-dotimes arg
+                   (newline)
+                   (newline-and-indent)
+                   (insert str))
+               (lispy-dotimes arg
+                 (newline-and-indent)
+                 (insert str))))
+            (t
+             (lispy--mark bnd)
+             (lispy-dotimes arg
+               (cl-labels
+                   ((doit ()
+                          (let (deactivate-mark)
+                            (save-excursion
+                              (newline)
+                              (insert str)
+                              (lispy--indent-for-tab)))))
+                 (if (= (point) (region-end))
+                     (doit)
+                   (exchange-point-and-mark)
+                   (doit)
+                   (exchange-point-and-mark))))
+             (deactivate-mark)))))
+
   (-each '(lispy-ace-char
            lispy-ace-paren
            user/lispy-ace-symbol
@@ -2382,6 +2502,7 @@ for the first action, etc) of the action to set as default."
 
   :ghook
   user/lisp-mode-hooks
+  'cider-repl-mode-hook
   :general
   ('lispyville-mode-map
    "<C-return>" 'lispy-out-forward-newline
@@ -2404,25 +2525,21 @@ for the first action, etc) of the action to set as default."
    'lispyville-mode-map
    "(" 'lispyville-backward-up-list
    ")" 'lispyville-up-list
-   "L" 'user/lispy-forward-open
-   "H" 'user/lispy-backward-open
-   "gC" 'lispyville-comment-and-clone-dwim
    "gj" 'lispy-down
    "gk" 'lispy-up
-   "gh" 'lispy-left
-   "gl" 'user/lispy-right
-   "zu" 'lispy-raise-sexp
-   "zk" 'lispy-splice-sexp-killing-backward
-   "zj" 'lispy-splice-sexp-killing-forward
-   "zq" 'lispy-convolute-sexp
-   "zy" 'lispy-clone
-   "zp" 'user/lispy-teleport-sexp
-   "ze" 'user/eval-sexp-dwim
-   "zx" 'user/pprint-eval-sexp-dwim
-   "z(" 'lispy-move-left
-   "z)" 'lispy-move-right
-   "z>" 'lispyville-drag-forward
-   "z<" 'lispyville-drag-backward)
+   "L" 'user/lispy-forward-open
+   "H" 'user/lispy-backward-open
+   "[o" 'lispy-move-left
+   "]o" 'lispy-move-right
+   "[i" 'lispyville-drag-backward
+   "]i" 'lispyville-drag-forward
+   "[x" 'lispy-splice-sexp-killing-backward
+   "]x" 'lispy-splice-sexp-killing-forward
+   "zp" 'user/evil-teleport
+   "zy" 'user/evil-clone
+   "zu" 'user/evil-raise
+   "ze" 'user/evil-eval
+   "zi" 'user/evil-repl)
   ('normal
    'lispyville-mode-map
    "SPC SPC" 'lispy-ace-char
@@ -2431,10 +2548,15 @@ for the first action, etc) of the action to set as default."
    "g/" 'lispy-occur
    "g+" 'lispy-widen
    "g-" 'lispy-narrow
+   "gC" 'lispyville-comment-and-clone-dwim
    "zJ" 'lispy-join
    "zS" 'lispy-split
-   "zE" 'user/eval-defun-dwim
-   "zX" 'user/pprint-eval-defun-dwim))
+   "zP" 'user/lispy-teleport-sexp
+   "zY" 'user/lispy-clone-sexp
+   "zU" 'lispy-raise-sexp
+   "zE" 'user/eval-sexp-dwim
+   "zI" 'user/lispy-repl-sexp
+   "zQ" 'lispy-convolute-sexp))
 
 (use-package eval-sexp-fu
   :after lispy
