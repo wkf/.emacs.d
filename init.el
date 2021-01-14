@@ -538,7 +538,15 @@
 
   (general-add-advice 'evil-ex-setup :before 'user/-before-evil-ex-setup)
   (general-add-advice 'evil-ex-teardown :around 'user/-around-evil-ex-teardown)
+
+  (evil-define-text-object user/buffer-text-object (_count &optional _beg _end _type)
+    (list (point-min) (point-max) 'line))
+
   :general
+  ('evil-inner-text-objects-map
+   "u" 'user/buffer-text-object)
+  ('evil-outer-text-objects-map
+   "u" 'user/buffer-text-object)
   (:states '(normal visual)
    "ZZ" 'save-buffers-kill-terminal)
   (:states '(normal motion)
