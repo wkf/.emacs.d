@@ -2566,17 +2566,28 @@ When the sexp is top level, insert an additional newline."
 
 (use-package cider
   :after (flycheck evil-collection)
+  :demand t
   :init
   (setq cider-repl-pop-to-buffer-on-connect nil
-        cider-comment-postfix "\n")
+        cider-special-mode-truncate-lines nil
+        cider-comment-postfix "\n"
+        cider-print-fn 'puget
+        cider-jdk-src-paths '("/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/src.zip"))
   :config
   (flycheck-clojure-setup)
   (evil-collection-init 'cider)
+  (general-def
+    '(normal visual)
+    '(cider-mode-map cider-repl-mode-map)
+    "C-t" nil) ; interferes with my ace-window binding
   :general
-  ('(normal visual)
-   '(cider-mode-map cider-repl-mode-map)
-   "C-t" nil)              ; interferes with my ace-window binding
-  ("C-c c c" 'cider-jack-in
+  ('(normal insert)
+   'cider-repl-mode-map
+   "C-c c c" 'cider-repl-clear-buffer
+   "C-c C-c" 'cider-repl-kill-input
+   "C-p" 'cider-repl-previous-input
+   "C-n" 'cider-repl-next-input)
+  ("C-c c j" 'cider-jack-in
    "C-c c q" 'cider-quit))
 
 (use-package cider-eval-sexp-fu
