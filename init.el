@@ -698,21 +698,18 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
    "RET RET" 'evil-avy-goto-line
    "RET l" 'user/avy-goto-paren
    "RET w" 'evil-avy-goto-word-1
-   "RET o" 'evil-avy-goto-symbol-1
-   "SPC k" 'evil-avy-goto-line-above
-   "SPC j" 'evil-avy-goto-line-below
-   "SPC b" 'evil-avy-goto-word-1-above
-   "SPC w" 'evil-avy-goto-word-1-below
-   "SPC S" 'evil-avy-goto-char-2-above
-   "SPC s" 'evil-avy-goto-char-2-below
-   "SPC B" 'evil-avy-goto-symbol-1-above
-   "SPC W" 'evil-avy-goto-symbol-1-below)
+   "RET o" 'evil-avy-goto-symbol-1)
   :custom-face
   (avy-lead-face ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-lead-face-0 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-lead-face-1 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-lead-face-2 ((t (:bold t :italic nil :foreground ,(plist-get user-ui/colors :yellow) :background unspecified))))
   (avy-background-face ((t (:foreground ,(plist-get user-ui/colors :gray3) :underline nil)))))
+
+(use-package evil-easymotion
+  :after evil
+  :config
+  (evilem-default-keybindings "SPC"))
 
 (use-package daemons
   :after evil-collection
