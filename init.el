@@ -2708,11 +2708,6 @@ When the sexp is top level, insert an additional newline."
   :gfhook
   #'flycheck-mode)
 
-(use-package jest
-  :after (js2-mode rjsx-mode)
-  :ghook
-  user/js-mode-hooks)
-
 (use-package prettier-js
   :ghook
   user/js-mode-hooks)
