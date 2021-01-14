@@ -2699,6 +2699,8 @@ When the sexp is top level, insert an additional newline."
 
 (use-package rjsx-mode
   :after (flycheck evil-collection)
+  :init
+  (setq sgml-basic-offset 2)
   :mode
   ("\\.jsx\\'")
   :config
