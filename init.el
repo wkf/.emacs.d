@@ -2714,7 +2714,7 @@ When the sexp is top level, insert an additional newline."
 
 (use-package smartparens
   :ghook
-  user/js-mode-hooks)
+  (user/js-mode-hooks 'smartparens-strict-mode))
 
 (use-package smartparens-config
   :straight nil)
