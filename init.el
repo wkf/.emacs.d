@@ -763,6 +763,7 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
 
   :gfhook
   #'dired-hide-details-mode
+  #'auto-revert-mode
   :general
   (:states '(normal visual)
    "-" 'dired-jump)
