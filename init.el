@@ -1064,7 +1064,14 @@ COMPOSE-FN is a lambda that concatenates the old string at BEG with STR."
   (magit-log-date ((t (:inherit font-lock-comment-face))))
   (magit-log-graph ((t (:inherit font-lock-comment-face))))
   (magit-refname ((t (:inherit default))))
-  (magit-section-heading ((t (:inherit font-lock-type-face :weight bold)))))
+  (magit-section-heading ((t (:inherit font-lock-type-face :weight bold))))
+  (magit-blame-heading ((t (:foreground ,(plist-get user-ui/colors :gray5)
+                            :background ,(plist-get user-ui/colors :gray1)))))
+  (magit-blame-highlight ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
+  (magit-blame-hash ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
+  (magit-blame-name ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
+  (magit-blame-date ((t (:foreground ,(plist-get user-ui/colors :gray5)))))
+  (magit-blame-summary ((t (:foreground ,(plist-get user-ui/colors :gray5))))))
 
 (use-package forge
   :after magit)
