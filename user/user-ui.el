@@ -1,4 +1,4 @@
-;;; user.ui --- user ui functions
+;;; user.ui --- user ui functions -*- lexical-binding: t -*-
 ;;; Commentary:
 ;;; Code:
 

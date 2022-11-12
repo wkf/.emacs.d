@@ -68,3 +68,5 @@ site-lisp/package/
 flycheck_*.el
 /eshell/history
 /eshell/lastdir
+/projects
+/eln-cache

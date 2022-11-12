@@ -1,16 +1,16 @@
-;;; user-mode-line  --- a sassy mode line
-
+;;; user-mode-line  --- a sassy mode line -*- lexical-binding: t -*-
 ;;; Commentary:
 
 ;;; Code:
 
 (require 'f)
 (require 'vc-git)
-(require 'projectile)
+;; (require 'projectile)
 (require 'spinner)
 (require 'powerline)
 (require 'eshell)
-(require 'flycheck)
+(require 'mlscroll)
+;; (require 'flycheck)
 ;; (require 'lispyville)
 
 (defgroup user-mode-line nil
@@ -250,32 +250,29 @@
   (let* ((max-length (truncate (* (window-body-width) 0.4)))
          (buffer-path (cond (buffer-file-name
                              (let* ((default-directory (f-dirname buffer-file-name))
-                                    (buffer-path (f-relative default-directory (user/project-root)))
+                                    (buffer-path (abbreviate-file-name default-directory))
                                     (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
                                (and short-buffer-path (concat short-buffer-path "/"))))
                             ((eq major-mode 'eshell-mode)
                              (let* ((default-directory (eshell/pwd))
-                                    (buffer-path (if (projectile-project-p)
-                                                     (f-relative default-directory (user/project-root))
-                                                   (abbreviate-file-name default-directory)))
+                                    ;; (buffer-path (if (projectile-project-p)
+                                    ;;                  (f-relative default-directory (user/project-root))
+                                    ;;                (abbreviate-file-name default-directory)))
+                                    (buffer-path (abbreviate-file-name default-directory))
                                     (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
                                (if short-buffer-path
                                    (concat short-buffer-path "/")
                                  "")))
                             ((eq major-mode 'vterm-mode)
                              (let* ((default-directory (or (vterm--get-pwd 1) "."))
-                                    (buffer-path (if (projectile-project-p)
-                                                     (f-relative default-directory (user/project-root))
-                                                   (abbreviate-file-name default-directory)))
+                                    (buffer-path (abbreviate-file-name default-directory))
                                     (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
                                (if (equal short-buffer-path "./")
                                    ""
                                  short-buffer-path))
                              )
                             ((eq major-mode 'term-mode)
-                             (let* ((buffer-path (if (projectile-project-p)
-                                                     (f-relative default-directory (user/project-root))
-                                                   (abbreviate-file-name default-directory)))
+                             (let* ((buffer-path (abbreviate-file-name default-directory))
                                     (short-buffer-path (user/shorten-buffer-path buffer-path max-length)))
                                (if (equal short-buffer-path "./")
                                    ""
@@ -354,6 +351,29 @@
          "  λ  ")))
    'face (user/active-face
           (user/get-evil-state-highlight-face))))
+
+(defun user/spinner-segment ()
+  "Return a mode-line segment for the current evil state."
+  (unless user/-mode-line-spinner
+    (setq user/-mode-line-spinner (make-spinner 'rotating-line t)))
+  (propertize
+   (if (user/mode-line-spinner-spinning-p)
+       (concat
+        "  "
+        (spinner-start-print user/-mode-line-spinner)
+        "  ")
+     (progn
+       (spinner-stop user/-mode-line-spinner)
+       (if user/-mode-line-alert-level
+           (concat "  "
+                   (pcase user/-mode-line-alert-level
+                     ('warn "?")
+                     ('error "!")
+                     (_ "*"))
+                   "  ")
+         "  λ  ")))
+   'face (user/active-face
+          'user/mode-line-emacs-state)))
 
 (defun user/git-p ()
   "Can we find git."
@@ -632,25 +652,41 @@
                (buffer-read-only 'user/mode-line-locked)
                (t 'user/mode-line-buffer-name))))))
 
+;; (defun user-mode-line ()
+;;   "Return mode-line format."
+;;   `("%e"
+;;     (:eval
+;;      (let ((lhs (list
+;;                  (powerline-raw (user/evil-state-segment))
+;;                  (powerline-raw " ")
+;;                  (powerline-raw (user/project-name-segment))
+;;                  (powerline-raw (user/buffer-path-segment))
+;;                  (powerline-raw (user/buffer-name-segment))))
+;;            (rhs (list
+;;                  (powerline-raw (user/flycheck-segment))
+;;                  (powerline-raw " ")
+;;                  (powerline-hud (user/active-face
+;;                                  (user/get-evil-state-highlight-face))
+;;                                 'user/mode-line-hud-disabled 5))))
+;;        (concat
+;;         (powerline-render lhs)
+;;         (powerline-fill (user/active-face 'mode-line) (powerline-width rhs))
+;;         (powerline-render rhs))))))
+
 (defun user-mode-line ()
   "Return mode-line format."
   `("%e"
     (:eval
      (let ((lhs (list
-                 (powerline-raw (user/evil-state-segment))
+                 (powerline-raw (user/spinner-segment))
                  (powerline-raw " ")
-                 (powerline-raw (user/project-name-segment))
                  (powerline-raw (user/buffer-path-segment))
                  (powerline-raw (user/buffer-name-segment))))
            (rhs (list
-                 (powerline-raw (user/flycheck-segment))
-                 (powerline-raw " ")
-                 (powerline-hud (user/active-face
-                                 (user/get-evil-state-highlight-face))
-                                'user/mode-line-hud-disabled 5))))
+                 (powerline-raw (mlscroll-mode-line)))))
        (concat
         (powerline-render lhs)
-        (powerline-fill (user/active-face 'mode-line) (powerline-width rhs))
+        (powerline-fill (user/active-face 'mode-line) 40)
         (powerline-render rhs))))))
 
 (defun user-mode-line/treemacs ()
